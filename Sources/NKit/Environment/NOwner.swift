@@ -26,7 +26,7 @@ extension NOwner {
         return mirror
             .children
             .compactMap { child in
-                guard String(describing: child.value).hasPrefix("SwiftUIKit.NEnvironment") else {
+                guard String(describing: child.value).hasPrefix(environmentPrefix) else {
                     return nil
                 }
                 guard let ownable: NOwnable = child.value as? NOwnable else {
@@ -42,7 +42,7 @@ extension NOwner {
         let mirror = Mirror(reflecting: self)
         
         for child in mirror.children {
-            guard String(describing: child.value).hasPrefix("SwiftUIKit.NEnvironment") else {
+            guard String(describing: child.value).hasPrefix(environmentPrefix) else {
                 continue
             }
             guard let value: NEnvironment<T> = child.value as? NEnvironment<T> else {
@@ -55,5 +55,16 @@ extension NOwner {
         }
         
         return nil
+    }
+    
+    private var modulePrefix: String {
+        String(reflecting: self)
+            .components(separatedBy: ".")
+            .first?
+            .replacingOccurrences(of: "<", with: "") ?? ""
+    }
+    
+    private var environmentPrefix: String {
+        "\(modulePrefix).NEnvironment"
     }
 }

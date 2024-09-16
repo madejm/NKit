@@ -68,7 +68,7 @@ public class ViewStack: BaseView {
         fatalError("init(coder:) has not been implemented")
     }
     
-    private func setupSubviews() {
+    internal func setupSubviews() {
         self.addSubviewAutomatically(self.stack)
     }
 }

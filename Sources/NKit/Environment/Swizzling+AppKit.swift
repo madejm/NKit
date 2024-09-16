@@ -39,8 +39,10 @@ extension NSView {
         }
         
         swizzle(
-            selector: #selector(NSView.viewDidMoveToSuperview),
-            with: #selector(NSView.viewDidMoveToSuperview_env),
+            selector: #selector(NSView.init(frame:)),
+            with: #selector(NSView.init(env_frame:)),
+//            selector: #selector(NSView.viewDidMoveToSuperview),
+//            with: #selector(NSView.viewDidMoveToSuperview_env),
             on: NSView.self
         )
         
@@ -48,13 +50,15 @@ extension NSView {
     }
     
     @objc
-    private func viewDidMoveToSuperview_env() {
+    private convenience init(env_frame frameRect: NSRect) {
+        self.init(env_frame: frameRect)
+//    private func viewDidMoveToSuperview_env() {
         self.ownables()
             .forEach {
                 $0.owner = self
             }
         
-        self.viewDidMoveToSuperview_env()
+//        self.viewDidMoveToSuperview_env()
     }
 }
 #endif
