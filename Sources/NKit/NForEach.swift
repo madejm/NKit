@@ -11,12 +11,12 @@ internal protocol AnyNForEach {
 public final class NForEach<D>: NView, AnyNForEach where D: RandomAccessCollection {
     private let data: D
     private let separator: (() -> NView)?
-    private let content: (D.Element) -> NView
+    private let content: (D.Element) -> [NView]
     
     public init(
         _ data: D,
         separator: (() -> NView)? = nil,
-        content: @escaping (D.Element) -> NView
+        @NViewBuilder content: @escaping (D.Element) -> [NView]
     ) {
         self.data = data
         self.separator = separator
@@ -26,7 +26,7 @@ public final class NForEach<D>: NView, AnyNForEach where D: RandomAccessCollecti
     public convenience init<N>(
         _ data: NBinding<N>,
         separator: (() -> NView)? = nil,
-        content: @escaping (D.Element) -> NView
+        @NViewBuilder content: @escaping (D.Element) -> [NView]
     ) where N: RandomAccessCollection, D == NGet<N> {
         self.init(
             data.get,
@@ -43,7 +43,7 @@ public final class NForEach<D>: NView, AnyNForEach where D: RandomAccessCollecti
                 views.append(separator())
             }
             
-            views.append(content(element.element))
+            views.append(contentsOf: content(element.element))
         }
         
         return views

@@ -6,8 +6,12 @@ import UIKit
 #endif
 
 public final class NGrid: BaseView {
+    private struct WeakView {
+        fileprivate weak var value: _View?
+    }
+    
     @NEnvironment(\.gridParent) private var gridParent
-    internal var guides: [_View] = []
+    private var guides: [WeakView] = []
     
     public init(
         _ content: () -> _View
@@ -23,74 +27,29 @@ public final class NGrid: BaseView {
         super.removeFromSuperview()
         self.gridParent = nil
     }
-}
-
-public final class NGridRow: NHStack {
-    @NEnvironment(\.gridParent) private var gridParent
-    private var gridConstraints: [NSLayoutConstraint] = []
     
-    public override init(
-        alignment: Alignment = .center,
-        spacing: CGFloat = 0,
-        stretching: Stretching = .none,
-        @NViewBuilder _ content: @escaping ViewCreator
-    ) {
-        super.init(
-            alignment: alignment,
-            spacing: spacing,
-            stretching: stretching,
-            content
-        )
-    }
-    
-    public override func viewDidMoveToWindow() {
-        super.viewDidMoveToWindow()
-        
-        self.stack.arrangedSubviews
-            .forEach {
-                $0.setContentCompressionResistancePriority(.required, for: .horizontal)
-                $0.setContentHuggingPriority(.defaultHigh, for: .horizontal)
-            }
-        
-        self.gridConstraints
-            .forEach {
-                $0.isActive = false
-            }
-        
-        self.gridConstraints = self
-            .stack
-            .arrangedSubviews
-            .enumerated()
-            .compactMap() { index, view in
-                self.gridParent?.guides.equalWidth(at: index, with: view)
-            }
-    }
-}
-
-internal struct GridEnvironmentKey: NEnvironmentKey {
-    internal static let defaultValue: NGrid? = nil
-}
-
-extension NEnvironmentValues {
-    internal var gridParent: NGrid? {
-        get { self[GridEnvironmentKey.self] }
-        set { self[GridEnvironmentKey.self] = newValue }
-    }
-}
-
-extension Array where Element == _View {
-    fileprivate mutating func equalWidth(
+    internal func equalSize(
+        width: Bool,
         at index: Int,
         with anotherView: _View
     ) -> NSLayoutConstraint? {
-        guard index < self.count else {
-            self.append(anotherView)
+        self.guides.removeAll {
+            $0.value == nil
+        }
+        
+        guard index < self.guides.count, let view: _View = self.guides[index].value else {
+            self.guides.append(.init(value: anotherView))
             return nil
         }
         
-        let view: _View = self[index]
+        let constraint: NSLayoutConstraint
         
-        let constraint: NSLayoutConstraint = view.widthAnchor.constraint(equalTo: anotherView.widthAnchor)
+        if width {
+            constraint = view.widthAnchor.constraint(equalTo: anotherView.widthAnchor)
+        } else {
+            constraint = view.heightAnchor.constraint(equalTo: anotherView.heightAnchor)
+        }
+        
         constraint.isActive = true
         return constraint
     }
