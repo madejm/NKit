@@ -27,7 +27,7 @@ extension _View {
         gesture.target = gestureHandler
         gesture.action = #selector(GestureHandler.fire)
         
-        self[associatedId: UUID().hashValue] = gestureHandler
+        self[associatedId: .gestureHandler] = gestureHandler
         
         self.addGestureRecognizer(gesture)
         
