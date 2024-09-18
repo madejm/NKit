@@ -1,11 +1,12 @@
 import Foundation
-#if canImport(AppKit)
-import AppKit
+#if canImport(UIKit)
+import UIKit
 
-open class BaseViewController: NSViewController {
-    private let customView: NSView
-    public init(_ customView: NSView) {
-        self.customView = customView
+open class NBaseViewController: UIViewController {
+    internal let controlledView: NControlledView
+    
+    public init(_ controlledView: NControlledView) {
+        self.controlledView = controlledView
         
         super.init(nibName: nil, bundle: nil)
     }
@@ -16,8 +17,7 @@ open class BaseViewController: NSViewController {
     }
     
     open override func loadView() {
-        view = customView
-        view.wantsLayer = true
+        view = controlledView.body
     }
 }
 #endif
