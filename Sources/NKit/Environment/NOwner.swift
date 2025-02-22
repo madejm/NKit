@@ -1,7 +1,9 @@
 import Foundation
 
+@MainActor
 internal protocol NOwner: AnyObject {}
 
+@MainActor
 internal protocol NOwnable: AnyObject {
     var owner: NOwner? { get set }
 }

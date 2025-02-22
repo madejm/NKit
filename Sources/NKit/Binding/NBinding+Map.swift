@@ -2,8 +2,8 @@ import Foundation
 
 extension NBinding {
     public func map<M>(
-        up: @escaping (Value) -> M,
-        down: @escaping (M) -> Value
+        up: @escaping @MainActor (Value) -> M,
+        down: @escaping @MainActor (M) -> Value
     ) -> NBinding<M> {
         let newBinding: NBinding<M> = .init(get: {
             up(self.wrappedValue)
@@ -22,7 +22,7 @@ extension NBinding {
     }
     
     public func map<M>(
-        up: @escaping (Value) -> M
+        up: @escaping @MainActor (Value) -> M
     ) -> NBinding<M> where Value == Optional<M> {
         self.map(up: up, down: {
             $0
@@ -30,7 +30,7 @@ extension NBinding {
     }
     
     public func map(
-        down: @escaping (Value?) -> Value
+        down: @escaping @MainActor (Value?) -> Value
     ) -> NBinding<Value?> {
         self.map(up: {
             $0

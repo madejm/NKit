@@ -5,10 +5,11 @@ import AppKit
 import UIKit
 #endif
 
-public typealias ViewCreator = () -> [NView]
+//public typealias ViewCreator = () -> [NView]
 
 /// Abstraction over a view or collection of views (in `ForEach`)
 /// Think as of SwiftUI's `View`
+@MainActor
 public protocol NView {}
 extension _View: NView {}
 
@@ -48,7 +49,7 @@ extension NView {
     }
     
     internal func views(
-        onChange: @escaping (ClosedRange<Int>, AnyNForEach) -> Void
+        onChange: @escaping @MainActor (ClosedRange<Int>, AnyNForEach) -> Void
     ) -> [_View] {
         if let view = self as? _View {
             return [view]
@@ -78,14 +79,16 @@ extension NView {
 }
 
 extension Array where Element == NView {
+    @MainActor
     fileprivate var viewsCount: Int {
         self.reduce(into: 0) {
             $0 += $1.viewsCount
         }
     }
     
+    @MainActor
     fileprivate func mapToViews(
-        onChange: @escaping (ClosedRange<Int>, AnyNForEach) -> Void
+        onChange: @escaping @MainActor (ClosedRange<Int>, AnyNForEach) -> Void
     ) -> [_View] {
         var views: [_View] = []
         

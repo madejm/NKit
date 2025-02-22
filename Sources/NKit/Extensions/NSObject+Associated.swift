@@ -6,8 +6,8 @@ extension NSObject {
         case gestureHandler
         case cancellables
         
-        fileprivate static var _gestureHandler = "gestureHandler"
-        fileprivate static var _cancellables = "cancellables"
+        nonisolated(unsafe) fileprivate static var _gestureHandler = "gestureHandler"
+        nonisolated(unsafe) fileprivate static var _cancellables = "cancellables"
         
         fileprivate var key: UnsafeRawPointer {
             switch self {

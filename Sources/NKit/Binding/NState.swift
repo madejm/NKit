@@ -1,5 +1,6 @@
 import Foundation
 
+@MainActor
 @propertyWrapper
 public final class NState<Value: Equatable> {
     private var binding: NBinding<Value>!

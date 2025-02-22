@@ -8,14 +8,14 @@ import UIKit
 extension Button {
     public convenience init(
         _ text: String,
-        action: @escaping () -> Void
+        action: @escaping @MainActor () -> Void
     ) {
         self.init(NGet.constant(text), action: action)
     }
     
     public convenience init(
         _ textBinding: NBinding<String>,
-        action: @escaping () -> Void
+        action: @escaping @MainActor () -> Void
     ) {
         self.init(textBinding.get, action: action)
     }

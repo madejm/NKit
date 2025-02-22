@@ -1,13 +1,15 @@
 import Foundation
 
+@MainActor
 internal protocol AnyNForEach {
     var forEachViews: [NView] { get }
     
     func onDataChange(
-        changed: @escaping () -> Void
+        changed: @escaping @MainActor () -> Void
     )
 }
 
+@MainActor
 public final class NForEach<D>: NView, AnyNForEach where D: RandomAccessCollection {
     private let data: D
     private let separator: (() -> NView)?
@@ -16,7 +18,7 @@ public final class NForEach<D>: NView, AnyNForEach where D: RandomAccessCollecti
     public init(
         _ data: D,
         separator: (() -> NView)? = nil,
-        @NViewBuilder content: @escaping (D.Element) -> [NView]
+        @NViewBuilder content: @escaping @MainActor (D.Element) -> [NView]
     ) {
         self.data = data
         self.separator = separator
@@ -26,7 +28,7 @@ public final class NForEach<D>: NView, AnyNForEach where D: RandomAccessCollecti
     public convenience init<N>(
         _ data: NBinding<N>,
         separator: (() -> NView)? = nil,
-        @NViewBuilder content: @escaping (D.Element) -> [NView]
+        @NViewBuilder content: @escaping @MainActor (D.Element) -> [NView]
     ) where N: RandomAccessCollection, D == NGet<N> {
         self.init(
             data.get,
@@ -52,7 +54,7 @@ public final class NForEach<D>: NView, AnyNForEach where D: RandomAccessCollecti
 
 extension NForEach {
     internal func onDataChange(
-        changed: @escaping () -> Void
+        changed: @escaping @MainActor () -> Void
     ) {
         guard let changeable = data as? Changeable else {
             return

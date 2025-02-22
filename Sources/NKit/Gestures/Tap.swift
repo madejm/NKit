@@ -2,10 +2,11 @@ import Foundation
 #if canImport(AppKit)
 import AppKit
 
+@MainActor
 private final class GestureHandler {
     internal let callback: () -> Void
     
-    internal init(callback: @escaping () -> Void) {
+    internal init(callback: @escaping @MainActor () -> Void) {
         self.callback = callback
     }
     
@@ -18,7 +19,7 @@ private final class GestureHandler {
 extension _View {
     public func onTapGesture(
         count: Int = 1,
-        action: @escaping () -> Void
+        action: @escaping @MainActor () -> Void
     ) -> Self {
         let gestureHandler = GestureHandler(callback: action)
         

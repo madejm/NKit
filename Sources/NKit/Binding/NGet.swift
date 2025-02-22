@@ -1,6 +1,7 @@
 import Foundation
 import Combine
 
+@MainActor
 @propertyWrapper @dynamicMemberLookup
 public final class NGet<Value: Equatable> {
     private let getClosure: () -> Value
@@ -24,12 +25,12 @@ public final class NGet<Value: Equatable> {
     }
     
     public init(
-        get: @escaping () -> Value
+        get: @escaping @MainActor () -> Value
     ) {
         self.getClosure = get
     }
     
-    public func onChange(_ new: @escaping (Value) -> Void) {
+    public func onChange(_ new: @escaping @MainActor (Value) -> Void) {
         let subject = PassthroughSubject<Value, Never>()
         
         subject

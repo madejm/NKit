@@ -16,7 +16,7 @@ extension NBinding {
 
 extension NGet {
     public func map<M>(
-        up: @escaping (Value) -> M
+        up: @escaping @MainActor (Value) -> M
     ) -> NGet<M> {
         let newGetter: NGet<M> = .init(get: {
             up(self.wrappedValue)

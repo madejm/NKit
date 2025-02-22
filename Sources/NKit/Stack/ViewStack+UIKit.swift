@@ -4,14 +4,14 @@ import UIKit
 
 public class ViewStack: BaseView {
     internal let stack: UIStackView
-    internal let content: ViewCreator
+    internal let content: /*@MainActor*/ () -> [NView]
     
     internal init(
         alignment: BaseAlignment,
         orientation: Orientation,
         spacing: CGFloat,   
         stretching: Stretching,
-        @NViewBuilder content: @escaping ViewCreator
+        @NViewBuilder content: @escaping /*@MainActor*/ () -> [NView]
     ) {
         self.content = content
         self.stack = UIStackView()

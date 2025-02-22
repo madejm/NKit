@@ -3,6 +3,7 @@ import Foundation
 import AppKit
 
 extension NSColor {
+    @MainActor
     public func view() -> NSView {
         BaseView().apply {
             $0.layer?.backgroundColor = self.cgColor

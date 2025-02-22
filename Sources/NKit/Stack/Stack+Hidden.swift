@@ -17,7 +17,8 @@ extension _View {
     public func hidden(_ hiddenBinding: NGet<Bool>) -> Self {
         let initialValue: Bool = hiddenBinding.wrappedValue
         
-        OperationQueue.main.addOperation { [weak self] in
+//        OperationQueue.main.addOperation { [weak self] in
+        Task { @MainActor [weak self] in
             self?.firstViewInStack?.isHidden = initialValue
         }
         

@@ -8,7 +8,7 @@ open class Button: UIButton {
     
     public init(
         _ textBinding: NGet<String>,
-        action: @escaping () -> Void
+        action: @escaping @MainActor () -> Void
     ) {
         self._textBinding = textBinding
         self.buttonAction = action

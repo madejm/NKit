@@ -5,6 +5,7 @@ import AppKit
 import UIKit
 #endif
 
+@MainActor
 @frozen
 public enum NEdge: Equatable {
     case top, bottom, leading, trailing

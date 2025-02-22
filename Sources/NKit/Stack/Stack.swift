@@ -10,7 +10,7 @@ public class NVStack: ViewStack {
         alignment: Alignment = .leading,
         spacing: CGFloat = 0,
         stretching: Stretching = .none,
-        @NViewBuilder _ content: @escaping ViewCreator
+        @NViewBuilder _ content: @escaping @MainActor () -> [NView]
     ) {
         super.init(
             alignment: alignment.alignment,
@@ -27,7 +27,7 @@ public class NHStack: ViewStack {
         alignment: Alignment = .center,
         spacing: CGFloat = 0,
         stretching: Stretching = .none,
-        @NViewBuilder _ content: @escaping ViewCreator
+        @NViewBuilder _ content: @escaping @MainActor () -> [NView]
     ) {
         super.init(
             alignment: alignment.alignment,

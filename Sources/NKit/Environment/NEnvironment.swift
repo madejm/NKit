@@ -9,6 +9,7 @@ import UIKit
 /// ```
 /// @NEnvironment(\.foreground) private var foreground
 /// ```
+@MainActor
 @propertyWrapper
 public final class NEnvironment<Value: Equatable>: NOwnable {
     private var values = NEnvironmentValues()
@@ -17,6 +18,7 @@ public final class NEnvironment<Value: Equatable>: NOwnable {
     internal let keyPath: KeyPath<NEnvironmentValues, Value>
     internal unowned var owner: NOwner?
     
+    @MainActor
     public var wrappedValue: Value {
         didSet {
             self.binding.wrappedValue = wrappedValue
@@ -24,6 +26,7 @@ public final class NEnvironment<Value: Equatable>: NOwnable {
         }
     }
     
+    @MainActor
     public var projectedValue: NGet<Value> {
         self.binding.get
     }

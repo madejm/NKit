@@ -1,6 +1,7 @@
 import Foundation
 import Combine
 
+@MainActor
 @propertyWrapper @dynamicMemberLookup
 public final class NBinding<Value: Equatable> {
     private let getClosure: () -> Value
@@ -31,14 +32,14 @@ public final class NBinding<Value: Equatable> {
     }
     
     public init(
-        get: @escaping () -> Value,
-        set: @escaping (Value) -> Void
+        get: @escaping @MainActor () -> Value,
+        set: @escaping @MainActor (Value) -> Void
     ) {
         self.getClosure = get
         self.setClosure = set
     }
     
-    public func onChange(_ new: @escaping (Value) -> Void) {
+    public func onChange(_ new: @escaping @MainActor (Value) -> Void) {
         let subject = PassthroughSubject<Value, Never>()
         
         subject

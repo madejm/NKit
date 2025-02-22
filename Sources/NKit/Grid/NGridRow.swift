@@ -20,7 +20,7 @@ public final class NGridRow: NHStack {
         alignment: Alignment = .center,
         spacing: CGFloat = 0,
         stretching: Stretching = .none,
-        @NViewBuilder _ content: @escaping ViewCreator
+        @NViewBuilder _ content: @escaping @MainActor () -> [NView]
     ) {
         super.init(
             alignment: alignment,

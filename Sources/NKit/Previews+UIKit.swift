@@ -6,7 +6,7 @@ import UIKit
 public struct UIViewControllerPreview<ViewController: UIViewController>: UIViewControllerRepresentable {
     private let viewController: ViewController
 
-    public init(_ builder: @escaping () -> ViewController) {
+    public init(_ builder: @escaping @MainActor () -> ViewController) {
         viewController = builder()
     }
     
@@ -22,7 +22,7 @@ public struct UIViewControllerPreview<ViewController: UIViewController>: UIViewC
 public struct UIViewPreview<View: UIView>: UIViewRepresentable {
     private let view: View
     
-    public init(_ builder: @escaping () -> View) {
+    public init(_ builder: @escaping @MainActor () -> View) {
         view = builder()
     }
     

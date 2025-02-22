@@ -13,7 +13,7 @@ extension NBinding {
     public static func combine(
         _ one: NBinding<Value>,
         _ two: NBinding<Value>,
-        operation: @escaping (Value, Value) -> Value
+        operation: @escaping @MainActor (Value, Value) -> Value
     ) -> NBinding<Value> {
         let newBinding: NBinding<Value> = .init(get: {
             operation(one.wrappedValue, two.wrappedValue)

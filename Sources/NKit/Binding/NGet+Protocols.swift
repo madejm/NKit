@@ -6,7 +6,7 @@ extension NGet: Sequence where Value: MutableCollection, Value.Element: Equatabl
     public typealias SubSequence = Slice<NGet<Value>>
 }
 
-extension NGet: Collection where Value: MutableCollection, Value.Element: Equatable {
+extension NGet: @preconcurrency Collection where Value: MutableCollection, Value.Element: Equatable {
     public typealias Index = Value.Index
     public typealias Indices = Value.Indices
     
@@ -40,7 +40,7 @@ extension NGet: Collection where Value: MutableCollection, Value.Element: Equata
     }
 }
 
-extension NGet: BidirectionalCollection where Value: BidirectionalCollection, Value: MutableCollection, Value.Element: Equatable {
+extension NGet: @preconcurrency BidirectionalCollection where Value: BidirectionalCollection, Value: MutableCollection, Value.Element: Equatable {
     public func index(before i: NGet<Value>.Index) -> NGet<Value>.Index {
         self.wrappedValue.index(before: i)
     }
@@ -50,5 +50,5 @@ extension NGet: BidirectionalCollection where Value: BidirectionalCollection, Va
     }
 }
 
-extension NGet: RandomAccessCollection where Value: MutableCollection, Value: RandomAccessCollection, Value.Element: Equatable {
+extension NGet: @preconcurrency RandomAccessCollection where Value: MutableCollection, Value: RandomAccessCollection, Value.Element: Equatable {
 }

@@ -3,6 +3,7 @@ import Foundation
 import AppKit
 
 extension NSImage {
+    @MainActor
     public func view() -> NSView {
         let imageView = NSImageView(image: self)
         
