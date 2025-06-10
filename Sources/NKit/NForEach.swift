@@ -18,7 +18,7 @@ public final class NForEach<D>: NView, AnyNForEach where D: RandomAccessCollecti
     public init(
         _ data: D,
         separator: (() -> NView)? = nil,
-        @NViewBuilder content: @escaping @MainActor (D.Element) -> [NView]
+        @NViewBuilder content: @escaping /*@MainActor*/ (D.Element) -> [NView]
     ) {
         self.data = data
         self.separator = separator
@@ -28,7 +28,7 @@ public final class NForEach<D>: NView, AnyNForEach where D: RandomAccessCollecti
     public convenience init<N>(
         _ data: NBinding<N>,
         separator: (() -> NView)? = nil,
-        @NViewBuilder content: @escaping @MainActor (D.Element) -> [NView]
+        @NViewBuilder content: @escaping /*@MainActor*/ (D.Element) -> [NView]
     ) where N: RandomAccessCollection, D == NGet<N> {
         self.init(
             data.get,

@@ -5,6 +5,7 @@ import AppKit
 import UIKit
 #endif
 
+@MainActor
 public protocol NControlledView {
     var body: _View { get }
 }

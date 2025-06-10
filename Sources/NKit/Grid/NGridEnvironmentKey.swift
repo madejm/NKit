@@ -7,13 +7,13 @@
 
 import Foundation
 
-internal struct NGridEnvironmentKey: NEnvironmentKey {
-    internal static let defaultValue: NGrid? = nil
-}
-
-extension NEnvironmentValues {
-    internal var gridParent: NGrid? {
-        get { self[NGridEnvironmentKey.self] }
-        set { self[NGridEnvironmentKey.self] = newValue }
-    }
-}
+//internal struct NGridEnvironmentKey: NEnvironmentKey {
+//    internal static let defaultValue: NGrid? = nil
+//}
+//
+//extension NEnvironmentValues {
+//    internal var gridParent: NGrid? {
+//        get { self[NGridEnvironmentKey.self] }
+//        set { self[NGridEnvironmentKey.self] = newValue }
+//    }
+//}
