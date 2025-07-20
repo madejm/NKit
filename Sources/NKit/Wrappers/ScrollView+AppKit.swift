@@ -3,7 +3,20 @@ import Foundation
 import AppKit
 
 open class ScrollView: NSScrollView {
+    public struct Axis: OptionSet {
+        nonisolated(unsafe) public static let horizontal = Axis(rawValue: 1 << 0)
+        nonisolated(unsafe) public static let vertical = Axis(rawValue: 1 << 1)
+        nonisolated(unsafe) public static let both: Axis = [.horizontal, .vertical]
+        
+        public let rawValue: Int8
+        
+        public init(rawValue: Int8) {
+            self.rawValue = rawValue
+        }
+    }
+    
     public init(
+        axes: Axis = .both,
         _ content: NSView
     ) {
         super.init(frame: .zero)
@@ -19,8 +32,8 @@ open class ScrollView: NSScrollView {
         ])
         
         self.scrollerStyle = .overlay
-        self.hasHorizontalScroller = true
-        self.hasVerticalScroller = true
+        self.hasHorizontalScroller = axes.contains(.horizontal)
+        self.hasVerticalScroller = axes.contains(.vertical)
         self.autohidesScrollers = true
     }
     
