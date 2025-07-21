@@ -1,4 +1,5 @@
 import Foundation
+import MQ
 
 extension NBinding {
     public func map<M>(
@@ -130,5 +131,39 @@ extension NGet where Value == Bool {
                 !$0
             }
         )
+    }
+}
+
+extension NBinding {
+    public func value<K, V>(
+        key: K
+    ) -> NBinding<V?> where Value == Dictionary<K, V> {
+        let newBinding: NBinding<V?> = .init(get: {
+            self.wrappedValue[key]
+        }, set: { _ in
+        })
+        
+        self.onChange { newValue in
+            let value: V? = newValue[key]
+            newBinding.wrappedValue = value
+        }
+        
+        return newBinding
+    }
+    
+    public func value<V>(
+        index: Int
+    ) -> NBinding<V?> where Value == Array<V> {
+        let newBinding: NBinding<V?> = .init(get: {
+            self.wrappedValue[index]
+        }, set: { _ in
+        })
+        
+        self.onChange { newValue in
+            let value: V? = newValue[safe: index]
+            newBinding.wrappedValue = value
+        }
+        
+        return newBinding
     }
 }
