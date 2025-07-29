@@ -140,12 +140,16 @@ extension NBinding {
     ) -> NBinding<V?> where Value == Dictionary<K, V> {
         let newBinding: NBinding<V?> = .init(get: {
             self.wrappedValue[key]
-        }, set: { _ in
+        }, set: {
+            self.wrappedValue[key] = $0
         })
         
         self.onChange { newValue in
             let value: V? = newValue[key]
             newBinding.wrappedValue = value
+        }
+        newBinding.onChange { [weak self] newValue in
+            self?.wrappedValue[key] = newValue
         }
         
         return newBinding
@@ -156,12 +160,22 @@ extension NBinding {
     ) -> NBinding<V?> where Value == Array<V> {
         let newBinding: NBinding<V?> = .init(get: {
             self.wrappedValue[index]
-        }, set: { _ in
+        }, set: { newValue in
+            guard let newValue else {
+                return
+            }
+            self.wrappedValue[index] = newValue
         })
         
         self.onChange { newValue in
             let value: V? = newValue[safe: index]
             newBinding.wrappedValue = value
+        }
+        newBinding.onChange { [weak self] newValue in
+            guard let newValue else {
+                return
+            }
+            self?.wrappedValue.safe(set: newValue, index: index)
         }
         
         return newBinding
