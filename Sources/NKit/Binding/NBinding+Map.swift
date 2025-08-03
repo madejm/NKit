@@ -1,5 +1,4 @@
 import Foundation
-import MQ
 
 extension NBinding {
     public func map<M>(
@@ -168,14 +167,14 @@ extension NBinding {
         })
         
         self.onChange { newValue in
-            let value: V? = newValue[safe: index]
+            let value: V? = newValue[index]
             newBinding.wrappedValue = value
         }
         newBinding.onChange { [weak self] newValue in
             guard let newValue else {
                 return
             }
-            self?.wrappedValue.safe(set: newValue, index: index)
+            self?.wrappedValue[index] = newValue
         }
         
         return newBinding
