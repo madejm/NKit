@@ -25,6 +25,20 @@ public final class NForEach<D>: NView, AnyNForEach where D: RandomAccessCollecti
         self.content = content
     }
     
+    public init<Key, Value>(
+        _ dictionary: [Key: Value],
+        separator: (() -> NView)? = nil,
+        @NViewBuilder content: @escaping @MainActor (_ key: D.Element, _ value: Value) -> [NView]
+    ) where Key: Comparable, D == Array<Key> {
+        let array: [D.Element] = Array(dictionary.keys).sorted()
+        
+        self.data = array
+        self.separator = separator
+        self.content = { key in
+            content(key, dictionary[key]!)
+        }
+    }
+    
     public convenience init<N>(
         _ data: NBinding<N>,
         separator: (() -> NView)? = nil,

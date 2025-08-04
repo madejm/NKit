@@ -8,6 +8,7 @@ open class Button: NSButton {
     
     public init(
         _ textBinding: NGet<String>,
+        bezelStyle: NSButton.BezelStyle = .rounded,
         action: @escaping @MainActor () -> Void
     ) {
         self._textBinding = textBinding
@@ -15,7 +16,7 @@ open class Button: NSButton {
         
         super.init(frame: .zero)
         
-        self.bezelStyle = .rounded
+        self.bezelStyle = bezelStyle
         self.setButtonType(.momentaryPushIn)
         self.title = textBinding.wrappedValue
         self.target = self

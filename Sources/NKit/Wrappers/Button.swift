@@ -8,15 +8,25 @@ import UIKit
 extension Button {
     public convenience init(
         _ text: String,
+        bezelStyle: NSButton.BezelStyle = .rounded,
         action: @escaping @MainActor () -> Void
     ) {
-        self.init(NGet.constant(text), action: action)
+        self.init(
+            NGet.constant(text),
+            bezelStyle: bezelStyle,
+            action: action
+        )
     }
     
     public convenience init(
         _ textBinding: NBinding<String>,
+        bezelStyle: NSButton.BezelStyle = .rounded,
         action: @escaping @MainActor () -> Void
     ) {
-        self.init(textBinding.get, action: action)
+        self.init(
+            textBinding.get,
+            bezelStyle: bezelStyle,
+            action: action
+        )
     }
 }

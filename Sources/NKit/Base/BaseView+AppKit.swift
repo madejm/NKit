@@ -21,7 +21,7 @@ open class BaseView: NSView {
 }
 
 extension NSView {
-    internal func prepare() {
+    public func prepare() {
         self.translatesAutoresizingMaskIntoConstraints = false
         self.layer?.backgroundColor = NSColor.clear.cgColor
     }
