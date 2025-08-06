@@ -9,7 +9,7 @@ open class Button: NSButton {
     public init(
         _ textBinding: NGet<String>,
         bezelStyle: NSButton.BezelStyle = .rounded,
-        action: @escaping @MainActor () -> Void
+        @_inheritActorContext action: @escaping () -> Void
     ) {
         self._textBinding = textBinding
         self.buttonAction = action

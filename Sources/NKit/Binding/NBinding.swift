@@ -39,7 +39,9 @@ public final class NBinding<Value: Equatable> {
         self.setClosure = set
     }
     
-    public func onChange(_ new: @escaping @MainActor (Value) -> Void) {
+    public func onChange(
+        _ new: @escaping (Value) -> Void
+    ) {
         let subject = PassthroughSubject<Value, Never>()
         
         subject

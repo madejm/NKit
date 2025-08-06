@@ -7,7 +7,7 @@ extension NBinding {
         })
         
         self.onChange { newValue in
-            newGetter.wrappedValue = newValue
+            newGetter.signalChange(newValue)
         }
         
         return newGetter
@@ -23,7 +23,7 @@ extension NGet {
         })
         
         self.onChange { newValue in
-            newGetter.wrappedValue = up(newValue)
+            newGetter.signalChange(up(newValue))
         }
         
         return newGetter
@@ -38,7 +38,7 @@ extension NGet {
         
         self.onChange { newValue in
             let value: T = newValue[keyPath: keyPath]
-            newBinding.wrappedValue = value
+            newBinding.signalChange(value)
         }
         
         return newBinding

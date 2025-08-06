@@ -48,5 +48,8 @@ open class NBaseViewController: NSViewController {
         
         self.releaseChecker.expect()
     }
+    
+    open func windowDidClose() {
+    }
 }
 #endif

@@ -9,7 +9,7 @@ extension Button {
     public convenience init(
         _ text: String,
         bezelStyle: NSButton.BezelStyle = .rounded,
-        action: @escaping @MainActor () -> Void
+        action: @escaping () -> Void
     ) {
         self.init(
             NGet.constant(text),
@@ -21,7 +21,7 @@ extension Button {
     public convenience init(
         _ textBinding: NBinding<String>,
         bezelStyle: NSButton.BezelStyle = .rounded,
-        action: @escaping @MainActor () -> Void
+        action: @escaping () -> Void
     ) {
         self.init(
             textBinding.get,

@@ -5,7 +5,7 @@ internal protocol AnyNForEach {
     var forEachViews: [NView] { get }
     
     func onDataChange(
-        changed: @escaping @MainActor () -> Void
+        changed: @escaping () -> Void
     )
 }
 
@@ -18,7 +18,7 @@ public final class NForEach<D>: NView, AnyNForEach where D: RandomAccessCollecti
     public init(
         _ data: D,
         separator: (() -> NView)? = nil,
-        @NViewBuilder content: @escaping @MainActor (D.Element) -> [NView]
+        @NViewBuilder content: @escaping (D.Element) -> [NView]
     ) {
         self.data = data
         self.separator = separator
@@ -28,7 +28,7 @@ public final class NForEach<D>: NView, AnyNForEach where D: RandomAccessCollecti
     public init<Key, Value>(
         _ dictionary: [Key: Value],
         separator: (() -> NView)? = nil,
-        @NViewBuilder content: @escaping @MainActor (_ key: D.Element, _ value: Value) -> [NView]
+        @NViewBuilder content: @escaping (_ key: D.Element, _ value: Value) -> [NView]
     ) where Key: Comparable, D == Array<Key> {
         let array: [D.Element] = Array(dictionary.keys).sorted()
         
@@ -42,7 +42,7 @@ public final class NForEach<D>: NView, AnyNForEach where D: RandomAccessCollecti
     public convenience init<N>(
         _ data: NBinding<N>,
         separator: (() -> NView)? = nil,
-        @NViewBuilder content: @escaping @MainActor (D.Element) -> [NView]
+        @NViewBuilder content: @escaping (D.Element) -> [NView]
     ) where N: RandomAccessCollection, D == NGet<N> {
         self.init(
             data.get,
@@ -68,7 +68,7 @@ public final class NForEach<D>: NView, AnyNForEach where D: RandomAccessCollecti
 
 extension NForEach {
     internal func onDataChange(
-        changed: @escaping @MainActor () -> Void
+        changed: @escaping () -> Void
     ) {
         guard let changeable = data as? Changeable else {
             return

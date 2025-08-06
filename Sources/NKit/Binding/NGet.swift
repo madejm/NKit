@@ -10,14 +10,7 @@ public final class NGet<Value: Equatable> {
     private var onSets: [PassthroughSubject<Value, Never>] = []
     
     public var wrappedValue: Value {
-        get {
-            self.getClosure()
-        }
-        set {
-            self.onSets.forEach { subject in
-                subject.send(newValue)
-            }
-        }
+        self.getClosure()
     }
     
     public var projectedValue: NGet<Value> {
@@ -30,7 +23,15 @@ public final class NGet<Value: Equatable> {
         self.getClosure = get
     }
     
-    public func onChange(_ new: @escaping @MainActor (Value) -> Void) {
+    internal func signalChange(_ newValue: Value) {
+        self.onSets.forEach { subject in
+            subject.send(newValue)
+        }
+    }
+    
+    public func onChange(
+        _ new: @escaping (Value) -> Void
+    ) {
         let subject = PassthroughSubject<Value, Never>()
         
         subject

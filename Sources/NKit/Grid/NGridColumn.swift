@@ -20,7 +20,7 @@ public final class NGridColumn: NVStack {
         alignment: Alignment = .center,
         spacing: CGFloat = 0,
         stretching: Stretching = .none,
-        @NViewBuilder _ content: @escaping @MainActor () -> [NView]
+        @NViewBuilder _ content: @escaping () -> [NView]
     ) {
         super.init(
             alignment: alignment,

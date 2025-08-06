@@ -6,7 +6,7 @@ public class ViewStack: BaseView {
     internal let stack: NSStackView
     internal let content: /*@MainActor*/ () -> [NView]
     
-    internal init(
+    public init(
         alignment: BaseAlignment,
         orientation: Orientation,
         spacing: CGFloat,

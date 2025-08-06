@@ -9,7 +9,7 @@ import UIKit
 extension _View {
     public func onChange<Value>(
         of binding: NBinding<Value>,
-        perform action: @escaping @MainActor (Value) -> Void
+        perform action: @escaping (Value) -> Void
     ) -> Self {
         binding
             .onChange {
@@ -21,7 +21,7 @@ extension _View {
     
     public func onChange<Value>(
         of state: NState<Value>,
-        perform action: @escaping @MainActor (Value) -> Void
+        perform action: @escaping (Value) -> Void
     ) -> Self {
         state
             .projectedValue
@@ -34,7 +34,7 @@ extension _View {
     
     public func onChange(
         set closureProperty: inout (() -> Void)?,
-        perform action: @escaping @MainActor () -> Void
+        perform action: @escaping () -> Void
     ) -> Self {
         closureProperty = action
         
@@ -43,7 +43,7 @@ extension _View {
     
     public func onReceive<P>(
         _ publisher: P,
-        perform action: @escaping @MainActor (P.Output) -> Void
+        perform action: @escaping (P.Output) -> Void
     ) -> Self where P : Publisher, P.Failure == Never {
         publisher
             .sink {
