@@ -155,26 +155,41 @@ extension NBinding {
     }
     
     public func value<V>(
-        index: Int
-    ) -> NBinding<V?> where Value == Array<V> {
+        index: Value.Index
+    ) -> NBinding<V?> where Value: MutableCollection<V> {
         let newBinding: NBinding<V?> = .init(get: {
-            self.wrappedValue[index]
+            guard index < self.wrappedValue.endIndex else {
+                return nil
+            }
+            return self.wrappedValue[index]
         }, set: { newValue in
             guard let newValue else {
+                return
+            }
+            guard index < self.wrappedValue.endIndex else {
                 return
             }
             self.wrappedValue[index] = newValue
         })
         
         self.onChange { newValue in
+            guard index < newValue.endIndex else {
+                return
+            }
             let value: V? = newValue[index]
             newBinding.wrappedValue = value
         }
         newBinding.onChange { [weak self] newValue in
+            guard let self else {
+                return
+            }
             guard let newValue else {
                 return
             }
-            self?.wrappedValue[index] = newValue
+            guard index < self.wrappedValue.endIndex else {
+                return
+            }
+            self.wrappedValue[index] = newValue
         }
         
         return newBinding

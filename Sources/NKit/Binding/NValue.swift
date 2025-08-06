@@ -10,3 +10,26 @@ public final class NValue<Value> {
         self.wrappedValue = wrappedValue
     }
 }
+
+extension NValue where Value: Equatable {
+    @MainActor
+    public var get: NGet<Value> {
+        .init(
+            get: {
+                self.wrappedValue
+            }
+        )
+    }
+    
+    @MainActor
+    public var binding: NBinding<Value> {
+        .init(
+            get: {
+                self.wrappedValue
+            },
+            set: {
+                self.wrappedValue = $0
+            }
+        )
+    }
+}

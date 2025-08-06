@@ -1,12 +1,12 @@
 import Foundation
 
-extension NGet: Sequence where Value: MutableCollection, Value.Element: Equatable {
+extension NGet: Sequence where Value: Collection, Value.Element: Equatable {
     public typealias Element = NGet<Value.Element?>
     public typealias Iterator = IndexingIterator<NGet<Value>>
     public typealias SubSequence = Slice<NGet<Value>>
 }
 
-extension NGet: @preconcurrency Collection where Value: MutableCollection, Value.Element: Equatable {
+extension NGet: @preconcurrency Collection where Value: Collection, Value.Element: Equatable {
     public typealias Index = Value.Index
     public typealias Indices = Value.Indices
     
@@ -31,16 +31,18 @@ extension NGet: @preconcurrency Collection where Value: MutableCollection, Value
     }
     
     public subscript(position: NGet<Value>.Index) -> NGet<Value>.Element {
-        self.map(up: { collection in
-            guard position < collection.endIndex else {
-                return nil
+        self.map(
+            up: { (collection: Value) -> Value.Element? in
+                guard position < collection.endIndex else {
+                    return nil
+                }
+                return collection[position]
             }
-            return collection[position]
-        })
+        )
     }
 }
 
-extension NGet: @preconcurrency BidirectionalCollection where Value: BidirectionalCollection, Value: MutableCollection, Value.Element: Equatable {
+extension NGet: @preconcurrency BidirectionalCollection where Value: BidirectionalCollection, Value.Element: Equatable {
     public func index(before i: NGet<Value>.Index) -> NGet<Value>.Index {
         self.wrappedValue.index(before: i)
     }
@@ -50,5 +52,5 @@ extension NGet: @preconcurrency BidirectionalCollection where Value: Bidirection
     }
 }
 
-extension NGet: @preconcurrency RandomAccessCollection where Value: MutableCollection, Value: RandomAccessCollection, Value.Element: Equatable {
+extension NGet: @preconcurrency RandomAccessCollection where Value: RandomAccessCollection, Value.Element: Equatable {
 }

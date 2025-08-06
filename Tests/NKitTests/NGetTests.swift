@@ -110,4 +110,26 @@ struct NGetTests {
         #expect(onChangeCalls == 2)
         #expect(changedValue == "ONE TWO")
     }
+    
+    @Test func testGetDynamicMember() {
+        struct TestStruct: Equatable {
+            var number: Int = 0
+        }
+        
+        nonisolated(unsafe) let value: NValue<TestStruct> = .init(wrappedValue: .init())
+        
+        let get: NGet<TestStruct> = .init(
+            get: {
+                value.wrappedValue
+            }
+        )
+        
+        #expect(get.wrappedValue.number == 0)
+        #expect(get.number.wrappedValue == 0)
+        
+        value.wrappedValue.number = 1
+        
+        #expect(get.wrappedValue.number == 1)
+        #expect(get.number.wrappedValue == 1)
+    }
 }

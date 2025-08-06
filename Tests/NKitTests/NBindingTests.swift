@@ -14,14 +14,8 @@ struct NBindingTests {
     @Test func testBinding() {
         nonisolated(unsafe) let value: NValue<Int> = .init(wrappedValue: 0)
         
-        let binding: NBinding<Int> = .init(
-            get: {
-                value.wrappedValue
-            },
-            set: {
-                value.wrappedValue = $0
-            }
-        )
+        let binding: NBinding<Int> = value.binding
+        
         let childBinding: NBinding<String> = binding.map(
             up: {
                 String($0)
@@ -66,5 +60,52 @@ struct NBindingTests {
         #expect(changedValue == 2)
         #expect(onChangeChildCalls == 2)
         #expect(changedChildValue == "2")
+    }
+    
+    @Test func testBindingDynamicMember() {
+        struct TestStruct: Equatable {
+            var number: Int = 0
+        }
+        
+        nonisolated(unsafe) let value: NValue<TestStruct> = .init(wrappedValue: .init())
+        
+        let binding: NBinding<TestStruct> = value.binding
+        
+        #expect(binding.wrappedValue.number == 0)
+        #expect(binding.number.wrappedValue == 0)
+        
+        value.wrappedValue.number = 1
+        #expect(binding.wrappedValue.number == 1)
+        #expect(binding.number.wrappedValue == 1)
+        
+        binding.number.wrappedValue = 2
+        #expect(binding.wrappedValue.number == 2)
+        #expect(binding.number.wrappedValue == 2)
+    }
+    
+    @Test func testBindingOptionalValue() {
+        nonisolated(unsafe) let value: NValue<[Int]> = .init(wrappedValue: [1, 2])
+        
+        let binding: NBinding<[Int]> = value.binding
+        
+        let bindingAtIndex: NBinding<Int?> = binding.value(index: 1)
+        
+        #expect(binding.wrappedValue == [1, 2])
+        #expect(bindingAtIndex.wrappedValue == 2)
+        
+        bindingAtIndex.wrappedValue = 3
+        #expect(binding.wrappedValue == [1, 3])
+        
+        binding.wrappedValue = [1, 4, 5]
+        #expect(bindingAtIndex.wrappedValue == 4)
+        
+        bindingAtIndex.wrappedValue = nil
+        #expect(binding.wrappedValue == [1, 4, 5])
+        
+        binding.wrappedValue = [1]
+        #expect(bindingAtIndex.wrappedValue == nil)
+        
+        bindingAtIndex.wrappedValue = 2
+        #expect(binding.wrappedValue == [1])
     }
 }
