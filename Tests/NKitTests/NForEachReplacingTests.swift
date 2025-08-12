@@ -1,5 +1,6 @@
 import Testing
 import AppKit
+import SwiftUI
 @testable import NKit
 
 @Suite("NForEachReplacingTests")
@@ -66,8 +67,8 @@ struct NForEachReplacingTests {
         var newViewsCreated: Int = 0
         
         let rootView = NHStack {
-            NForEach(binding) { (outer: NGet<Int?>) in
-                NForEach(nestedBinding) { (inner: NGet<String?>) in
+            NForEach(binding, DEBUG_LABEL: "OUTER") { (outer: NGet<Int?>) in
+                NForEach(nestedBinding, DEBUG_LABEL: "INNER \(outer.wrappedValue.map { String($0) } ?? "?")") { (inner: NGet<String?>) in
                     if let value1 = outer.wrappedValue,
                        let value2 = inner.wrappedValue {
                         {
@@ -81,59 +82,65 @@ struct NForEachReplacingTests {
             }
         }
         
+        func printStack() {
+            print("")
+            print("STACK:")
+            
+            for i in 0..<rootView.stack.arrangedSubviews.count {
+                print("\(i): \(rootView.stack.arrangedSubviews[i].asText?.stringValue ?? "")")
+            }
+        }
+        
+        printStack()
         #expect(rootView.stack.subviews.count == 2)
         #expect(newViewsCreated == 2)
-        #expect(rootView.stack.subviews[0].asText?.stringValue == "0 A")
-        #expect(rootView.stack.subviews[1].asText?.stringValue == "1 A")
+        #expect(rootView.stack.arrangedSubviews[0].asText?.stringValue == "0 A")
+        #expect(rootView.stack.arrangedSubviews[1].asText?.stringValue == "1 A")
         
         print("\n🔧 Appending B")
         newViewsCreated = 0
         nestedBinding.wrappedValue.append("B")
+        printStack()
         #expect(rootView.stack.subviews.count == 4)
         #expect(newViewsCreated == 2)
-        #expect(rootView.stack.subviews[0].asText?.stringValue == "0 A")
-        #expect(rootView.stack.subviews[1].asText?.stringValue == "0 B")
-        #expect(rootView.stack.subviews[2].asText?.stringValue == "1 A")
-        #expect(rootView.stack.subviews[3].asText?.stringValue == "1 B")
+        #expect(rootView.stack.arrangedSubviews[0].asText?.stringValue == "0 A")
+        #expect(rootView.stack.arrangedSubviews[1].asText?.stringValue == "0 B")
+        #expect(rootView.stack.arrangedSubviews[2].asText?.stringValue == "1 A")
+        #expect(rootView.stack.arrangedSubviews[3].asText?.stringValue == "1 B")
         
         print("\n🔧 Replacing B with C")
         newViewsCreated = 0
         nestedBinding[1].wrappedValue = "C"
-        #expect(rootView.stack.subviews.count == 4)
+        printStack()
+        #expect(rootView.stack.arrangedSubviews.count == 4)
         #expect(newViewsCreated == 2)
-        #expect(rootView.stack.subviews[0].asText?.stringValue == "0 A")
-        #expect(rootView.stack.subviews[1].asText?.stringValue == "0 C")
-        #expect(rootView.stack.subviews[2].asText?.stringValue == "1 A")
-        #expect(rootView.stack.subviews[3].asText?.stringValue == "1 C")
+        #expect(rootView.stack.arrangedSubviews[0].asText?.stringValue == "0 A")
+        #expect(rootView.stack.arrangedSubviews[1].asText?.stringValue == "0 C")
+        #expect(rootView.stack.arrangedSubviews[2].asText?.stringValue == "1 A")
+        #expect(rootView.stack.arrangedSubviews[3].asText?.stringValue == "1 C")
         
         print("\n🔧 Replacing 1 with 2")
         newViewsCreated = 0
         binding[1].wrappedValue = 2
-        #expect(rootView.stack.subviews.count == 4)
+        printStack()
+        #expect(rootView.stack.arrangedSubviews.count == 4)
         #expect(newViewsCreated == 2)
-        #expect(rootView.stack.subviews[0].asText?.stringValue == "0 A")
-        #expect(rootView.stack.subviews[1].asText?.stringValue == "0 C")
-        #expect(rootView.stack.subviews[2].asText?.stringValue == "2 A")
-        #expect(rootView.stack.subviews[3].asText?.stringValue == "2 C")
+        #expect(rootView.stack.arrangedSubviews[0].asText?.stringValue == "0 A")
+        #expect(rootView.stack.arrangedSubviews[1].asText?.stringValue == "0 C")
+        #expect(rootView.stack.arrangedSubviews[2].asText?.stringValue == "2 A")
+        #expect(rootView.stack.arrangedSubviews[3].asText?.stringValue == "2 C")
         
         print("🔧 Inserting D")
         newViewsCreated = 0
         nestedBinding.wrappedValue.insert("D", at: 1)
-        #expect(rootView.stack.subviews.count == 6)
+        printStack()
+        #expect(rootView.stack.arrangedSubviews.count == 6)
         #expect(newViewsCreated == 2)
-        #expect(rootView.stack.subviews[0].asText?.stringValue == "0 A")
-        #expect(rootView.stack.subviews[1].asText?.stringValue == "0 D")
-        #expect(rootView.stack.subviews[2].asText?.stringValue == "0 C")
-        #expect(rootView.stack.subviews[3].asText?.stringValue == "2 A")
-        #expect(rootView.stack.subviews[4].asText?.stringValue == "2 D")
-        #expect(rootView.stack.subviews[5].asText?.stringValue == "2 C")
-        
-        print("")
-        print("")
-        print("")
-        
-        for i in 0..<rootView.stack.subviews.count {
-            print("\(i): \(rootView.stack.subviews[i].asText?.stringValue)")
-        }
+        #expect(rootView.stack.arrangedSubviews[0].asText?.stringValue == "0 A")
+        #expect(rootView.stack.arrangedSubviews[1].asText?.stringValue == "0 D")
+        #expect(rootView.stack.arrangedSubviews[2].asText?.stringValue == "0 C")
+        #expect(rootView.stack.arrangedSubviews[3].asText?.stringValue == "2 A")
+        #expect(rootView.stack.arrangedSubviews[4].asText?.stringValue == "2 D")
+        #expect(rootView.stack.arrangedSubviews[5].asText?.stringValue == "2 C")
     }
 }

@@ -49,7 +49,7 @@ extension NView {
     }
     
     internal func views(
-        onChange: @escaping @MainActor (_ range: Range<Int>, _ newViews: [_View]) -> Void
+        onChange: @escaping @MainActor (_ range: Range<Int>, _ changes: [Change<_View>]) -> Void
     ) -> [_View] {
         if let view = self as? _View {
             return [view]
@@ -64,10 +64,22 @@ extension NView {
                 onChange($0, $1)
             })
             
-            forEach.onDataChange { (removeCount: Int, newViews: [NView]) in
-                let changedViews: [_View] = newViews.views(onChange: onChange)
+            forEach.onDataChange { (removeCount: Int, changes: [Change<NView>]) in
+                let changes: [Change<_View>] = changes
+                    .map { (change: Change<NView>) in
+                        switch change {
+                        case .remove(let at, let count):
+                            return .remove(at: at, count: count)
+                        case .keep(let views):
+                            return .keep(views: views.views(onChange: onChange))
+                        case .move(let from, let to, let views):
+                            return .move(from: from, to: to, views: views.views(onChange: onChange))
+                        case .insert(let at, let views):
+                            return .insert(at: at, views: views.views(onChange: onChange))
+                        }
+                    }
                 
-                onChange(0..<removeCount, changedViews)
+                onChange(0..<removeCount, changes)
             }
             
             return views
@@ -86,19 +98,19 @@ extension Array where Element == NView {
     
     @MainActor
     fileprivate func mapToViews(
-        onChange: @escaping @MainActor (_ range: Range<Int>, _ newViews: [_View]) -> Void
+        onChange: @escaping @MainActor (_ range: Range<Int>, _ changes: [Change<_View>]) -> Void
     ) -> [_View] {
         var views: [_View] = []
         
         for i in 0..<self.count {
             let nView: NView = self[i]
             
-            let subviews: [_View] = nView.views(onChange: { (range: Range<Int>, newViews: [_View]) in
+            let subviews: [_View] = nView.views(onChange: { (range: Range<Int>, changes: [Change<_View>]) in
                 
                 let start: Int = self.viewCount(upTo: i)
                 let replaceRange: Range<Int> = (start + range.lowerBound)..<(start + range.upperBound)
                 
-                onChange(replaceRange, newViews)
+                onChange(replaceRange, changes)
             })
             
             views.append(contentsOf: subviews)
