@@ -49,7 +49,7 @@ extension NView {
     }
     
     internal func views(
-        onChange: @escaping @MainActor (ClosedRange<Int>, AnyNForEach) -> Void
+        onChange: @escaping @MainActor (_ range: Range<Int>, _ newViews: [_View]) -> Void
     ) -> [_View] {
         if let view = self as? _View {
             return [view]
@@ -64,15 +64,13 @@ extension NView {
                 onChange($0, $1)
             })
             
-            var lastViewCount: Int = views.count
-            
-            forEach.onDataChange {
-                onChange(0...(lastViewCount-1), forEach)
-                lastViewCount = forEach.forEachViews.viewsCount
+            forEach.onDataChange { (removeCount: Int, newViews: [NView]) in
+                let changedViews: [_View] = newViews.views(onChange: onChange)
+                
+                onChange(0..<removeCount, changedViews)
             }
             
             return views
-                
         }
         fatalError("NView type not handled: \(String(describing: self))")
     }
@@ -88,27 +86,42 @@ extension Array where Element == NView {
     
     @MainActor
     fileprivate func mapToViews(
-        onChange: @escaping @MainActor (ClosedRange<Int>, AnyNForEach) -> Void
+        onChange: @escaping @MainActor (_ range: Range<Int>, _ newViews: [_View]) -> Void
     ) -> [_View] {
         var views: [_View] = []
         
         for i in 0..<self.count {
             let nView: NView = self[i]
             
-            let subviews: [_View] = nView.views(onChange: { range, nForEach in
-                let currentCount: Int = (0..<i)
-                    .reduce(into: 0) {
-                        $0 += self[$1].viewsCount
-                    }
+            let subviews: [_View] = nView.views(onChange: { (range: Range<Int>, newViews: [_View]) in
                 
-                let low: Int = currentCount + range.lowerBound
-                let upp: Int = currentCount + range.upperBound
-                onChange(low...upp, nForEach)
+                let start: Int = self.viewCount(upTo: i)
+                let replaceRange: Range<Int> = (start + range.lowerBound)..<(start + range.upperBound)
+                
+                onChange(replaceRange, newViews)
             })
             
             views.append(contentsOf: subviews)
         }
         
         return views
+    }
+}
+
+extension Array where Element == NView {
+    @MainActor
+    internal func viewCount(upTo index: Int) -> Int {
+        guard index > 0 else {
+            return 0
+        }
+        
+        var sum: Int = 0
+        
+        for i in 0..<index {
+            let view: NView = self[i]
+            sum += view.viewsCount
+        }
+        
+        return sum
     }
 }

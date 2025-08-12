@@ -13,24 +13,33 @@ extension ViewStack {
         
         var arrangedSubviews: [_View] = []
         
-        let readyContent = self.content()
+        let readyContent: [NView] = self.content()
         
         for i in 0..<readyContent.count {
             let nView: NView = readyContent[i]
             
-            let views: [_View] = nView.views(onChange: { [weak self] range, nForEach in
+            let views: [_View] = nView.views(onChange: { [weak self] (range: Range<Int>, newViews: [_View]) in
                 guard let self = self else {
                     return
                 }
-                let newContent = self.content()
-                let currentCount: Int = (0..<i)
-                    .reduce(into: 0) {
-                        $0 += newContent[$1].viewsCount
-                    }
                 
-                let low: Int = currentCount + range.lowerBound
-                let upp: Int = currentCount + range.upperBound
-                self.replaceViews(at: low...upp, with: nForEach)
+                let start: Int = readyContent.viewCount(upTo: i)
+                let replaceRange: Range<Int> = (start + range.lowerBound)..<(start + range.upperBound)
+                
+                for _ in replaceRange {
+                    guard replaceRange.lowerBound < self.stack.arrangedSubviews.count else {
+//                        fatalError("What da heck")
+                        continue
+                    }
+                    let view: _View = self.stack.arrangedSubviews[replaceRange.lowerBound]
+                    view.removeFromSuperview()
+                }
+                
+                for newViewIndex in 0..<newViews.count {
+                    let newView: _View = newViews[newViewIndex]
+                    let newIndex: Int = replaceRange.lowerBound + newViewIndex
+                    self.stack.insertArrangedSubview(newView, at: newIndex)
+                }
             })
             
             arrangedSubviews.append(contentsOf: views)
@@ -38,32 +47,6 @@ extension ViewStack {
         
         for subview in arrangedSubviews {
             self.stack.addArrangedSubview(subview)
-        }
-    }
-    
-    private func replaceViews(
-        at range: ClosedRange<Int>,
-        with nForEach: AnyNForEach
-    ) {
-        for _ in range {
-            if self.stack.arrangedSubviews.count <= range.lowerBound {
-                fatalError("What da heck")
-            }
-            let view: _View = self.stack.arrangedSubviews[range.lowerBound]
-            view.removeFromSuperview()
-        }
-        
-        let nViews: [NView] = nForEach.forEachViews
-        let views: [_View] = nViews.views(onChange: { [weak self] newRange, newNForEach in
-            let low: Int = range.lowerBound + newRange.lowerBound
-            let upp: Int = range.lowerBound + newRange.upperBound
-            self?.replaceViews(at: low...upp, with: newNForEach)
-        })
-        
-        for i in 0..<views.count {
-            let view: _View = views[i]
-            let index: Int = range.lowerBound + i
-            self.stack.insertArrangedSubview(view, at: index)
         }
     }
 }

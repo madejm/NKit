@@ -148,12 +148,12 @@ struct ViewTests {
 }
 
 extension NSView {
-    fileprivate var asText: NSTextField? {
+    var asText: NSTextField? {
         #expect(self is NSTextField)
         return self as? NSTextField
     }
     
-    fileprivate var asStack: NSStackView? {
+    var asStack: NSStackView? {
         #expect(self is ViewStack)
         let viewStack = self as? ViewStack
         return viewStack?.stack
