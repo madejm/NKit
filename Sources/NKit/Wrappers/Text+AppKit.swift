@@ -41,4 +41,10 @@ public final class Text: NSTextField {
         fatalError("init(coder:) has not been implemented")
     }
 }
+
+extension Text: @MainActor CustomReflectable {
+    public var customMirror: Mirror {
+        Mirror(reflecting: stringValue)
+    }
+}
 #endif

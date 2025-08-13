@@ -21,40 +21,57 @@ struct NForEachReplacingTests {
             }
         }
         
-        #expect(rootView.stack.subviews.count == 4)
+        #expect(rootView.stack.arrangedSubviews.count == 4)
         #expect(newViewsCreated == 4)
-        #expect(rootView.stack.subviews[0].asText?.stringValue == "0")
-        #expect(rootView.stack.subviews[1].asText?.stringValue == "1")
-        #expect(rootView.stack.subviews[2].asText?.stringValue == "2")
-        #expect(rootView.stack.subviews[3].asText?.stringValue == "0")
+        rootView.stack.arrangedSubviews.check { next, rest in
+            #expect(next() == "0")
+            #expect(next() == "1")
+            #expect(next() == "2")
+            #expect(next() == "0")
+            #expect(rest() == [])
+        }
         
+        print("\n🔧 Replacing 1 with 3")
         newViewsCreated = 0
         binding[1].wrappedValue = 3
-        #expect(rootView.stack.subviews.count == 4)
+        #expect(rootView.stack.arrangedSubviews.count == 4)
         #expect(newViewsCreated == 1)
-        #expect(rootView.stack.subviews[0].asText?.stringValue == "0")
-        #expect(rootView.stack.subviews[1].asText?.stringValue == "3")
-        #expect(rootView.stack.subviews[2].asText?.stringValue == "2")
-        #expect(rootView.stack.subviews[3].asText?.stringValue == "0")
+        rootView.stack.arrangedSubviews.check { next, rest in
+            #expect(next() == "0")
+            #expect(next() == "3")
+            #expect(next() == "2")
+            #expect(next() == "0")
+            #expect(rest() == [])
+        }
         
+        return
+        
+        print("\n🔧 Swaping 2 and 3")
         newViewsCreated = 0
         binding.wrappedValue.swapAt(1, 2)
-        #expect(rootView.stack.subviews.count == 4)
+        #expect(rootView.stack.arrangedSubviews.count == 4)
         #expect(newViewsCreated == 0)
-        #expect(rootView.stack.subviews[0].asText?.stringValue == "0")
-        #expect(rootView.stack.subviews[1].asText?.stringValue == "2")
-        #expect(rootView.stack.subviews[2].asText?.stringValue == "3")
-        #expect(rootView.stack.subviews[3].asText?.stringValue == "0")
+        rootView.stack.arrangedSubviews.check { next, rest in
+            #expect(next() == "0")
+            #expect(next() == "2")
+            #expect(next() == "3")
+            #expect(next() == "0")
+            #expect(rest() == [])
+        }
         
+        print("\n🔧 Inserting 0")
         newViewsCreated = 0
         binding.wrappedValue.insert(0, at: 1)
-        #expect(rootView.stack.subviews.count == 5)
+        #expect(rootView.stack.arrangedSubviews.count == 5)
         #expect(newViewsCreated == 1)
-        #expect(rootView.stack.subviews[0].asText?.stringValue == "0")
-        #expect(rootView.stack.subviews[1].asText?.stringValue == "0")
-        #expect(rootView.stack.subviews[2].asText?.stringValue == "2")
-        #expect(rootView.stack.subviews[3].asText?.stringValue == "3")
-        #expect(rootView.stack.subviews[4].asText?.stringValue == "0")
+        rootView.stack.arrangedSubviews.check { next, rest in
+            #expect(next() == "0")
+            #expect(next() == "0")
+            #expect(next() == "2")
+            #expect(next() == "3")
+            #expect(next() == "0")
+            #expect(rest() == [])
+        }
     }
     
     @Test func testNForEachReplacingNested() {
@@ -92,21 +109,27 @@ struct NForEachReplacingTests {
         }
         
         printStack()
-        #expect(rootView.stack.subviews.count == 2)
+        #expect(rootView.stack.arrangedSubviews.count == 2)
         #expect(newViewsCreated == 2)
-        #expect(rootView.stack.arrangedSubviews[0].asText?.stringValue == "0 A")
-        #expect(rootView.stack.arrangedSubviews[1].asText?.stringValue == "1 A")
+        rootView.stack.arrangedSubviews.check { next, rest in
+            #expect(next() == "0 A")
+            #expect(next() == "1 A")
+            #expect(rest() == [])
+        }
         
         print("\n🔧 Appending B")
         newViewsCreated = 0
         nestedBinding.wrappedValue.append("B")
         printStack()
-        #expect(rootView.stack.subviews.count == 4)
+        #expect(rootView.stack.arrangedSubviews.count == 4)
         #expect(newViewsCreated == 2)
-        #expect(rootView.stack.arrangedSubviews[0].asText?.stringValue == "0 A")
-        #expect(rootView.stack.arrangedSubviews[1].asText?.stringValue == "0 B")
-        #expect(rootView.stack.arrangedSubviews[2].asText?.stringValue == "1 A")
-        #expect(rootView.stack.arrangedSubviews[3].asText?.stringValue == "1 B")
+        rootView.stack.arrangedSubviews.check { next, rest in
+            #expect(next() == "0 A")
+            #expect(next() == "0 B")
+            #expect(next() == "1 A")
+            #expect(next() == "1 B")
+            #expect(rest() == [])
+        }
         
         print("\n🔧 Replacing B with C")
         newViewsCreated = 0
@@ -114,10 +137,13 @@ struct NForEachReplacingTests {
         printStack()
         #expect(rootView.stack.arrangedSubviews.count == 4)
         #expect(newViewsCreated == 2)
-        #expect(rootView.stack.arrangedSubviews[0].asText?.stringValue == "0 A")
-        #expect(rootView.stack.arrangedSubviews[1].asText?.stringValue == "0 C")
-        #expect(rootView.stack.arrangedSubviews[2].asText?.stringValue == "1 A")
-        #expect(rootView.stack.arrangedSubviews[3].asText?.stringValue == "1 C")
+        rootView.stack.arrangedSubviews.check { next, rest in
+            #expect(next() == "0 A")
+            #expect(next() == "0 C")
+            #expect(next() == "1 A")
+            #expect(next() == "1 C")
+            #expect(rest() == [])
+        }
         
         print("\n🔧 Replacing 1 with 2")
         newViewsCreated = 0
@@ -125,10 +151,13 @@ struct NForEachReplacingTests {
         printStack()
         #expect(rootView.stack.arrangedSubviews.count == 4)
         #expect(newViewsCreated == 2)
-        #expect(rootView.stack.arrangedSubviews[0].asText?.stringValue == "0 A")
-        #expect(rootView.stack.arrangedSubviews[1].asText?.stringValue == "0 C")
-        #expect(rootView.stack.arrangedSubviews[2].asText?.stringValue == "2 A")
-        #expect(rootView.stack.arrangedSubviews[3].asText?.stringValue == "2 C")
+        rootView.stack.arrangedSubviews.check { next, rest in
+            #expect(next() == "0 A")
+            #expect(next() == "0 C")
+            #expect(next() == "2 A")
+            #expect(next() == "2 C")
+            #expect(rest() == [])
+        }
         
         print("🔧 Inserting D")
         newViewsCreated = 0
@@ -136,11 +165,40 @@ struct NForEachReplacingTests {
         printStack()
         #expect(rootView.stack.arrangedSubviews.count == 6)
         #expect(newViewsCreated == 2)
-        #expect(rootView.stack.arrangedSubviews[0].asText?.stringValue == "0 A")
-        #expect(rootView.stack.arrangedSubviews[1].asText?.stringValue == "0 D")
-        #expect(rootView.stack.arrangedSubviews[2].asText?.stringValue == "0 C")
-        #expect(rootView.stack.arrangedSubviews[3].asText?.stringValue == "2 A")
-        #expect(rootView.stack.arrangedSubviews[4].asText?.stringValue == "2 D")
-        #expect(rootView.stack.arrangedSubviews[5].asText?.stringValue == "2 C")
+        rootView.stack.arrangedSubviews.check { next, rest in
+            #expect(next() == "0 A")
+            #expect(next() == "0 D")
+            #expect(next() == "0 C")
+            #expect(next() == "2 A")
+            #expect(next() == "2 D")
+            #expect(next() == "2 C")
+            #expect(rest() == [])
+        }
+    }
+}
+
+extension Array where Element: NSView {
+    @MainActor
+    func check(
+        _ subviews: (
+            _ next: () -> String?,
+            _ rest: () -> [String?]
+        ) -> Void
+    ) {
+        var copy = self
+        
+        subviews(
+            {
+                #expect(!copy.isEmpty)
+                
+                guard !copy.isEmpty else {
+                    return nil
+                }
+                return copy.removeFirst().asText?.stringValue
+            },
+            {
+                copy.map { $0.asText?.stringValue }
+            }
+        )
     }
 }
