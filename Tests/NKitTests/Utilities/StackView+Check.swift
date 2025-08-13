@@ -34,15 +34,6 @@ extension ViewStack {
         
         subviews(next, rest)
     }
-    
-    func printStack() {
-        print("")
-        print("STACK:")
-        
-        for i in 0..<stack.arrangedSubviews.count {
-            print("\(i): \(stack.arrangedSubviews[i].asText?.stringValue ?? "")")
-        }
-    }
 }
 
 extension NSView {

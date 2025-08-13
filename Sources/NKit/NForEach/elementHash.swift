@@ -6,14 +6,10 @@
 //
 
 @MainActor
-internal func elementHash(_ element: Any) -> Int? {
-    guard let nAnyGet = element as? any NAnyGet else {
-        return nil
-    }
-    guard let optional: AnyHashable? = nAnyGet.wrappedValue as? AnyHashable? else {
-        return nil
-    }
-    guard let value: AnyHashable = optional else {
+internal func elementHash<C>(_ element: NGet<C?>) -> Int? where C: Hashable {
+    let unwrapped: C? = element.wrappedValue
+    
+    guard let value: AnyHashable = unwrapped else {
         return nil
     }
     

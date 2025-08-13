@@ -9,37 +9,6 @@
 import AppKit
 import SwiftUI
 
-extension NView {
-    internal var debugStringValues: [Any] {
-        if let d = self as? _View {
-            return [d.mirrorDescription]
-        } else if let a = self as? [NView] {
-            return ["ARR:", a.flatMap {
-                $0.debugStringValues
-            }]
-        } else if let n = self as? AnyNForEach {
-//            return ["FOREACH \(n.DEBUG_LABEL):", n.NONCACHABLE_DEBUG_CONTENT
-//                .debugStringValues ]
-            return ["FOREACH"]
-        } else {
-            fatalError()
-        }
-    }
-}
-
-extension ViewStack {
-    internal func printStack() {
-        print("CURRENT STACK:")
-        
-        for i in 0..<self.stack.arrangedSubviews.count {
-            let ar = self.stack.arrangedSubviews[i]
-            let tf = ar as? NSTextField
-            let sv = tf?.stringValue
-            print("\(i): \(sv ?? "")")
-        }
-    }
-}
-
 private func sleepe() async {
     try? await Task.sleep(nanoseconds: 1_000_000_000)
 }
