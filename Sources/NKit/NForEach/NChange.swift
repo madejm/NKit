@@ -14,15 +14,15 @@ internal enum NChange<View> {
 }
 
 extension NChange {
-    internal var views: [View] {
+    internal var views: [View]? {
         switch self {
-        case .remove(let at, let count):
-            return []
+        case .remove(_, _):
+            return nil
         case .keep(let views):
             return views
-        case .move(let from, let to, let views):
+        case .move(_, _, let views):
             return views
-        case .insert(let at, let views):
+        case .insert(_, let views):
             return views
         }
     }

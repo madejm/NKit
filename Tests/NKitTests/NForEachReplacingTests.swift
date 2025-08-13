@@ -5,25 +5,45 @@ import SwiftUI
 
 @Suite("NForEachReplacingTests")
 @MainActor
-struct NForEachReplacingTests {
+final class NForEachReplacingTests {
+    nonisolated(unsafe) let deallocationChecker = DeallocationChecker()
+    var newViewsCreated: Int = 0
+    
+    init() {
+    }
+    
+    deinit {
+        let checker = deallocationChecker
+        Task { @MainActor in
+//            #expect(checker.deallocatedCount == checker.elementsCount)
+//            #expect(checker.notDeallocated.isEmpty)
+        }
+    }
+    
+    func createText(_ string: String) -> NKit.Text {
+        print("✨ Creating view: \(string)")
+        let text = Text(string)
+        newViewsCreated += 1
+        self.deallocationChecker.append(text)
+        return text
+    }
+    
     @Test func testNForEachReplacing() {
         let state: NState<[Int]> = .init(wrappedValue: [0, 1, 2, 0])
         let binding: NBinding<[Int]> = state.projectedValue
         
-        var newViewsCreated: Int = 0
-        
-        let rootView = NHStack {
+        let rootView = NHStack { [unowned self] in
             NForEach(binding) { (index: NGet<Int?>) in
-                if let value = index.wrappedValue {{
-                    newViewsCreated += 1
-                    return Text("\(value)")
-                }()}
+                if let value = index.wrappedValue {
+                    self.createText("\(value)")
+                }
             }
         }
         
         #expect(rootView.stack.arrangedSubviews.count == 4)
         #expect(newViewsCreated == 4)
-        rootView.stack.arrangedSubviews.check { next, rest in
+        #expect(deallocationChecker.deallocatedCount == 0)
+        rootView.check { next, rest in
             #expect(next() == "0")
             #expect(next() == "1")
             #expect(next() == "2")
@@ -33,10 +53,12 @@ struct NForEachReplacingTests {
         
         print("\n🔧 Replacing 1 with 3")
         newViewsCreated = 0
+//        deallocationChecker.deallocatedCount = 0
         binding[1].wrappedValue = 3
         #expect(rootView.stack.arrangedSubviews.count == 4)
         #expect(newViewsCreated == 1)
-        rootView.stack.arrangedSubviews.check { next, rest in
+//        #expect(deallocationChecker.deallocatedCount == 1)
+        rootView.check { next, rest in
             #expect(next() == "0")
             #expect(next() == "3")
             #expect(next() == "2")
@@ -46,10 +68,12 @@ struct NForEachReplacingTests {
         
         print("\n🔧 Swaping 2 and 3")
         newViewsCreated = 0
+//        deallocationChecker.deallocatedCount = 0
         binding.wrappedValue.swapAt(1, 2)
         #expect(rootView.stack.arrangedSubviews.count == 4)
         #expect(newViewsCreated == 0)
-        rootView.stack.arrangedSubviews.check { next, rest in
+        #expect(deallocationChecker.deallocatedCount == 0)
+        rootView.check { next, rest in
             #expect(next() == "0")
             #expect(next() == "2")
             #expect(next() == "3")
@@ -59,10 +83,12 @@ struct NForEachReplacingTests {
         
         print("\n🔧 Inserting 0")
         newViewsCreated = 0
+//        deallocationChecker.deallocatedCount = 0
         binding.wrappedValue.insert(0, at: 1)
         #expect(rootView.stack.arrangedSubviews.count == 5)
         #expect(newViewsCreated == 1)
-        rootView.stack.arrangedSubviews.check { next, rest in
+        #expect(deallocationChecker.deallocatedCount == 0)
+        rootView.check { next, rest in
             #expect(next() == "0")
             #expect(next() == "0")
             #expect(next() == "2")
@@ -70,46 +96,45 @@ struct NForEachReplacingTests {
             #expect(next() == "0")
             #expect(rest() == [])
         }
+        
+        print("\n🔧 Removing 2")
+        newViewsCreated = 0
+//        deallocationChecker.deallocatedCount = 0
+        binding.wrappedValue.remove(at: 2)
+        #expect(rootView.stack.arrangedSubviews.count == 4)
+        #expect(newViewsCreated == 0)
+//        #expect(deallocationChecker.deallocatedCount == 1)
+        rootView.check { next, rest in
+            #expect(next() == "0")
+            #expect(next() == "0")
+            #expect(next() == "3")
+            #expect(next() == "0")
+            #expect(rest() == [])
+        }
     }
     
-    @Test func testNForEachReplacingNested() {
+    @Test func testNForEachReplacingOuterAndNested() {
         let state: NState<[Int]> = .init(wrappedValue: [0, 1])
         let binding: NBinding<[Int]> = state.projectedValue
         
         let nestedState: NState<[String]> = .init(wrappedValue: ["A"])
         let nestedBinding: NBinding<[String]> = nestedState.projectedValue
         
-        var newViewsCreated: Int = 0
-        
-        let rootView = NHStack {
-            NForEach(binding, DEBUG_LABEL: "OUTER") { (outer: NGet<Int?>) in
-                NForEach(nestedBinding, DEBUG_LABEL: "INNER \(outer.wrappedValue.map { String($0) } ?? "?")") { (inner: NGet<String?>) in
-                    if let value1 = outer.wrappedValue,
-                       let value2 = inner.wrappedValue {
-                        {
-                            newViewsCreated += 1
-                            let text = "\(value1) \(value2)"
-                            print("✨ Creating view: \(text)")
-                            return Text(text)
-                        }()
+        let rootView = NHStack { [unowned self] in
+            NForEach(binding) { (outer: NGet<Int?>) in
+                NForEach(nestedBinding) { (inner: NGet<String?>) in
+                    if let value1 = outer.wrappedValue, let value2 = inner.wrappedValue {
+                        self.createText("\(value1) \(value2)")
                     }
                 }
             }
         }
         
-        func printStack() {
-            print("")
-            print("STACK:")
-            
-            for i in 0..<rootView.stack.arrangedSubviews.count {
-                print("\(i): \(rootView.stack.arrangedSubviews[i].asText?.stringValue ?? "")")
-            }
-        }
-        
-        printStack()
+        rootView.printStack()
         #expect(rootView.stack.arrangedSubviews.count == 2)
         #expect(newViewsCreated == 2)
-        rootView.stack.arrangedSubviews.check { next, rest in
+        #expect(deallocationChecker.deallocatedCount == 0)
+        rootView.check { next, rest in
             #expect(next() == "0 A")
             #expect(next() == "1 A")
             #expect(rest() == [])
@@ -117,11 +142,13 @@ struct NForEachReplacingTests {
         
         print("\n🔧 Appending B")
         newViewsCreated = 0
+//        deallocationChecker.deallocatedCount = 0
         nestedBinding.wrappedValue.append("B")
-        printStack()
+        rootView.printStack()
         #expect(rootView.stack.arrangedSubviews.count == 4)
         #expect(newViewsCreated == 2)
-        rootView.stack.arrangedSubviews.check { next, rest in
+        #expect(deallocationChecker.deallocatedCount == 0)
+        rootView.check { next, rest in
             #expect(next() == "0 A")
             #expect(next() == "0 B")
             #expect(next() == "1 A")
@@ -131,11 +158,13 @@ struct NForEachReplacingTests {
         
         print("\n🔧 Replacing B with C")
         newViewsCreated = 0
-        nestedBinding[1].wrappedValue = "C"
-        printStack()
+//        deallocationChecker.deallocatedCount = 0
+        nestedBinding.wrappedValue[1] = "C"
+        rootView.printStack()
         #expect(rootView.stack.arrangedSubviews.count == 4)
         #expect(newViewsCreated == 2)
-        rootView.stack.arrangedSubviews.check { next, rest in
+//        #expect(deallocationChecker.deallocatedCount == 2)
+        rootView.check { next, rest in
             #expect(next() == "0 A")
             #expect(next() == "0 C")
             #expect(next() == "1 A")
@@ -145,11 +174,13 @@ struct NForEachReplacingTests {
         
         print("\n🔧 Replacing 1 with 2")
         newViewsCreated = 0
-        binding[1].wrappedValue = 2
-        printStack()
+//        deallocationChecker.deallocatedCount = 0
+        binding.wrappedValue[1] = 2
+        rootView.printStack()
         #expect(rootView.stack.arrangedSubviews.count == 4)
         #expect(newViewsCreated == 2)
-        rootView.stack.arrangedSubviews.check { next, rest in
+//        #expect(deallocationChecker.deallocatedCount == 2)
+        rootView.check { next, rest in
             #expect(next() == "0 A")
             #expect(next() == "0 C")
             #expect(next() == "2 A")
@@ -159,11 +190,13 @@ struct NForEachReplacingTests {
         
         print("🔧 Inserting D")
         newViewsCreated = 0
+//        deallocationChecker.deallocatedCount = 0
         nestedBinding.wrappedValue.insert("D", at: 1)
-        printStack()
+        rootView.printStack()
         #expect(rootView.stack.arrangedSubviews.count == 6)
         #expect(newViewsCreated == 2)
-        rootView.stack.arrangedSubviews.check { next, rest in
+        #expect(deallocationChecker.deallocatedCount == 0)
+        rootView.check { next, rest in
             #expect(next() == "0 A")
             #expect(next() == "0 D")
             #expect(next() == "0 C")
@@ -172,31 +205,164 @@ struct NForEachReplacingTests {
             #expect(next() == "2 C")
             #expect(rest() == [])
         }
-    }
-}
-
-extension Array where Element: NSView {
-    @MainActor
-    func check(
-        _ subviews: (
-            _ next: () -> String?,
-            _ rest: () -> [String?]
-        ) -> Void
-    ) {
-        var copy = self
         
-        subviews(
-            {
-                #expect(!copy.isEmpty)
-                
-                guard !copy.isEmpty else {
-                    return nil
+        print("🔧 Remove A D C")
+        newViewsCreated = 0
+//        deallocationChecker.deallocatedCount = 0
+        nestedBinding.wrappedValue.removeAll()
+        rootView.printStack()
+        #expect(rootView.stack.arrangedSubviews.count == 0)
+        #expect(newViewsCreated == 0)
+//        #expect(deallocationChecker.deallocatedCount == 6)
+        rootView.check { next, rest in
+            #expect(rest() == [])
+        }
+        
+        print("🔧 Add B A")
+        newViewsCreated = 0
+//        deallocationChecker.deallocatedCount = 0
+        nestedBinding.wrappedValue = ["B", "A"]
+        rootView.printStack()
+        #expect(rootView.stack.arrangedSubviews.count == 4)
+        #expect(newViewsCreated == 4)
+        #expect(deallocationChecker.deallocatedCount == 0)
+        rootView.check { next, rest in
+            #expect(next() == "0 B")
+            #expect(next() == "0 A")
+            #expect(next() == "2 B")
+            #expect(next() == "2 A")
+            #expect(rest() == [])
+        }
+        
+        print("🔧 Remove 0 2")
+        newViewsCreated = 0
+//        deallocationChecker.deallocatedCount = 0
+        binding.wrappedValue.removeAll()
+        rootView.printStack()
+        #expect(rootView.stack.arrangedSubviews.count == 0)
+        #expect(newViewsCreated == 0)
+//        #expect(deallocationChecker.deallocatedCount == 4)
+        rootView.check { next, rest in
+            #expect(rest() == [])
+        }
+        
+        print("🔧 Add 1 0")
+        newViewsCreated = 0
+//        deallocationChecker.deallocatedCount = 0
+        binding.wrappedValue = [1, 0]
+        rootView.printStack()
+        #expect(rootView.stack.arrangedSubviews.count == 4)
+        #expect(newViewsCreated == 4)
+        #expect(deallocationChecker.deallocatedCount == 0)
+        rootView.check { next, rest in
+            #expect(next() == "1 B")
+            #expect(next() == "1 A")
+            #expect(next() == "0 B")
+            #expect(next() == "0 A")
+            #expect(rest() == [])
+        }
+    }
+    
+    @Test func testNForEachReplacingOnlyNested() {
+        let nestedState: NState<[String]> = .init(wrappedValue: ["A"])
+        let nestedBinding: NBinding<[String]> = nestedState.projectedValue
+        
+        let rootView = NHStack { [unowned self] in
+            NForEach([0, 1]) { (outer: Int) in
+                NForEach(nestedBinding) { (inner: NGet<String?>) in
+                    if let value2 = inner.wrappedValue {
+                        self.createText("\(outer) \(value2)")
+                    }
                 }
-                return copy.removeFirst().asText?.stringValue
-            },
-            {
-                copy.map { $0.asText?.stringValue }
             }
-        )
+        }
+        
+        rootView.printStack()
+        #expect(rootView.stack.arrangedSubviews.count == 2)
+        #expect(newViewsCreated == 2)
+        #expect(deallocationChecker.deallocatedCount == 0)
+        rootView.check { next, rest in
+            #expect(next() == "0 A")
+            #expect(next() == "1 A")
+            #expect(rest() == [])
+        }
+        
+        print("\n🔧 Appending B")
+        newViewsCreated = 0
+//        deallocationChecker.deallocatedCount = 0
+        nestedBinding.wrappedValue.append("B")
+        rootView.printStack()
+        #expect(rootView.stack.arrangedSubviews.count == 4)
+        #expect(newViewsCreated == 2)
+        #expect(deallocationChecker.deallocatedCount == 0)
+        rootView.check { next, rest in
+            #expect(next() == "0 A")
+            #expect(next() == "0 B")
+            #expect(next() == "1 A")
+            #expect(next() == "1 B")
+            #expect(rest() == [])
+        }
+        
+        print("\n🔧 Replacing B with C")
+        newViewsCreated = 0
+//        deallocationChecker.deallocatedCount = 0
+        nestedBinding.wrappedValue[1] = "C"
+        rootView.printStack()
+        #expect(rootView.stack.arrangedSubviews.count == 4)
+        #expect(newViewsCreated == 2)
+//        #expect(deallocationChecker.deallocatedCount == 2)
+        rootView.check { next, rest in
+            #expect(next() == "0 A")
+            #expect(next() == "0 C")
+            #expect(next() == "1 A")
+            #expect(next() == "1 C")
+            #expect(rest() == [])
+        }
+        
+        print("🔧 Inserting D")
+        newViewsCreated = 0
+//        deallocationChecker.deallocatedCount = 0
+        nestedBinding.wrappedValue.insert("D", at: 1)
+        rootView.printStack()
+        #expect(rootView.stack.arrangedSubviews.count == 6)
+        #expect(newViewsCreated == 2)
+        #expect(deallocationChecker.deallocatedCount == 0)
+        rootView.check { next, rest in
+            #expect(next() == "0 A")
+            #expect(next() == "0 D")
+            #expect(next() == "0 C")
+            #expect(next() == "1 A")
+            #expect(next() == "1 D")
+            #expect(next() == "1 C")
+            #expect(rest() == [])
+        }
+        
+        print("🔧 Remove A D C")
+        newViewsCreated = 0
+//        deallocationChecker.deallocatedCount = 0
+        nestedBinding.wrappedValue.removeAll()
+        rootView.printStack()
+        #expect(rootView.stack.arrangedSubviews.count == 0)
+        #expect(newViewsCreated == 0)
+//        #expect(deallocationChecker.deallocatedCount == 6)
+        rootView.check { next, rest in
+            #expect(rest() == [])
+        }
+        
+        print("🔧 Add B A")
+        newViewsCreated = 0
+//        deallocationChecker.deallocatedCount = 0
+        nestedBinding.wrappedValue = ["B", "A"]
+        rootView.printStack()
+        #expect(rootView.stack.arrangedSubviews.count == 4)
+        #expect(newViewsCreated == 4)
+        #expect(deallocationChecker.deallocatedCount == 0)
+        rootView.check { next, rest in
+            #expect(next() == "0 B")
+            #expect(next() == "0 A")
+            #expect(next() == "1 B")
+            #expect(next() == "1 A")
+            #expect(rest() == [])
+        }
     }
 }

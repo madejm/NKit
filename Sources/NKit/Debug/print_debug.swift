@@ -1,0 +1,33 @@
+//
+//  PrintOnDebug.swift
+//  NKit
+//
+//  Created by Mejdej on 13/08/2025.
+//
+
+package func print_debug(
+    _ message1: @autoclosure () -> Any
+) {
+    #if DEBUG
+    print(message1())
+    #endif
+}
+
+package func print_debug(
+    _ message1: @autoclosure () -> Any,
+    _ message2: @autoclosure () -> Any
+) {
+    #if DEBUG
+    print(message1(), message2())
+    #endif
+}
+
+package func print_debug(
+    _ message1: @autoclosure () -> Any,
+    _ message2: @autoclosure () -> Any,
+    _ message3: @autoclosure () -> Any
+) {
+    #if DEBUG
+    print(message1(), message2(), message3())
+    #endif
+}

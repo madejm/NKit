@@ -5,14 +5,6 @@ import AppKit
 import UIKit
 #endif
 
-//public typealias ViewCreator = () -> [NView]
-
-/// Abstraction over a view or collection of views (in `ForEach`)
-/// Think as of SwiftUI's `View`
-@MainActor
-public protocol NView {}
-extension _View: NView {}
-
 #if swift(>=5.4)
 @resultBuilder
 public struct NViewBuilder {
@@ -31,9 +23,11 @@ extension NViewBuilder {
     public static func buildIf(_ value: NView?) -> NView {
         value ?? []
     }
+    
+    public static func buildArray(_ components: [NView]) -> [NView] {
+        components
+    }
 }
-
-extension Array: NView where Element == NView {}
 
 extension NView {
     internal func setParent(_ parent: NView) {
@@ -50,26 +44,26 @@ extension NView {
         }
     }
     
-    internal func VIEW_PRINT(indent: Int) -> String  {
-        if let v = self as? _View {
-            return indent.indent() + v.textFieldString + "\n"
-        } else if let array = self as? [NView] {
-            var res = ""
-            res += indent.indent()
-            res += "[\n"
-            
-            for v in array {
-                res += v.VIEW_PRINT(indent: indent + 1)
-            }
-            
-            res += indent.indent()
-            res += "]\n"
-            return res
-        } else if let forEach = self as? AnyNForEach {
-            return forEach.VIEW_PRINT(indent: indent + 1)
-        }
-        fatalError()
-    }
+//    internal func VIEW_PRINT(indent: Int) -> String  {
+//        if let v = self as? _View {
+//            return indent.indent() + v.textFieldString + "\n"
+//        } else if let array = self as? [NView] {
+//            var res = ""
+//            res += indent.indent()
+//            res += "[\n"
+//            
+//            for v in array {
+//                res += v.VIEW_PRINT(indent: indent + 1)
+//            }
+//            
+//            res += indent.indent()
+//            res += "]\n"
+//            return res
+//        } else if let forEach = self as? AnyNForEach {
+//            return forEach.VIEW_PRINT(indent: indent + 1)
+//        }
+//        fatalError()
+//    }
     
     internal func countViews(until end: AnyNForEach) -> (count: Int, stop: Bool) {
         if self is _View {
@@ -103,6 +97,19 @@ extension NView {
         } else if let array = self as? [NView] {
             return array.viewsCount
         } else if let forEach = self as? AnyNForEach {
+            let nViews: [NView] = forEach.forEachViews
+            return nViews.viewsCount
+//            return forEach.viewsCountInCache
+        }
+        fatalError("NView type not handled: \(String(describing: self))")
+    }
+    
+    internal var viewsCountInCache: Int {
+        if self is _View {
+            return 1
+        } else if let array = self as? [NView] {
+            return array.viewsCount
+        } else if let forEach = self as? AnyNForEach {
 //            let nViews: [NView] = forEach.forEachViews
 //            return nViews.viewsCount
             return forEach.viewsCountInCache
@@ -117,7 +124,7 @@ extension NView {
             return [view]
         } else if let array = self as? [NView] {
             let views: [_View] = array.mapToViews(
-                INFO: "ARRAY",
+//                INFO: "ARRAY",
                 onChange: {
                     onChange($0, $1)
                 }
@@ -126,8 +133,8 @@ extension NView {
         } else if let forEach = self as? AnyNForEach {
             let nViews: [NView] = forEach.forEachViews
             let views: [_View] = nViews.mapToViews(
-                INFO: "NFE \(forEach.DEBUG_LABEL)",
-                onChange: { [unowned forEach] (changeOffset: Int, changes: [NChange<_View>]) in
+//                INFO: "NFE \(forEach.DEBUG_LABEL)",
+                onChange: { (changeOffset: Int, changes: [NChange<_View>]) in
                     let offset: Int = changeOffset + 0
                     
                     onChange(offset, changes)
@@ -135,7 +142,7 @@ extension NView {
             )
             
 //            forEach.onDataChange { [unowned forEach] (changes: [NChange<NView>]) in
-            forEach.onDataChange { [unowned forEach] (viewsBeforeMe: Int, changes: [NChange<NView>]) in
+            forEach.onDataChange { (viewsBeforeMe: Int, changes: [NChange<NView>]) in
                 let changes: [NChange<_View>] = changes
                     .map { (change: NChange<NView>) in
                         switch change {
@@ -156,7 +163,7 @@ extension NView {
                         }
                     }
                 
-                let fe = forEach
+//                let fe = forEach
 //                let offset: Int = numberOfViewsBeforeMe()
                 let offset: Int = viewsBeforeMe
                 
@@ -172,7 +179,7 @@ extension NView {
 extension Array where Element == NView {
     @MainActor
     fileprivate func mapToViews(
-        INFO: String,
+//        INFO: String,
         onChange: @escaping @MainActor (_ changeOffset: Int, _ changes: [NChange<_View>]) -> Void
     ) -> [_View] {
         var views: [_View] = []
@@ -187,9 +194,10 @@ extension Array where Element == NView {
 //                    let replaceOffset: Int = start + changeOffset
                     let replaceOffset: Int = changeOffset
                     
-                    let INFO_ = INFO
-                    let PRINT_ALL = self.VIEW_PRINT(upTo: self.count, indent: 0)
-                    let PRINT = self.VIEW_PRINT(upTo: i, indent: 0)
+//                    let INFO_ = INFO
+//                    let PRINT_ALL = self.VIEW_PRINT(upTo: self.count, indent: 0)
+//                    let PRINT = self.VIEW_PRINT(upTo: i, indent: 0)
+//                    let _s = self
                     
                     onChange(replaceOffset, changes)
                 }

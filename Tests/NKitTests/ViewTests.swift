@@ -146,16 +146,3 @@ struct ViewTests {
         Text("Text \(index)" + (postfix.map({ "_\($0)" }) ?? ""))
     }
 }
-
-extension NSView {
-    var asText: NSTextField? {
-        #expect(self is NSTextField)
-        return self as? NSTextField
-    }
-    
-    var asStack: NSStackView? {
-        #expect(self is ViewStack)
-        let viewStack = self as? ViewStack
-        return viewStack?.stack
-    }
-}

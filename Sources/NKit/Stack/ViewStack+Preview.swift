@@ -9,25 +9,18 @@
 import AppKit
 import SwiftUI
 
-extension _View {
-    internal var textFieldString: String {
-        let tv = self as? NSTextField
-        let sv: String = tv?.stringValue ?? ""
-        return sv
-    }
-}
-
 extension NView {
     internal var debugStringValues: [Any] {
         if let d = self as? _View {
-            return [d.textFieldString]
+            return [d.mirrorDescription]
         } else if let a = self as? [NView] {
             return ["ARR:", a.flatMap {
                 $0.debugStringValues
             }]
         } else if let n = self as? AnyNForEach {
-            return ["FOREACH \(n.DEBUG_LABEL):", n.NONCACHABLE_DEBUG_CONTENT
-                .debugStringValues ]
+//            return ["FOREACH \(n.DEBUG_LABEL):", n.NONCACHABLE_DEBUG_CONTENT
+//                .debugStringValues ]
+            return ["FOREACH"]
         } else {
             fatalError()
         }

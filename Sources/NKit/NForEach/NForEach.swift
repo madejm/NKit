@@ -32,18 +32,14 @@ public final class NForEach<D>: NView where D: RandomAccessCollection {
     private let content: (D.Element) -> [NView]
     private var cachedViews: [CachedView]? = []
     
-    let DEBUG_LABEL: String
-    var NONCACHABLE_DEBUG_CONTENT: [NView] = []
     private /*unowned*/ var parent: NView?
     
     public init(
         _ data: D,
         separator: (() -> NView)? = nil,
-        DEBUG_LABEL: String = "",
         @NViewBuilder content: @escaping (D.Element) -> [NView]
     ) {
         self.data = data
-        self.DEBUG_LABEL = DEBUG_LABEL
         self.separator = separator
         self.content = content
     }
@@ -55,7 +51,6 @@ public final class NForEach<D>: NView where D: RandomAccessCollection {
     ) where Key: Comparable, D == Array<Key> {
         let array: [D.Element] = Array(dictionary.keys).sorted()
         
-        self.DEBUG_LABEL = ""
         self.data = array
         self.separator = separator
         self.content = { key in
@@ -65,16 +60,18 @@ public final class NForEach<D>: NView where D: RandomAccessCollection {
     
     public convenience init<N>(
         _ data: NBinding<N>,
-        DEBUG_LABEL: String = "",
         separator: (() -> NView)? = nil,
         @NViewBuilder content: @escaping (D.Element) -> [NView]
     ) where N: RandomAccessCollection, D == NGet<N> {
         self.init(
             data.get,
             separator: separator,
-            DEBUG_LABEL: DEBUG_LABEL,
             content: content
         )
+    }
+    
+    deinit {
+        print_debug("✨ DEINIT NForEach")
     }
 }
 
@@ -95,23 +92,6 @@ extension NForEach: AnyNForEach {
             return nil
         }
         return parent.countViews(until: self).count
-    }
-    
-    func VIEW_PRINT(indent: Int) -> String {
-        var res = ""
-        res += indent.indent()
-        res += "{ \(DEBUG_LABEL)\n"
-        
-        if let cachedViews{
-            for cachedView: CachedView in cachedViews {
-                res += cachedView.views.VIEW_PRINT(indent: indent + 1)
-            }
-        }
-        
-        res += indent.indent()
-        res += "}\n"
-        
-        return res
     }
     
     internal var viewsCountInCache: Int {
@@ -153,22 +133,14 @@ extension NForEach: AnyNForEach {
         }
         
         let newCached: [(oldIndex: NViewIndex, view: CachedView)] = cachedViews
+            .enumerated()
             .map {
-                (oldIndex: NViewIndex(rawValue: 0), view: $0)
+                (oldIndex: NViewIndex(rawValue: $0.offset), view: $0.element)
             }
         
         let views: [NView] = forEachViewsFromCache(newCached: newCached)
             .compactMap {
-                switch $0 {
-                case .remove:
-                    return nil
-                case let .keep(views):
-                    return views
-                case let .move(_, _, views):
-                    return views
-                case let .insert(_, views):
-                    return views
-                }
+                $0.views
             }
         
         return views
@@ -188,8 +160,8 @@ extension NForEach: AnyNForEach {
             
             if let cachedView {
                 let viewsCount: Int = cachedView.view.viewsCount
+//                let viewsCount: Int = cachedView.view.viewsCountInCache
                 let newCachedView: CachedView = cachedView.view
-//                newCachedView.viewsCount = viewsCount
                 
                 let newOffset: StackIndex = StackIndex(rawValue: currentCount)
 //                let oldOffset: StackIndex = cachedOld.viewsCount(upTo: cachedView.newIndex)
@@ -199,8 +171,7 @@ extension NForEach: AnyNForEach {
                 if element.offset == cachedView.oldIndex {
                     changes.append(.keep(views: newCachedView.views))
                     
-                    let dsc = newCachedView.views.debugStringValues
-                    print("🤝 keeping: \(dsc)")
+                    print_debug("🤝 keeping:", newCachedView.views.debugStringValues)
                 } else {
                     changes.append(.move(
                         from: oldOffset,
@@ -208,11 +179,9 @@ extension NForEach: AnyNForEach {
                         views: newCachedView.views
                     ))
                     
-                    let dsc = newCachedView.views.debugStringValues
-                    print("👉 moving from: \(oldOffset), to: \(newOffset), \(dsc)")
+                    print_debug("👉 moving from: \(oldOffset), to: \(newOffset),", newCachedView.views.debugStringValues)
                 }
                 
-//                newCachedView.viewOffset = newOffset
                 cachedNew.append(newCachedView)
                 currentCount += viewsCount
             } else {
@@ -226,13 +195,10 @@ extension NForEach: AnyNForEach {
                 
                 let newCachedView: CachedView = .init(
                     hash: hash ?? 0,
-//                    viewOffset: newOffset,
-//                    viewsCount: newViewsCount,
                     views: newContents
                 )
                 
-                let dsc = newContents.debugStringValues
-                print("👉 inserting at: \(newOffset), count: \(newViewsCount), \(dsc)")
+                print_debug("👉 inserting at: \(newOffset), count: \(newViewsCount),", newContents.debugStringValues)
                 
                 changes.append(.insert(at: newOffset, views: newContents))
                 cachedNew.append(newCachedView)
@@ -250,8 +216,6 @@ extension NForEach: AnyNForEach {
         }
         
         self.cachedViews = cachedNew
-        
-        self.NONCACHABLE_DEBUG_CONTENT = cachedNew.flatMap(\.views)
         
         return changes
 //        var viewsWithSeparators: [NView] = []
@@ -278,8 +242,6 @@ extension NForEach: AnyNForEach {
             guard let self else {
                 return
             }
-            
-//            let beforeCount: Int = self.cachedViews?.viewsCount ?? 0
             
             guard let hashables = newValue as? [any Hashable] else {
                 fatalError("trying to change non hashables")
@@ -311,8 +273,7 @@ extension NForEach: AnyNForEach {
                 
                 let viewOffset: StackIndex = cachedCopy.viewsCount(upTo: element.offset)
                 
-                let dsc = cachedToClear.views.debugStringValues
-                print("🗑️ clearing at: \(viewOffset), count: \(cachedToClear.viewsCount), \(dsc)")
+                print_debug("🗑️ clearing at: \(viewOffset), count:", cachedToClear.viewsCount, cachedToClear.views.debugStringValues)
                 
                 viewChanges.append(.remove(at: viewOffset, count: cachedToClear.viewsCount))
                 cachesToClear.append(cachedToClear)
@@ -320,9 +281,8 @@ extension NForEach: AnyNForEach {
             
             let changes: [NChange<NView>] = viewChanges + self.forEachViewsFromCache(newCached: newCached)
             
-            let viewsBeforeMe: Int? = countViewsFromParentUntilYouMeetMe()
+            let viewsBeforeMe: Int? = self.countViewsFromParentUntilYouMeetMe()
             
-//            changed(beforeCount, changes)
             changed(viewsBeforeMe ?? 0, changes)
             
             for i in 0..<cachesToClear.count {
@@ -341,108 +301,5 @@ extension NForEach: AnyNForEach {
         }
         
         self.cachedViews = nil
-    }
-}
-
-extension NForEach {
-//    private func DEBUG_HASHABLE(_ element: D.Element) -> (any Hashable)? {
-//        guard let nAnyGet = element as? any NAnyGet else {
-//            return nil
-//        }
-//        guard let optional: AnyHashable? = nAnyGet.wrappedValue as? AnyHashable? else {
-//            return nil
-//        }
-//        guard let value: AnyHashable = optional else {
-//            return nil
-//        }
-//        return value
-//    }
-    
-    private func elementHash(_ element: D.Element) -> Int? {
-        guard let nAnyGet = element as? any NAnyGet else {
-            return nil
-        }
-        guard let optional: AnyHashable? = nAnyGet.wrappedValue as? AnyHashable? else {
-            return nil
-        }
-        guard let value: AnyHashable = optional else {
-            return nil
-        }
-        
-        let hash = value.hashValue
-        return hash
-    }
-}
-
-extension Array where Element == CachedView {
-    fileprivate mutating func getCached(hash: Int?) -> (oldIndex: NViewIndex, view: CachedView)? {
-        guard let cachedIndex: Int = self.firstIndex(where: {
-            guard $0.isAvailable else {
-                return false
-            }
-            return hash == $0.hash
-        }) else {
-            return nil
-        }
-        
-        let cachedView: CachedView = self[cachedIndex]
-        self[cachedIndex].isAvailable = false
-        
-        return (NViewIndex(rawValue: cachedIndex), cachedView)
-    }
-    
-    @MainActor
-    fileprivate var viewsCount: Int {
-        var count: Int = 0
-        
-        for cached in self {
-            let views: [NView] = cached.views
-            count += views.viewsCount
-        }
-        
-        return count
-    }
-    
-    @MainActor
-    fileprivate func viewsCount(upTo index: Int) -> StackIndex {
-        var count: StackIndex = 0
-        
-        for i in 0..<index {
-            let cached: CachedView = self[i]
-            count += cached.viewsCount
-        }
-        
-        return count
-    }
-}
-
-extension Array where Element == (oldIndex: NViewIndex, view: CachedView) {
-    fileprivate mutating func getCached(hash: Int?) -> (newIndex: NViewIndex, oldIndex: NViewIndex, view: CachedView)? {
-        guard let cachedIndex: Int = self.firstIndex(where: {
-            guard $0.view.isAvailable else {
-                return false
-            }
-            let oldHash = $0.view.hash
-            return oldHash == hash
-        }) else {
-            return nil
-        }
-        
-        let cachedView = self[cachedIndex]
-        self[cachedIndex].view.isAvailable = false
-        
-        return (NViewIndex(rawValue: cachedIndex), cachedView.oldIndex, cachedView.view)
-    }
-    
-    @MainActor
-    fileprivate func viewsCount(upTo index: NViewIndex) -> StackIndex {
-        var count: StackIndex = 0
-        
-        for i in 0..<index.rawValue {
-            let cached: CachedView = self[i].view
-            count += cached.viewsCount
-        }
-        
-        return count
     }
 }

@@ -5,12 +5,20 @@ import AppKit
 public final class Text: NSTextField {
     @NGet private var textBinding: NSAttributedString
     
+    #if DEBUG
+    nonisolated(unsafe) private var debugStringValue: String
+    #endif
+    
     public init(
         _ textBinding: NGet<NSAttributedString>,
         alignment: NSTextAlignment = .left,
         multiline: Bool = true
     ) {
         self._textBinding = textBinding
+        
+        #if DEBUG
+        self.debugStringValue = textBinding.wrappedValue.string
+        #endif
         
         super.init(frame: .zero)
         
@@ -31,8 +39,12 @@ public final class Text: NSTextField {
             cell.lineBreakMode = .byWordWrapping
         }
         
-        self._textBinding.onChange {
-            self.attributedStringValue = $0
+        self._textBinding.onChange { [weak self] in
+            self?.attributedStringValue = $0
+            
+            #if DEBUG
+            self?.debugStringValue = $0.string
+            #endif
         }
     }
     
@@ -40,11 +52,17 @@ public final class Text: NSTextField {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
+    
+    deinit {
+        #if DEBUG
+        print_debug("✨ DEINIT Text \(debugStringValue)")
+        #endif
+    }
 }
 
 extension Text: @MainActor CustomReflectable {
     public var customMirror: Mirror {
-        Mirror(reflecting: stringValue)
+        Mirror(self, children: ["stringValue": stringValue])
     }
 }
 #endif
