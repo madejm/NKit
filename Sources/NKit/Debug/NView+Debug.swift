@@ -33,7 +33,11 @@ extension ViewStack {
         for i in 0..<self.stack.arrangedSubviews.count {
             let ar = self.stack.arrangedSubviews[i]
             let tf = ar as? Text
+            #if canImport(AppKit)
             let sv = tf?.stringValue
+            #elseif canImport(UIKit)
+            let sv = tf?.text
+            #endif
             print("\(i): \(sv ?? "")")
         }
     }

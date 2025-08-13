@@ -1,9 +1,6 @@
 import Foundation
-#if canImport(AppKit)
-import AppKit
-#elseif canImport(UIKit)
+#if canImport(UIKit)
 import UIKit
-#endif
 
 extension Text {
     public convenience init(
@@ -29,7 +26,9 @@ extension Text {
             multiline: multiline
         )
     }
-    
+}
+
+extension Text {
     public convenience init(
         _ textBinding: NBinding<NSAttributedString>,
         alignment: NSTextAlignment = .left,
@@ -43,14 +42,50 @@ extension Text {
     }
     
     public convenience init(
+        _ textBinding: NBinding<NSAttributedString?>,
+        alignment: NSTextAlignment = .left,
+        multiline: Bool = true
+    ) {
+        self.init(
+            textBinding.get,
+            alignment: alignment,
+            multiline: multiline
+        )
+    }
+    
+    public convenience init(
+        _ textBinding: NGet<NSAttributedString>,
+        alignment: NSTextAlignment = .left,
+        multiline: Bool = true
+    ) {
+        self.init(
+            textBinding.map(),
+            alignment: alignment,
+            multiline: multiline
+        )
+    }
+}
+
+extension Text {
+    public convenience init(
         _ textBinding: NBinding<String>,
         alignment: NSTextAlignment = .left,
         multiline: Bool = true
     ) {
         self.init(
-            textBinding.get.map(up: {
-                NSAttributedString(string: $0)
-            }),
+            textBinding.get,
+            alignment: alignment,
+            multiline: multiline
+        )
+    }
+    
+    public convenience init(
+        _ textBinding: NBinding<String?>,
+        alignment: NSTextAlignment = .left,
+        multiline: Bool = true
+    ) {
+        self.init(
+            textBinding.get,
             alignment: alignment,
             multiline: multiline
         )
@@ -69,4 +104,17 @@ extension Text {
             multiline: multiline
         )
     }
+    
+    public convenience init(
+        _ textBinding: NGet<String?>,
+        alignment: NSTextAlignment = .left,
+        multiline: Bool = true
+    ) {
+        self.init(
+            textBinding.map(),
+            alignment: alignment,
+            multiline: multiline
+        )
+    }
 }
+#endif

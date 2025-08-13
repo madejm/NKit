@@ -8,9 +8,9 @@
 import Foundation
 #if canImport(AppKit)
 import AppKit
-#elseif canImport(UIKit)
-import UIKit
-#endif
+//#elseif canImport(UIKit)
+//import UIKit
+//#endif
 
 public final class NGridRow: NHStack {
     @NEnvironment(\.gridParent) private var gridParent
@@ -53,3 +53,4 @@ public final class NGridRow: NHStack {
             }
     }
 }
+#endif

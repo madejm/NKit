@@ -5,6 +5,7 @@ import AppKit
 import UIKit
 #endif
 
+#if canImport(AppKit)
 extension Button {
     public convenience init(
         _ text: String,
@@ -30,3 +31,26 @@ extension Button {
         )
     }
 }
+#elseif canImport(UIKit)
+extension Button {
+    public convenience init(
+        _ text: String,
+        action: @escaping () -> Void
+    ) {
+        self.init(
+            NGet.constant(text),
+            action: action
+        )
+    }
+    
+    public convenience init(
+        _ textBinding: NBinding<String>,
+        action: @escaping () -> Void
+    ) {
+        self.init(
+            textBinding.get,
+            action: action
+        )
+    }
+}
+#endif

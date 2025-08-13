@@ -5,8 +5,6 @@
 //  Created by Mejdej on 12/08/2025.
 //
 
-import AppKit
-
 @MainActor
 internal struct CachedView {
     internal var isAvailable: Bool = true

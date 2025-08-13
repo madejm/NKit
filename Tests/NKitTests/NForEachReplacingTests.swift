@@ -1,5 +1,4 @@
 import Testing
-import AppKit
 import SwiftUI
 @testable import NKit
 
@@ -23,6 +22,14 @@ final class NForEachReplacingTests {
     func createText(_ string: String) -> NKit.Text {
         print("✨ Creating view: \(string)")
         let text = Text(string)
+        newViewsCreated += 1
+        self.deallocationChecker.append(text)
+        return text
+    }
+    
+    func createText(_ get: NGet<String?>) -> NKit.Text {
+        print("✨ Creating view: \(get.wrappedValue ?? "nil")")
+        let text = Text(get)
         newViewsCreated += 1
         self.deallocationChecker.append(text)
         return text
@@ -362,6 +369,57 @@ final class NForEachReplacingTests {
             #expect(next() == "0 A")
             #expect(next() == "1 B")
             #expect(next() == "1 A")
+            #expect(rest() == [])
+        }
+    }
+    
+    @Test func testNForEachReplacingWithBindedTexts() {
+        let state: NState<[String]> = .init(wrappedValue: ["A", "B"])
+        let binding: NBinding<[String]> = state.projectedValue
+        
+        let rootView = NHStack { [unowned self] in
+            NForEach(binding) { (inner: NGet<String?>) in
+                self.createText(inner)
+            }
+        }
+        
+        rootView.printStack()
+        #expect(rootView.stack.arrangedSubviews.count == 2)
+        #expect(newViewsCreated == 2)
+        #expect(deallocationChecker.deallocatedCount == 0)
+        rootView.check { next, rest in
+            #expect(next() == "A")
+            #expect(next() == "B")
+            #expect(rest() == [])
+        }
+        
+        print("\n🔧 Appending C")
+        newViewsCreated = 0
+//        deallocationChecker.deallocatedCount = 0
+        binding.wrappedValue.append("C")
+        rootView.printStack()
+        #expect(rootView.stack.arrangedSubviews.count == 3)
+        #expect(newViewsCreated == 1)
+        #expect(deallocationChecker.deallocatedCount == 0)
+        rootView.check { next, rest in
+            #expect(next() == "A")
+            #expect(next() == "B")
+            #expect(next() == "C")
+            #expect(rest() == [])
+        }
+        
+        print("\n🔧 Replacing B with D")
+        newViewsCreated = 0
+//        deallocationChecker.deallocatedCount = 0
+        binding.wrappedValue[1] = "D"
+        rootView.printStack()
+        #expect(rootView.stack.arrangedSubviews.count == 3)
+        #expect(newViewsCreated == 0)
+        #expect(deallocationChecker.deallocatedCount == 0)
+        rootView.check { next, rest in
+            #expect(next() == "A")
+            #expect(next() == "D")
+            #expect(next() == "C")
             #expect(rest() == [])
         }
     }

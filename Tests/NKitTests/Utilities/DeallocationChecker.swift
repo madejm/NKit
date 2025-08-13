@@ -5,8 +5,12 @@
 //  Created by Mejdej on 13/08/2025.
 //
 
-import AppKit
 @testable import NKit
+#if canImport(AppKit)
+import AppKit
+#elseif canImport(UIKit)
+import UIKit
+#endif
 
 final class DeallocationChecker {
     
@@ -17,7 +21,7 @@ final class DeallocationChecker {
     }
     
     @MainActor
-    func append(_ newElement: NSView) {
+    func append(_ newElement: _View) {
         elements.append(WeakElement(
             element: newElement,
             deallocated: { [unowned self] in
@@ -44,7 +48,7 @@ extension DeallocationChecker {
         
         private var deallocated: () -> Void
         
-        private(set) weak var element: NSView? {
+        private(set) weak var element: _View? {
             willSet {
                 guard newValue == nil else {
                     return
@@ -54,7 +58,7 @@ extension DeallocationChecker {
         }
         
         init(
-            element: NSView,
+            element: _View,
             deallocated: @escaping () -> Void
         ) {
             self.element = element
@@ -62,8 +66,12 @@ extension DeallocationChecker {
         }
         
         public var customMirror: Mirror {
-            if let tf = element as? NSTextField {
+            if let tf = element as? Text {
+                #if canImport(AppKit)
                 return Mirror(self, children: ["stringValue": tf.stringValue])
+                #elseif canImport(UIKit)
+                return Mirror(self, children: ["stringValue": tf.text as Any])
+                #endif
             } else {
                 return Mirror(reflecting: element as Any)
             }

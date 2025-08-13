@@ -3,10 +3,10 @@ import Foundation
 import UIKit
 
 public final class Text: UILabel {
-    @NGet private var textBinding: NSAttributedString
+    @NGet private var textBinding: NSAttributedString?
     
     public init(
-        _ textBinding: NGet<NSAttributedString>,
+        _ textBinding: NGet<NSAttributedString?>,
         alignment: NSTextAlignment = .left,
         multiline: Bool = false
     ) {

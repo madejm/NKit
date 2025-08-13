@@ -31,6 +31,32 @@ extension NGet {
 }
 
 extension NGet {
+    public func map() -> NGet<Value?> {
+        self.map(up: {
+            $0
+        })
+    }
+    
+    public func map() -> NGet<String> where Value == String? {
+        self.map(up: {
+            $0 ?? ""
+        })
+    }
+    
+    public func map() -> NGet<String> where Value == Int {
+        self.map(up: {
+            String($0)
+        })
+    }
+    
+    public func map() -> NGet<Int> where Value == String {
+        self.map(up: {
+            Int($0) ?? 0
+        })
+    }
+}
+
+extension NGet {
     public subscript<T>(dynamicMember keyPath: KeyPath<Value, T>) -> NGet<T> {
         let newBinding: NGet<T> = .init(get: {
             self.wrappedValue[keyPath: keyPath]

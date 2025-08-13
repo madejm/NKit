@@ -1,5 +1,4 @@
 import Testing
-import AppKit
 @testable import NKit
 
 @Suite("ViewTests")
@@ -17,14 +16,14 @@ struct ViewTests {
         }
         
         #expect(rootView.stack.subviews.count == 4)
-        #expect(rootView.stack.subviews[0].asText?.stringValue == "Text 1")
-        #expect(rootView.stack.subviews[1].asText?.stringValue == "Text 2")
-        #expect(rootView.stack.subviews[2].asText?.stringValue == "Text 3")
+        #expect(rootView.stack.subviews[0].asText == "Text 1")
+        #expect(rootView.stack.subviews[1].asText == "Text 2")
+        #expect(rootView.stack.subviews[2].asText == "Text 3")
         
         #expect(rootView.stack.subviews[3].asStack?.subviews.count == 3)
-        #expect(rootView.stack.subviews[3].asStack?.subviews[0].asText?.stringValue == "Text 1")
-        #expect(rootView.stack.subviews[3].asStack?.subviews[1].asText?.stringValue == "Text 2")
-        #expect(rootView.stack.subviews[3].asStack?.subviews[2].asText?.stringValue == "Text 3")
+        #expect(rootView.stack.subviews[3].asStack?.subviews[0].asText == "Text 1")
+        #expect(rootView.stack.subviews[3].asStack?.subviews[1].asText == "Text 2")
+        #expect(rootView.stack.subviews[3].asStack?.subviews[2].asText == "Text 3")
     }
     
     @Test func testNForEachConstant() {
@@ -53,23 +52,23 @@ struct ViewTests {
         #expect(rootView.stack.subviews.count == 2)
         
         #expect(rootView.stack.subviews[0].asStack?.subviews.count == 6)
-        #expect(rootView.stack.subviews[0].asStack?.subviews[0].asText?.stringValue == "Text 1_1")
-        #expect(rootView.stack.subviews[0].asStack?.subviews[1].asText?.stringValue == "Text 2_1")
-        #expect(rootView.stack.subviews[0].asStack?.subviews[2].asText?.stringValue == "Text 3_1")
-        #expect(rootView.stack.subviews[0].asStack?.subviews[3].asText?.stringValue == "Text 1_2")
-        #expect(rootView.stack.subviews[0].asStack?.subviews[4].asText?.stringValue == "Text 2_2")
-        #expect(rootView.stack.subviews[0].asStack?.subviews[5].asText?.stringValue == "Text 3_2")
+        #expect(rootView.stack.subviews[0].asStack?.subviews[0].asText == "Text 1_1")
+        #expect(rootView.stack.subviews[0].asStack?.subviews[1].asText == "Text 2_1")
+        #expect(rootView.stack.subviews[0].asStack?.subviews[2].asText == "Text 3_1")
+        #expect(rootView.stack.subviews[0].asStack?.subviews[3].asText == "Text 1_2")
+        #expect(rootView.stack.subviews[0].asStack?.subviews[4].asText == "Text 2_2")
+        #expect(rootView.stack.subviews[0].asStack?.subviews[5].asText == "Text 3_2")
         
         #expect(rootView.stack.subviews[1].asStack?.subviews.count == 9)
-        #expect(rootView.stack.subviews[1].asStack?.subviews[0].asText?.stringValue == "Text 1_A1")
-        #expect(rootView.stack.subviews[1].asStack?.subviews[1].asText?.stringValue == "Text 2_A1")
-        #expect(rootView.stack.subviews[1].asStack?.subviews[2].asText?.stringValue == "Text 3_A1")
-        #expect(rootView.stack.subviews[1].asStack?.subviews[3].asText?.stringValue == "Text 1_B2")
-        #expect(rootView.stack.subviews[1].asStack?.subviews[4].asText?.stringValue == "Text 2_B2")
-        #expect(rootView.stack.subviews[1].asStack?.subviews[5].asText?.stringValue == "Text 3_B2")
-        #expect(rootView.stack.subviews[1].asStack?.subviews[6].asText?.stringValue == "Text 1_B3")
-        #expect(rootView.stack.subviews[1].asStack?.subviews[7].asText?.stringValue == "Text 2_B3")
-        #expect(rootView.stack.subviews[1].asStack?.subviews[8].asText?.stringValue == "Text 3_B3")
+        #expect(rootView.stack.subviews[1].asStack?.subviews[0].asText == "Text 1_A1")
+        #expect(rootView.stack.subviews[1].asStack?.subviews[1].asText == "Text 2_A1")
+        #expect(rootView.stack.subviews[1].asStack?.subviews[2].asText == "Text 3_A1")
+        #expect(rootView.stack.subviews[1].asStack?.subviews[3].asText == "Text 1_B2")
+        #expect(rootView.stack.subviews[1].asStack?.subviews[4].asText == "Text 2_B2")
+        #expect(rootView.stack.subviews[1].asStack?.subviews[5].asText == "Text 3_B2")
+        #expect(rootView.stack.subviews[1].asStack?.subviews[6].asText == "Text 1_B3")
+        #expect(rootView.stack.subviews[1].asStack?.subviews[7].asText == "Text 2_B3")
+        #expect(rootView.stack.subviews[1].asStack?.subviews[8].asText == "Text 3_B3")
     }
     
     @Test func testNForEachGet() {
@@ -84,12 +83,12 @@ struct ViewTests {
         }
         
         #expect(rootView.stack.subviews.count == 6)
-        #expect(rootView.stack.subviews[0].asText?.stringValue == "Text 1_1")
-        #expect(rootView.stack.subviews[1].asText?.stringValue == "Text 2_1")
-        #expect(rootView.stack.subviews[2].asText?.stringValue == "Text 3_1")
-        #expect(rootView.stack.subviews[3].asText?.stringValue == "Text 1_2")
-        #expect(rootView.stack.subviews[4].asText?.stringValue == "Text 2_2")
-        #expect(rootView.stack.subviews[5].asText?.stringValue == "Text 3_2")
+        #expect(rootView.stack.subviews[0].asText == "Text 1_1")
+        #expect(rootView.stack.subviews[1].asText == "Text 2_1")
+        #expect(rootView.stack.subviews[2].asText == "Text 3_1")
+        #expect(rootView.stack.subviews[3].asText == "Text 1_2")
+        #expect(rootView.stack.subviews[4].asText == "Text 2_2")
+        #expect(rootView.stack.subviews[5].asText == "Text 3_2")
     }
     
     @Test func testNForEachBinding() {
@@ -104,32 +103,32 @@ struct ViewTests {
         }
         
         #expect(rootView.stack.subviews.count == 6)
-        #expect(rootView.stack.subviews[0].asText?.stringValue == "Text 1_1")
-        #expect(rootView.stack.subviews[1].asText?.stringValue == "Text 2_1")
-        #expect(rootView.stack.subviews[2].asText?.stringValue == "Text 3_1")
-        #expect(rootView.stack.subviews[3].asText?.stringValue == "Text 1_2")
-        #expect(rootView.stack.subviews[4].asText?.stringValue == "Text 2_2")
-        #expect(rootView.stack.subviews[5].asText?.stringValue == "Text 3_2")
+        #expect(rootView.stack.subviews[0].asText == "Text 1_1")
+        #expect(rootView.stack.subviews[1].asText == "Text 2_1")
+        #expect(rootView.stack.subviews[2].asText == "Text 3_1")
+        #expect(rootView.stack.subviews[3].asText == "Text 1_2")
+        #expect(rootView.stack.subviews[4].asText == "Text 2_2")
+        #expect(rootView.stack.subviews[5].asText == "Text 3_2")
         
         state.wrappedValue += ["3"]
         
         #expect(rootView.stack.subviews.count == 9)
-        #expect(rootView.stack.subviews[0].asText?.stringValue == "Text 1_1")
-        #expect(rootView.stack.subviews[1].asText?.stringValue == "Text 2_1")
-        #expect(rootView.stack.subviews[2].asText?.stringValue == "Text 3_1")
-        #expect(rootView.stack.subviews[3].asText?.stringValue == "Text 1_2")
-        #expect(rootView.stack.subviews[4].asText?.stringValue == "Text 2_2")
-        #expect(rootView.stack.subviews[5].asText?.stringValue == "Text 3_2")
-        #expect(rootView.stack.subviews[6].asText?.stringValue == "Text 1_3")
-        #expect(rootView.stack.subviews[7].asText?.stringValue == "Text 2_3")
-        #expect(rootView.stack.subviews[8].asText?.stringValue == "Text 3_3")
+        #expect(rootView.stack.subviews[0].asText == "Text 1_1")
+        #expect(rootView.stack.subviews[1].asText == "Text 2_1")
+        #expect(rootView.stack.subviews[2].asText == "Text 3_1")
+        #expect(rootView.stack.subviews[3].asText == "Text 1_2")
+        #expect(rootView.stack.subviews[4].asText == "Text 2_2")
+        #expect(rootView.stack.subviews[5].asText == "Text 3_2")
+        #expect(rootView.stack.subviews[6].asText == "Text 1_3")
+        #expect(rootView.stack.subviews[7].asText == "Text 2_3")
+        #expect(rootView.stack.subviews[8].asText == "Text 3_3")
         
         state.wrappedValue = ["4"]
         
         #expect(rootView.stack.subviews.count == 3)
-        #expect(rootView.stack.subviews[0].asText?.stringValue == "Text 1_4")
-        #expect(rootView.stack.subviews[1].asText?.stringValue == "Text 2_4")
-        #expect(rootView.stack.subviews[2].asText?.stringValue == "Text 3_4")
+        #expect(rootView.stack.subviews[0].asText == "Text 1_4")
+        #expect(rootView.stack.subviews[1].asText == "Text 2_4")
+        #expect(rootView.stack.subviews[2].asText == "Text 3_4")
     }
     
     private func sampleView(_ postfix: String? = nil) -> NView {
