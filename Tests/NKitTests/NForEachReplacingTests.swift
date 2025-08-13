@@ -44,8 +44,6 @@ struct NForEachReplacingTests {
             #expect(rest() == [])
         }
         
-        return
-        
         print("\n🔧 Swaping 2 and 3")
         newViewsCreated = 0
         binding.wrappedValue.swapAt(1, 2)

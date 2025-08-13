@@ -192,10 +192,11 @@ extension NForEach: AnyNForEach {
 //                newCachedView.viewsCount = viewsCount
                 
                 let newOffset: StackIndex = StackIndex(rawValue: currentCount)
-                let oldOffset: StackIndex = cachedOld.viewsCount(upTo: cachedView.newIndex)
+//                let oldOffset: StackIndex = cachedOld.viewsCount(upTo: cachedView.newIndex)
+                let oldOffset: StackIndex = self.cachedViews!.viewsCount(upTo: cachedView.oldIndex.rawValue)
                 
-                if oldOffset == currentCount {
-//                if cachedView.view.viewOffset == currentCount {
+//                if oldOffset == currentCount {
+                if element.offset == cachedView.oldIndex {
                     changes.append(.keep(views: newCachedView.views))
                     
                     let dsc = newCachedView.views.debugStringValues
