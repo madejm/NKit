@@ -20,12 +20,32 @@ extension NViewBuilder {
         components
     }
     
+    public static func buildExpression(_ expression: NView) -> NView {
+        expression
+    }
+    
+    public static func buildOptional(_ component: NView?) -> NView {
+        component ?? []
+    }
+    
     public static func buildIf(_ value: NView?) -> NView {
         value ?? []
     }
     
+    public static func buildEither(first component: NView) -> NView {
+        component
+    }
+    
+    public static func buildEither(second component: NView) -> NView {
+        component
+    }
+    
     public static func buildArray(_ components: [NView]) -> [NView] {
         components
+    }
+    
+    public static func buildLimitedAvailability(_ component: NView) -> NView {
+        component
     }
 }
 

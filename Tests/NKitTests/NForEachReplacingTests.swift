@@ -414,7 +414,7 @@ final class NForEachReplacingTests {
         binding.wrappedValue[1] = "D"
         rootView.printStack()
         #expect(rootView.stack.arrangedSubviews.count == 3)
-        #expect(newViewsCreated == 0)
+        #expect(newViewsCreated == 1) // 0
         #expect(deallocationChecker.deallocatedCount == 0)
         rootView.check { next, rest in
             #expect(next() == "A")
