@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Scheme
-   LastUpgradeVersion = "1340"
-   version = "1.3">
+   LastUpgradeVersion = "1620"
+   version = "1.7">
    <BuildAction
       parallelizeBuildables = "YES"
-      buildImplicitDependencies = "YES">
+      buildImplicitDependencies = "YES"
+      buildArchitectures = "Automatic">
       <BuildActionEntries>
          <BuildActionEntry
             buildForTesting = "YES"
@@ -14,9 +15,9 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "SwiftUIKit"
-               BuildableName = "SwiftUIKit"
-               BlueprintName = "SwiftUIKit"
+               BlueprintIdentifier = "NKit"
+               BuildableName = "NKit"
+               BlueprintName = "NKit"
                ReferencedContainer = "container:">
             </BuildableReference>
          </BuildActionEntry>
@@ -26,15 +27,16 @@
       buildConfiguration = "Debug"
       selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
-      shouldUseLaunchSchemeArgsEnv = "YES">
+      shouldUseLaunchSchemeArgsEnv = "YES"
+      shouldAutocreateTestPlan = "YES">
       <Testables>
          <TestableReference
             skipped = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "SwiftUIKitTests"
-               BuildableName = "SwiftUIKitTests"
-               BlueprintName = "SwiftUIKitTests"
+               BlueprintIdentifier = "NKitTests"
+               BuildableName = "NKitTests"
+               BlueprintName = "NKitTests"
                ReferencedContainer = "container:">
             </BuildableReference>
          </TestableReference>
@@ -60,9 +62,9 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "SwiftUIKit"
-            BuildableName = "SwiftUIKit"
-            BlueprintName = "SwiftUIKit"
+            BlueprintIdentifier = "NKit"
+            BuildableName = "NKit"
+            BlueprintName = "NKit"
             ReferencedContainer = "container:">
          </BuildableReference>
       </MacroExpansion>

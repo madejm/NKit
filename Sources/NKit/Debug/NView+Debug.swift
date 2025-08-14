@@ -14,7 +14,7 @@ extension NView {
             return ["ARR:", a.flatMap {
                 $0.debugStringValues
             }]
-        } else if let n = self as? AnyNForEach {
+        } else if let n = self as? NForEach {
             return ["FOREACH"]
         } else {
             fatalError()

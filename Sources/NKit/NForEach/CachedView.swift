@@ -13,11 +13,12 @@ internal struct CachedView {
     
     internal init(
         hash: Int,
-        views: [NView]
+        views: [NView],
+        isStrongified: Bool
     ) {
         self.hash = hash
         self.elements = views.map {
-            CachedElement(view: $0)
+            CachedElement(view: $0, isStrongified: isStrongified)
         }
     }
     
@@ -26,6 +27,18 @@ internal struct CachedView {
         
         for element in elements {
             element.clear()
+        }
+    }
+    
+    internal func strongify() {
+        for element in elements {
+            element.strongify()
+        }
+    }
+    
+    internal func weakify() {
+        for element in elements {
+            element.weakify()
         }
     }
 }

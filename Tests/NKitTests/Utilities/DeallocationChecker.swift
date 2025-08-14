@@ -15,7 +15,6 @@ import UIKit
 final class DeallocationChecker {
     
     private var elements: [WeakElement] = []
-    private(set) var deallocatedCount: Int = 0
     
     init() {
     }
@@ -23,10 +22,7 @@ final class DeallocationChecker {
     @MainActor
     func append(_ newElement: _View) {
         elements.append(WeakElement(
-            element: newElement,
-            deallocated: { [unowned self] in
-                self.deallocatedCount += 1
-            }
+            element: newElement
         ))
     }
     
@@ -35,8 +31,10 @@ final class DeallocationChecker {
     }
     
     @MainActor
-    var notDeallocated: [Any] {
-        elements.compactMap {
+    func getNotDeallocated() async -> [Any] {
+        try? await Task.sleep(nanoseconds: 1_000_000)
+        
+        return elements.compactMap {
             $0.element?.mirrorDescription
         }
     }
@@ -44,28 +42,17 @@ final class DeallocationChecker {
 
 extension DeallocationChecker {
     @MainActor
-    final class WeakElement: @MainActor CustomReflectable {
+    final class WeakElement {
         
-        private var deallocated: () -> Void
-        
-        private(set) weak var element: _View? {
-            willSet {
-                guard newValue == nil else {
-                    return
-                }
-                deallocated()
-            }
-        }
+        private(set) weak var element: _View?
         
         init(
-            element: _View,
-            deallocated: @escaping () -> Void
+            element: _View
         ) {
             self.element = element
-            self.deallocated = deallocated
         }
         
-        public var customMirror: Mirror {
+        fileprivate var _customMirror: Mirror {
             if let tf = element as? Text {
                 #if canImport(AppKit)
                 return Mirror(self, children: ["stringValue": tf.stringValue])
@@ -78,3 +65,17 @@ extension DeallocationChecker {
         }
     }
 }
+
+#if swift(>=6.1)
+extension DeallocationChecker.WeakElement: @MainActor CustomReflectable {
+    public var customMirror: Mirror {
+        _customMirror
+    }
+}
+#else
+extension DeallocationChecker.WeakElement: @preconcurrency CustomReflectable {
+    public var customMirror: Mirror {
+        _customMirror
+    }
+}
+#endif

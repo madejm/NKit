@@ -73,18 +73,72 @@ public final class NForEach: NView {
         )
     }
     
+    public init<Element>(
+        constantSize data: NGet<ConstantSizeArray<Element>>,
+        separator: (() -> NView)? = nil,
+        @NViewBuilder content: @escaping (NGet<Element?>) -> [NView]
+    ) {
+        self.separator = separator
+        self.engine = NForEachConstantEngine(
+            data: data,
+            content: content
+        )
+        self.engine.setOwner(self)
+    }
+    
+    public convenience init<Element>(
+        constantSize data: NBinding<ConstantSizeArray<Element>>,
+        separator: (() -> NView)? = nil,
+        @NViewBuilder content: @escaping (NGet<Element?>) -> [NView]
+    ) {
+        self.init(
+            data.get,
+            separator: separator,
+            content: content
+        )
+    }
+    
+    #if swift(>=6.2)
+    @available(macOS 26.0, iOS 26.0, *)
+    public init<let count: Int, Element>(
+        _ data: NGet<InlineArray<count, Element>>,
+        separator: (() -> NView)? = nil,
+        @NViewBuilder content: @escaping (NGet<Element?>) -> [NView]
+    ) where Element: Equatable {
+        self.separator = separator
+        self.engine = NForEachConstantEngine(
+            data: data.map(),
+            content: content
+        )
+        self.engine.setOwner(self)
+    }
+    
+    @available(macOS 26.0, iOS 26.0, *)
+    public convenience init<let count: Int, Element>(
+        _ data: NBinding<InlineArray<count, Element>>,
+        separator: (() -> NView)? = nil,
+        @NViewBuilder content: @escaping (NGet<Element?>) -> [NView]
+    ) where Element: Equatable {
+        self.init(
+            data.get,
+            separator: separator,
+            content: content
+        )
+    }
+    #endif
+    
     deinit {
-        print_debug("✨ DEINIT NForEach")
+        print_debug("💥 DEINIT NForEach")
     }
 }
 
-extension NForEach: AnyNForEach {
-    internal func isTheSameAs(_ other: AnyNForEach) -> Bool {
-        guard let another = other as? Self else {
-            return false
-        }
-        return another === self
-    }
+extension NForEach {
+//    internal func isTheSameAs(_ other: NForEach) -> Bool {
+//        guard let another = other as? Self else {
+//            return false
+//        }
+//        return another === self
+//    }
     
     internal func setNForEachParent(_ parent: NView) {
         self.engine.setNForEachParent(parent)
@@ -94,7 +148,7 @@ extension NForEach: AnyNForEach {
         self.engine.viewsCountInCache
     }
     
-    internal func viewsCountInCache(until end: AnyNForEach) -> (count: Int, stop: Bool) {
+    internal func viewsCountInCache(until end: NForEach) -> (count: Int, stop: Bool) {
         self.engine.viewsCountInCache(until: end)
     }
     
@@ -106,6 +160,14 @@ extension NForEach: AnyNForEach {
         changed: @escaping (_ viewsBeforeMe: Int, _ changes: [NChange<NView>]) -> Void
     ) {
         self.engine.onDataChange(changed: changed)
+    }
+    
+    internal func weakifyCache() {
+        self.engine.weakifyCache()
+    }
+    
+    internal func strongifyCache() {
+        self.engine.strongifyCache()
     }
     
     internal func clearCache() {

@@ -57,35 +57,14 @@ extension NView {
             for item in array {
                 item.setParent(parent)
             }
-        } else if let forEach = self as? AnyNForEach {
+        } else if let forEach = self as? NForEach {
             forEach.setNForEachParent(parent)
         } else {
             fatalError()
         }
     }
     
-//    internal func VIEW_PRINT(indent: Int) -> String  {
-//        if let v = self as? _View {
-//            return indent.indent() + v.textFieldString + "\n"
-//        } else if let array = self as? [NView] {
-//            var res = ""
-//            res += indent.indent()
-//            res += "[\n"
-//            
-//            for v in array {
-//                res += v.VIEW_PRINT(indent: indent + 1)
-//            }
-//            
-//            res += indent.indent()
-//            res += "]\n"
-//            return res
-//        } else if let forEach = self as? AnyNForEach {
-//            return forEach.VIEW_PRINT(indent: indent + 1)
-//        }
-//        fatalError()
-//    }
-    
-    internal func countViews(until end: AnyNForEach) -> (count: Int, stop: Bool) {
+    internal func countViews(until end: NForEach) -> (count: Int, stop: Bool) {
         if self is _View {
             return (1, false)
         } else if let array = self as? [NView] {
@@ -101,8 +80,8 @@ extension NView {
             }
             
             return (count, false)
-        } else if let forEach = self as? AnyNForEach {
-            guard !forEach.isTheSameAs(end) else {
+        } else if let forEach = self as? NForEach {
+            guard forEach !== end else {
                 return (0, true)
             }
             
@@ -116,7 +95,7 @@ extension NView {
             return 1
         } else if let array = self as? [NView] {
             return array.viewsCount
-        } else if let forEach = self as? AnyNForEach {
+        } else if let forEach = self as? NForEach {
             let nViews: [NView] = forEach.forEachViews
             return nViews.viewsCount
 //            return forEach.viewsCountInCache
@@ -128,8 +107,8 @@ extension NView {
         if self is _View {
             return 1
         } else if let array = self as? [NView] {
-            return array.viewsCount
-        } else if let forEach = self as? AnyNForEach {
+            return array.viewsCountInCache
+        } else if let forEach = self as? NForEach {
 //            let nViews: [NView] = forEach.forEachViews
 //            return nViews.viewsCount
             return forEach.viewsCountInCache
@@ -144,16 +123,16 @@ extension NView {
             return [view]
         } else if let array = self as? [NView] {
             let views: [_View] = array.mapToViews(
-//                INFO: "ARRAY",
                 onChange: {
                     onChange($0, $1)
                 }
             )
             return views
-        } else if let forEach = self as? AnyNForEach {
+        } else if let forEach = self as? NForEach {
+//            forEach.strongifyCache()
+            
             let nViews: [NView] = forEach.forEachViews
             let views: [_View] = nViews.mapToViews(
-//                INFO: "NFE \(forEach.DEBUG_LABEL)",
                 onChange: { (changeOffset: Int, changes: [NChange<_View>]) in
                     let offset: Int = changeOffset + 0
                     
@@ -161,7 +140,8 @@ extension NView {
                 }
             )
             
-//            forEach.onDataChange { [unowned forEach] (changes: [NChange<NView>]) in
+//            forEach.weakifyCache()
+            
             forEach.onDataChange { (viewsBeforeMe: Int, changes: [NChange<NView>]) in
                 let changes: [NChange<_View>] = changes
                     .map { (change: NChange<NView>) in
@@ -183,11 +163,7 @@ extension NView {
                         }
                     }
                 
-//                let fe = forEach
-//                let offset: Int = numberOfViewsBeforeMe()
-                let offset: Int = viewsBeforeMe
-                
-                onChange(offset, changes)
+                onChange(viewsBeforeMe, changes)
             }
             
             return views
@@ -199,7 +175,6 @@ extension NView {
 extension Array where Element == NView {
     @MainActor
     fileprivate func mapToViews(
-//        INFO: String,
         onChange: @escaping @MainActor (_ changeOffset: Int, _ changes: [NChange<_View>]) -> Void
     ) -> [_View] {
         var views: [_View] = []
@@ -209,17 +184,7 @@ extension Array where Element == NView {
             
             let subviews: [_View] = nView.views(
                 onChange: { (changeOffset: Int, changes: [NChange<_View>]) in
-                    
-//                    let start: Int = self.viewCount(upTo: i)
-//                    let replaceOffset: Int = start + changeOffset
-                    let replaceOffset: Int = changeOffset
-                    
-//                    let INFO_ = INFO
-//                    let PRINT_ALL = self.VIEW_PRINT(upTo: self.count, indent: 0)
-//                    let PRINT = self.VIEW_PRINT(upTo: i, indent: 0)
-//                    let _s = self
-                    
-                    onChange(replaceOffset, changes)
+                    onChange(changeOffset, changes)
                 }
             )
             

@@ -55,14 +55,22 @@ public final class Text: NSTextField {
     
     deinit {
         #if DEBUG
-        print_debug("✨ DEINIT Text \(debugStringValue)")
+        print_debug("💥 DEINIT Text \(debugStringValue)")
         #endif
     }
 }
 
+#if swift(>=6.1)
 extension Text: @MainActor CustomReflectable {
     public var customMirror: Mirror {
         Mirror(self, children: ["stringValue": stringValue])
     }
 }
+#else
+extension Text: @preconcurrency CustomReflectable {
+    public var customMirror: Mirror {
+        Mirror(self, children: ["stringValue": stringValue])
+    }
+}
+#endif
 #endif

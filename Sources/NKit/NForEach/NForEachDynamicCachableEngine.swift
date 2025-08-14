@@ -11,8 +11,9 @@ where C: RandomAccessCollection, C: Equatable, C.Element: Hashable {
     private let data: NGet<C>
     private let content: (NGet<C.Element?>) -> [NView]
     private var cachedViews: [CachedView]? = []
+    private var isCacheStrongified: Bool = true
     private /*unowned*/ var parent: NView?
-    private unowned var owner: AnyNForEach!
+    private unowned var owner: NForEach!
     
     public init(
         data: NGet<C>,
@@ -24,7 +25,7 @@ where C: RandomAccessCollection, C: Equatable, C.Element: Hashable {
 }
 
 extension NForEachDynamicCachableEngine: NForEachEngine {
-    internal func setOwner(_ owner: AnyNForEach) {
+    internal func setOwner(_ owner: NForEach) {
         self.owner = owner
     }
     
@@ -41,12 +42,13 @@ extension NForEachDynamicCachableEngine: NForEachEngine {
         
         for cachedView: CachedView in cachedViews {
             count += cachedView.viewsCount
+//            count += cachedView.viewsCountInCache
         }
         
         return count
     }
     
-    internal func viewsCountInCache(until end: AnyNForEach) -> (count: Int, stop: Bool) {
+    internal func viewsCountInCache(until end: NForEach) -> (count: Int, stop: Bool) {
         guard let cachedViews else {
             return (0, false)
         }
@@ -97,6 +99,8 @@ extension NForEachDynamicCachableEngine: NForEachEngine {
             let cachedView: (newIndex: NViewIndex, oldIndex: NViewIndex, view: CachedView)? = cachedOld.getCached(hash: hash)
             
             if let cachedView {
+//                cachedView.view.strongify()
+                
                 let viewsCount: Int = cachedView.view.viewsCount
 //                let viewsCount: Int = cachedView.view.viewsCountInCache
                 let newCachedView: CachedView = cachedView.view
@@ -120,6 +124,8 @@ extension NForEachDynamicCachableEngine: NForEachEngine {
                     print_debug("👉 moving from: \(oldOffset), to: \(newOffset),", newCachedView.views.debugStringValues)
                 }
                 
+//                cachedView.view.weakify()
+                
                 cachedNew.append(newCachedView)
                 currentCount += viewsCount
             } else {
@@ -129,11 +135,13 @@ extension NForEachDynamicCachableEngine: NForEachEngine {
                 }
                 
                 let newViewsCount: Int = newContents.viewsCount
+//                let newViewsCount: Int = newContents.viewsCountInCache
                 let newOffset: StackIndex = StackIndex(rawValue: currentCount)
                 
                 let newCachedView: CachedView = .init(
                     hash: hash ?? 0,
-                    views: newContents
+                    views: newContents,
+                    isStrongified: self.isCacheStrongified
                 )
                 
                 print_debug("👉 inserting at: \(newOffset), count: \(newViewsCount),", newContents.debugStringValues)
@@ -174,10 +182,6 @@ extension NForEachDynamicCachableEngine: NForEachEngine {
             guard let self else {
                 return
             }
-            
-            guard let hashables = newValue as? [any Hashable] else {
-                fatalError("trying to change non hashables")
-            }
             guard var cachedCopy = self.cachedViews else {
                 return
             }
@@ -185,7 +189,7 @@ extension NForEachDynamicCachableEngine: NForEachEngine {
             var viewChanges: [NChange<NView>] = []
             var newCached: [(oldIndex: NViewIndex, view: CachedView)] = []
             
-            for hashable in hashables {
+            for hashable in newValue {
                 let newHash: Int = hashable.hashValue
                 
                 guard let cachedView: (oldIndex: NViewIndex, view: CachedView) = cachedCopy.getCached(hash: newHash) else {
@@ -220,6 +224,30 @@ extension NForEachDynamicCachableEngine: NForEachEngine {
             for i in 0..<cachesToClear.count {
                 cachesToClear[i].clear()
             }
+        }
+    }
+    
+    internal func weakifyCache() {
+        guard let indices = self.cachedViews?.indices else {
+            return
+        }
+        
+        self.isCacheStrongified = false
+        
+        for index in indices {
+            self.cachedViews?[index].weakify()
+        }
+    }
+    
+    internal func strongifyCache() {
+        guard let indices = self.cachedViews?.indices else {
+            return
+        }
+        
+        self.isCacheStrongified = true
+        
+        for index in indices {
+            self.cachedViews?[index].strongify()
         }
     }
     

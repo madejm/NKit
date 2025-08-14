@@ -10,7 +10,7 @@ internal final class NForEachConstantEngine<D> where D: RandomAccessCollection {
     private let content: (D.Element) -> [NView]
     private var views: [NView]?
     private /*unowned*/ var parent: NView?
-    private unowned var owner: AnyNForEach!
+    private unowned var owner: NForEach!
     
     public init(
         data: D,
@@ -22,7 +22,7 @@ internal final class NForEachConstantEngine<D> where D: RandomAccessCollection {
 }
 
 extension NForEachConstantEngine: NForEachEngine {
-    func setOwner(_ owner: AnyNForEach) {
+    func setOwner(_ owner: NForEach) {
         self.owner = owner
     }
     
@@ -40,8 +40,9 @@ extension NForEachConstantEngine: NForEachEngine {
         }
     }
     
-    func viewsCountInCache(until end: AnyNForEach) -> (count: Int, stop: Bool) {
-        guard !owner.isTheSameAs(end) else {
+    func viewsCountInCache(until end: NForEach) -> (count: Int, stop: Bool) {
+//        guard !owner.isTheSameAs(end) else {
+        guard owner !== end else {
             return (0, true)
         }
         guard let views else {
@@ -80,6 +81,14 @@ extension NForEachConstantEngine: NForEachEngine {
     }
     
     func onDataChange(changed: @escaping (Int, [NChange<NView>]) -> Void) {
+        print("")
+    }
+    
+    func weakifyCache() {
+        print("")
+    }
+    
+    func strongifyCache() {
         print("")
     }
     

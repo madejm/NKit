@@ -7,12 +7,12 @@
 
 @MainActor
 internal protocol NForEachEngine {
-    func setOwner(_ owner: AnyNForEach)
+    func setOwner(_ owner: NForEach)
     
     func setNForEachParent(_ parent: NView)
     
     var viewsCountInCache: Int { get }
-    func viewsCountInCache(until end: AnyNForEach) -> (count: Int, stop: Bool)
+    func viewsCountInCache(until end: NForEach) -> (count: Int, stop: Bool)
     
     var forEachViews: [NView] { get }
     
@@ -20,5 +20,7 @@ internal protocol NForEachEngine {
         changed: @escaping (_ viewsBeforeMe: Int, _ changes: [NChange<NView>]) -> Void
     )
     
+    func weakifyCache()
+    func strongifyCache()
     func clearCache()
 }

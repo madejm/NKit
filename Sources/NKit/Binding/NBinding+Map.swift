@@ -68,6 +68,35 @@ extension NBinding {
     }
 }
 
+#if swift(>=6.2)
+@available(macOS 26.0, iOS 26.0, *)
+extension NBinding {
+    public func map<let count: Int, Element>() -> NBinding<[Element]>
+    where Value == InlineArray<count, Element> {
+        self.map(
+            up: {
+                Array($0)
+            },
+            down: {
+                InlineArray($0)
+            }
+        )
+    }
+    
+    public func map<let count: Int, Element>() -> NBinding<InlineArray<count, Element>>
+    where Value == [Element] {
+        self.map(
+            up: {
+                InlineArray($0)
+            },
+            down: {
+                Array($0)
+            }
+        )
+    }
+}
+#endif
+
 extension NBinding {
     public subscript<T>(dynamicMember keyPath: KeyPath<Value, T>) -> NBinding<T> {
         let newBinding: NBinding<T> = .init(get: {

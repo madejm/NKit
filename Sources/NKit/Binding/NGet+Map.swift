@@ -56,6 +56,25 @@ extension NGet {
     }
 }
 
+#if swift(>=6.2)
+@available(macOS 26.0, iOS 26.0, *)
+extension NGet {
+    public func map<let count: Int, Element>() -> NGet<[Element]>
+    where Value == InlineArray<count, Element> {
+        self.map(up: {
+            Array($0)
+        })
+    }
+    
+    public func map<let count: Int, Element>() -> NGet<InlineArray<count, Element>>
+    where Value == [Element] {
+        self.map(up: {
+            InlineArray($0)
+        })
+    }
+}
+#endif
+
 extension NGet {
     @_disfavoredOverload
     public subscript<T>(dynamicMember keyPath: KeyPath<Value, T>) -> NGet<T> {

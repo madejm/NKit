@@ -39,7 +39,7 @@ extension Array: NView where Element == NView {}
 //extension SwiftUI.Color: NView {}
 //@available(macOS 11.0, *)
 //extension SwiftUI.ColorPicker: NView {}
-////@available(macOS 26.0, *)
+////@available(macOS 26.0, iOS 26.0, *)
 ////extension SwiftUI.ConcentricRectangle: NView {}
 //@available(macOS 11.0, *)
 //extension SwiftUI.ContainerRelativeShape: NView {}
@@ -54,15 +54,15 @@ extension Array: NView where Element == NView {}
 //extension SwiftUI.DatePicker: NView {}
 //@available(macOS 13.0, *)
 //extension SwiftUI.DatePickerStyleConfiguration.Label: NView {}
-//@available(macOS 26.0, *)
+//@available(macOS 26.0, iOS 26.0, *)
 //extension SwiftUI.DebugReplaceableView: NView {}
-//@available(macOS 26.0, *)
+//@available(macOS 26.0, iOS 26.0, *)
 //extension SwiftUI.DefaultButtonLabel: NView {}
 //@available(macOS 13.0, *)
 //extension SwiftUI.DefaultDateProgressLabel: NView {}
 //@available(macOS 15.0, *)
 //extension SwiftUI.DefaultDocumentGroupLaunchActions: NView {}
-////@available(macOS 26.0, *)
+////@available(macOS 26.0, iOS 26.0, *)
 ////extension SwiftUI.DefaultGlassEffectShape: NView {}
 //@available(macOS 14.0, *)
 //extension SwiftUI.DefaultSettingsLinkLabel: NView {}
@@ -109,11 +109,11 @@ extension Array: NView where Element == NView {}
 //@available(macOS 13.0, *)
 //extension SwiftUI.GaugeStyleConfiguration.MinimumValueLabel: NView {}
 //extension SwiftUI.GeometryReader: NView {}
-////@available(macOS 26.0, *)
+////@available(macOS 26.0, iOS 26.0, *)
 ////extension SwiftUI.GeometryReader3D: NView {}
-////@available(macOS 26.0, *)
+////@available(macOS 26.0, iOS 26.0, *)
 ////extension SwiftUI.GlassBackgroundEffectConfiguration.Content: NView {}
-//@available(macOS 26.0, *)
+//@available(macOS 26.0, iOS 26.0, *)
 //extension SwiftUI.GlassEffectContainer: NView {}
 //@available(macOS 13.0, *)
 //extension SwiftUI.Grid: NView {}
@@ -271,6 +271,6 @@ extension Array: NView where Element == NView {}
 //@available(macOS 15.0, *)
 //extension SwiftUI.WindowVisibilityToggle: NView {}
 //extension SwiftUI.ZStack: NView {}
-////@available(macOS 26.0, *)
+////@available(macOS 26.0, iOS 26.0, *)
 ////extension SwiftUI.ZStackContent3D: NView {}
 //#endif

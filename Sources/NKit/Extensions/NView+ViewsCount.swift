@@ -14,6 +14,13 @@ extension Array where Element == NView {
     }
     
     @MainActor
+    internal var viewsCountInCache: Int {
+        self.reduce(into: 0) {
+            $0 += $1.viewsCountInCache
+        }
+    }
+    
+    @MainActor
     internal func viewCount(upTo index: Int) -> Int {
         guard index > 0 else {
             return 0

@@ -29,11 +29,17 @@ extension CachedElement {
             let mapped: [NView] = array.map { $0.view }
             return mapped
         }
-        if let strongObject {
-            return strongObject
+        if let object {
+            return object
         }
-        if let weakObject {
-            return weakObject
+        if let nForEach {
+            return nForEach
+        }
+        if let strongView {
+            return strongView
+        }
+        if let weakView {
+            return weakView
         }
         fatalError("Cached element was deallocated!")
     }
@@ -42,11 +48,17 @@ extension CachedElement {
         if let array {
             return array.reduce(into: 0) { $0 += $1.viewsCount }
         }
-        if let strongObject {
-            return strongObject.viewsCount
+        if let object {
+            return object.viewsCount
         }
-        if let weakObject {
-            return weakObject.viewsCount
+        if let nForEach {
+            return nForEach.viewsCount
+        }
+        if let strongView {
+            return strongView.viewsCount
+        }
+        if let weakView {
+            return weakView.viewsCount
         }
         if let lastWeakObjectViewCount {
             return lastWeakObjectViewCount
@@ -58,11 +70,17 @@ extension CachedElement {
         if let array {
             return array.reduce(into: 0) { $0 += $1.viewsCountInCache }
         }
-        if let strongObject {
-            return strongObject.viewsCountInCache
+        if let object {
+            return object.viewsCountInCache
         }
-        if let weakObject {
-            return weakObject.viewsCountInCache
+        if let nForEach {
+            return nForEach.viewsCountInCache
+        }
+        if let strongView {
+            return strongView.viewsCountInCache
+        }
+        if let weakView {
+            return weakView.viewsCountInCache
         }
         if let lastWeakObjectViewCount {
             return lastWeakObjectViewCount
@@ -70,7 +88,7 @@ extension CachedElement {
         fatalError("Cached element was deallocated and lastObjectViewCount was not set!")
     }
     
-    internal func countViews(until end: AnyNForEach) -> (count: Int, stop: Bool) {
+    internal func countViews(until end: NForEach) -> (count: Int, stop: Bool) {
         if let array {
             var count: Int = 0
             
@@ -85,11 +103,17 @@ extension CachedElement {
             
             return (count, false)
         }
-        if let strongObject {
-            return strongObject.countViews(until: end)
+        if let object {
+            return object.countViews(until: end)
         }
-        if let weakObject {
-            return weakObject.countViews(until: end)
+        if let nForEach {
+            return nForEach.countViews(until: end)
+        }
+        if let strongView {
+            return strongView.countViews(until: end)
+        }
+        if let weakView {
+            return weakView.countViews(until: end)
         }
         if let lastWeakObjectViewCount {
             return (lastWeakObjectViewCount, false)
