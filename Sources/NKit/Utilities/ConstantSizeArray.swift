@@ -6,14 +6,7 @@
 //
 
 public struct ConstantSizeArray<Element> {
-    private var array: Array<Element>
-    
-    public init?(_ array: Array<Element>) {
-        guard !array.isEmpty else {
-            return nil
-        }
-        self.array = array
-    }
+    fileprivate var array: Array<Element>
     
     public init?<S>(_ elements: S) where S: Sequence, Element == S.Element {
         let array = Array(elements)
@@ -32,6 +25,12 @@ public struct ConstantSizeArray<Element> {
             return nil
         }
         self.array = Array(repeating: repeatedValue, count: count)
+    }
+    
+    public init(
+        _ first: Element, _ elements: Element...
+    ) {
+        self.array = [first] + Array(elements)
     }
 }
 
@@ -74,16 +73,19 @@ extension ConstantSizeArray {
     
     public subscript(bounds: Range<Int>) -> ArraySlice<Element>? {
         get {
-            guard array.startIndex <= bounds.lowerBound, array.endIndex > bounds.upperBound else {
+            guard array.startIndex <= bounds.lowerBound, array.endIndex >= bounds.upperBound else {
                 return nil
             }
             return array[bounds]
         }
         set {
-            guard array.startIndex <= bounds.lowerBound, array.endIndex > bounds.upperBound else {
+            guard array.startIndex <= bounds.lowerBound, array.endIndex >= bounds.upperBound else {
                 return
             }
             guard let newValue else {
+                return
+            }
+            guard array[bounds].count == newValue.count else {
                 return
             }
             array[bounds] = newValue
@@ -96,7 +98,10 @@ extension ConstantSizeArray {
         _ subrange: Range<Int>,
         with newElements: C
     ) where Element == C.Element, C : Collection {
-        guard array.startIndex <= subrange.lowerBound, array.endIndex > subrange.upperBound else {
+        guard array.startIndex <= subrange.lowerBound, array.endIndex >= subrange.upperBound else {
+            return
+        }
+        guard array[subrange].count == newElements.count else {
             return
         }
         array.replaceSubrange(subrange, with: newElements)
@@ -292,4 +297,38 @@ extension ConstantSizeArray: BidirectionalCollection {
 }
 
 extension ConstantSizeArray: RandomAccessCollection {
+}
+
+@_disfavoredOverload
+public func == <Element, C>(lhs: ConstantSizeArray<Element>, rhs: C) -> Bool
+where C: Collection, C.Element == Element, Element: Equatable {
+    lhs.array == Array(rhs)
+}
+
+@_disfavoredOverload
+public func != <Element, C>(lhs: ConstantSizeArray<Element>, rhs: C) -> Bool
+where C: Collection, C.Element == Element, Element: Equatable {
+    lhs.array != Array(rhs)
+}
+
+public func == <Element>(lhs: ConstantSizeArray<Element>, rhs: Array<Element>) -> Bool
+where Element: Equatable {
+    lhs.array == rhs
+}
+
+@_disfavoredOverload
+public func == <Element, C>(lhs: C, rhs: ConstantSizeArray<Element>) -> Bool
+where C: Collection, C.Element == Element, Element: Equatable {
+    Array(lhs) == rhs.array
+}
+
+@_disfavoredOverload
+public func != <Element, C>(lhs: C, rhs: ConstantSizeArray<Element>) -> Bool
+where C: Collection, C.Element == Element, Element: Equatable {
+    Array(lhs) != rhs.array
+}
+
+public func == <Element>(lhs: Array<Element>, rhs: ConstantSizeArray<Element>) -> Bool
+where Element: Equatable {
+    lhs == rhs.array
 }
