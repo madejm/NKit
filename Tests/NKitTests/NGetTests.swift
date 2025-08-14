@@ -132,4 +132,33 @@ struct NGetTests {
         #expect(get.wrappedValue.number == 1)
         #expect(get.number.wrappedValue == 1)
     }
+    
+    @Test func testCollectionIndex() {
+        let state: NState<[String]> = .init(wrappedValue: ["A", "B", "C"])
+        let get: NGet<[String]> = state.projectedValue.get
+        
+        let newGet: NGet<String> = get[1]
+        
+        #expect(newGet.wrappedValue == "B")
+        
+        state.wrappedValue.remove(at: 1)
+        #expect(newGet.wrappedValue == "C")
+        
+        state.wrappedValue.remove(at: 1)
+    }
+    
+    @Test func testCollectionIndexOptional() {
+        let state: NState<[String]> = .init(wrappedValue: ["A", "B", "C"])
+        let get: NGet<[String]> = state.projectedValue.get
+        
+        let newGet: NGet<String?> = get[1]
+        
+        #expect(newGet.wrappedValue == "B")
+        
+        state.wrappedValue.remove(at: 1)
+        #expect(newGet.wrappedValue == "C")
+        
+        state.wrappedValue.remove(at: 1)
+        #expect(newGet.wrappedValue == nil)
+    }
 }

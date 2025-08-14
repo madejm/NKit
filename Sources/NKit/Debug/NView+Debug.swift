@@ -25,9 +25,9 @@ extension NView {
     }
 }
 
-#if DEBUG
 extension ViewStack {
     internal func printStack() {
+        #if DEBUG
         print("CURRENT STACK:")
         
         for i in 0..<self.stack.arrangedSubviews.count {
@@ -40,6 +40,6 @@ extension ViewStack {
             #endif
             print("\(i): \(sv ?? "")")
         }
+        #endif
     }
 }
-#endif

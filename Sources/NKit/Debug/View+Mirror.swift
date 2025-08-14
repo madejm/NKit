@@ -5,9 +5,9 @@
 //  Created by Mejdej on 13/08/2025.
 //
 
-#if DEBUG
 extension _View {
     internal var mirrorDescription: String {
+        #if DEBUG
         let mirror = Mirror(reflecting: self)
         let children: [String] = mirror
             .children
@@ -20,6 +20,8 @@ extension _View {
             }
         
         return "\(mirror.subjectType)(\(children.joined(separator: ", ")))"
+        #else
+        return ""
+        #endif
     }
 }
-#endif
