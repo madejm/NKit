@@ -13,18 +13,35 @@ let package = Package(
             name: "NKit",
             targets: ["NKit"]
         ),
-    ],
-    dependencies: [
+        .library(
+            name: "FixedArray",
+            targets: ["FixedArray"]
+        )
     ],
     targets: [
         .target(
             name: "NKit",
             dependencies: [
+                "FixedArray"
             ]
         ),
         .testTarget(
             name: "NKitTests",
-            dependencies: ["NKit"]
+            dependencies: [
+                "NKit"
+            ]
         ),
+        .target(
+            name: "FixedArray",
+            dependencies: [
+            ]
+        ),
+        .testTarget(
+            name: "FixedArrayTests",
+            dependencies: [
+                "FixedArray",
+                "NKit"
+            ]
+        )
     ]
 )

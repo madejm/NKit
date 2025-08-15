@@ -1,4 +1,5 @@
 import Foundation
+import FixedArray
 
 @MainActor
 public final class NForEach: NView {
@@ -73,8 +74,8 @@ public final class NForEach: NView {
         )
     }
     
-    public init<Element>(
-        constantSize data: NGet<ConstantSizeArray<Element>>,
+    public init<Size, Element>(
+        constantSize data: NGet<FixedArray<Size, Element>>,
         separator: (() -> NView)? = nil,
         @NViewBuilder content: @escaping (NGet<Element?>) -> [NView]
     ) {
@@ -86,8 +87,8 @@ public final class NForEach: NView {
         self.engine.setOwner(self)
     }
     
-    public convenience init<Element>(
-        constantSize data: NBinding<ConstantSizeArray<Element>>,
+    public convenience init<Size, Element>(
+        constantSize data: NBinding<FixedArray<Size, Element>>,
         separator: (() -> NView)? = nil,
         @NViewBuilder content: @escaping (NGet<Element?>) -> [NView]
     ) {

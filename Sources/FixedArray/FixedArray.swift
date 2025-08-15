@@ -1,40 +1,47 @@
 //
-//  ConstantSizeArray.swift
+//  FixedArray.swift
 //  NKit
 //
 //  Created by Mejdej on 14/08/2025.
 //
 
-public struct ConstantSizeArray<Element> {
-    fileprivate var array: Array<Element>
+public struct FixedArray<Size: FixedArraySize, Element> {
+    internal var array: Array<Element>
     
     public init?<S>(_ elements: S) where S: Sequence, Element == S.Element {
         let array = Array(elements)
         
-        guard !array.isEmpty else {
+        guard array.count == Size.count else {
             return nil
         }
         self.array = array
     }
     
-    public init?(
-        repeating repeatedValue: Element,
-        count: Int
+    public init(
+        repeating repeatedValue: Element
     ) {
-        guard count > 0 else {
-            return nil
-        }
-        self.array = Array(repeating: repeatedValue, count: count)
+        self.array = Array(repeating: repeatedValue, count: Size.count)
     }
     
-    public init(
-        _ first: Element, _ elements: Element...
-    ) {
-        self.array = [first] + Array(elements)
-    }
+//    public init?(
+//        _ elements: Element...
+//    ) {
+//        let array = Array(elements)
+//        
+//        guard array.count == Size.count else {
+//            return nil
+//        }
+//        self.array = array
+//    }
+    
+//    public init(
+//        _ first: Element, _ elements: Element...
+//    ) {
+//        self.array = [first] + Array(elements)
+//    }
 }
 
-extension ConstantSizeArray {
+extension FixedArray {
     public var isEmpty: Bool {
         self.array.isEmpty
     }
@@ -44,7 +51,7 @@ extension ConstantSizeArray {
     }
 }
 
-extension ConstantSizeArray {
+extension FixedArray {
     public subscript(index: Int) -> Element? {
         get {
             guard array.indices.contains(index) else {
@@ -93,7 +100,7 @@ extension ConstantSizeArray {
     }
 }
 
-extension ConstantSizeArray {
+extension FixedArray {
     public mutating func replaceSubrange<C>(
         _ subrange: Range<Int>,
         with newElements: C
@@ -108,21 +115,7 @@ extension ConstantSizeArray {
     }
 }
 
-extension ConstantSizeArray {
-//    public static func + <Other>(lhs: Other, rhs: Self) -> Self where Other: Sequence, Element == Other.Element {
-//        
-//    }
-//    
-//    public static func + <Other>(lhs: Self, rhs: Other) -> Self where Other: Sequence, Element == Other.Element {
-//        
-//    }
-//    
-//    public static func + (lhs: Self, rhs: Self) -> Self {
-//        
-//    }
-}
-
-extension ConstantSizeArray {
+extension FixedArray {
     public func contains(_ element: Element) -> Bool where Element: Equatable {
         array.contains(element)
     }
@@ -160,7 +153,7 @@ extension ConstantSizeArray {
     }
 }
 
-//extension ConstantSizeArray {
+//extension FixedArray {
 //    func prefix(Int) -> Self.SubSequence
 //    func prefix(through: Self.Index) -> Self.SubSequence
 //    func prefix(upTo: Self.Index) -> Self.SubSequence
@@ -169,13 +162,13 @@ extension ConstantSizeArray {
 //    func suffix(from: Self.Index) -> Self.SubSequence
 //}
 //
-//extension ConstantSizeArray {
+//extension FixedArray {
 //    func dropFirst(Int) -> Self.SubSequence
 //    func dropLast(Int) -> Self.SubSequence
 //    func drop(while: (Self.Element) throws -> Bool) rethrows -> Self.SubSequence
 //}
 //
-//extension ConstantSizeArray {
+//extension FixedArray {
 //    func flatMap<SegmentOfResult>((Self.Element) throws -> SegmentOfResult) rethrows -> [SegmentOfResult.Element]
 //    func flatMap<ElementOfResult>((Self.Element) throws -> ElementOfResult?) rethrows -> [ElementOfResult]
 //    func compactMap<ElementOfResult>((Self.Element) throws -> ElementOfResult?) rethrows -> [ElementOfResult]
@@ -185,14 +178,14 @@ extension ConstantSizeArray {
 //
 //}
 //
-//extension ConstantSizeArray {
+//extension FixedArray {
 //    func forEach((Self.Element) throws -> Void) rethrows
 //    func enumerated() -> EnumeratedSequence<Self>
 //    func makeIterator() -> IndexingIterator<Self>
 //    var underestimatedCount: Int
 //}
 //
-//extension ConstantSizeArray {
+//extension FixedArray {
 //    func sort()
 //    func sort(by: (Self.Element, Self.Element) throws -> Bool) rethrows
 //    func sorted() -> [Self.Element]
@@ -207,7 +200,7 @@ extension ConstantSizeArray {
 //    func swapAt(Self.Index, Self.Index)
 //}
 //
-//extension ConstantSizeArray {
+//extension FixedArray {
 //    func split(separator: Self.Element, maxSplits: Int, omittingEmptySubsequences: Bool) -> [Self.SubSequence]
 //    func split(maxSplits: Int, omittingEmptySubsequences: Bool, whereSeparator: (Self.Element) throws -> Bool) rethrows -> [Self.SubSequence]
 //    func joined() -> FlattenSequence<Self>
@@ -217,118 +210,8 @@ extension ConstantSizeArray {
 //
 //}
 //
-//extension ConstantSizeArray {
+//extension FixedArray {
 //    func applying(CollectionDifference<Self.Element>) -> Self?
 //    func difference<C>(from: C) -> CollectionDifference<Self.Element>
 //    func difference<C>(from: C, by: (C.Element, Self.Element) -> Bool) -> CollectionDifference<Self.Element>
 //}
-//
-//extension ConstantSizeArray {
-//}
-
-
-extension ConstantSizeArray: Equatable where Element: Equatable {
-}
-
-extension ConstantSizeArray: Hashable where Element: Hashable {
-    public func hash(into hasher: inout Hasher) {
-        array.hash(into: &hasher)
-    }
-}
-
-extension ConstantSizeArray: Encodable where Element: Encodable {
-    public func encode(to encoder: any Encoder) throws {
-        try array.encode(to: encoder)
-    }
-}
-
-extension ConstantSizeArray: Decodable where Element: Decodable {
-    public init(from decoder: any Decoder) throws {
-        let array: Array<Element> = try .init(from: decoder)
-        self.init(array)!
-    }
-}
-
-extension ConstantSizeArray: ExpressibleByArrayLiteral {
-    public init(arrayLiteral elements: Element...) {
-        self.init(elements)!
-    }
-}
-
-extension ConstantSizeArray: Sequence {
-}
-
-extension ConstantSizeArray: Collection {
-    public typealias Index = Int
-    
-    public var startIndex: Index {
-        self.array.startIndex
-    }
-    
-    public var endIndex: Index {
-        self.array.endIndex
-    }
-    
-    public var indices: Indices {
-        self.array.indices
-    }
-    
-    public func index(after i: Index) -> Index {
-        self.array.index(after: i)
-    }
-    
-    public func formIndex(after i: inout Index) {
-        self.array.formIndex(after: &i)
-    }
-    
-    public subscript(position: Index) -> Element {
-        self.array[position]
-    }
-}
-
-extension ConstantSizeArray: BidirectionalCollection {
-    public func index(before i: Index) -> Index {
-        self.array.index(before: i)
-    }
-    
-    public func formIndex(before i: inout Index) {
-        self.array.formIndex(before: &i)
-    }
-}
-
-extension ConstantSizeArray: RandomAccessCollection {
-}
-
-@_disfavoredOverload
-public func == <Element, C>(lhs: ConstantSizeArray<Element>, rhs: C) -> Bool
-where C: Collection, C.Element == Element, Element: Equatable {
-    lhs.array == Array(rhs)
-}
-
-@_disfavoredOverload
-public func != <Element, C>(lhs: ConstantSizeArray<Element>, rhs: C) -> Bool
-where C: Collection, C.Element == Element, Element: Equatable {
-    lhs.array != Array(rhs)
-}
-
-public func == <Element>(lhs: ConstantSizeArray<Element>, rhs: Array<Element>) -> Bool
-where Element: Equatable {
-    lhs.array == rhs
-}
-
-@_disfavoredOverload
-public func == <Element, C>(lhs: C, rhs: ConstantSizeArray<Element>) -> Bool
-where C: Collection, C.Element == Element, Element: Equatable {
-    Array(lhs) == rhs.array
-}
-
-@_disfavoredOverload
-public func != <Element, C>(lhs: C, rhs: ConstantSizeArray<Element>) -> Bool
-where C: Collection, C.Element == Element, Element: Equatable {
-    Array(lhs) != rhs.array
-}
-
-public func == <Element>(lhs: Array<Element>, rhs: ConstantSizeArray<Element>) -> Bool
-where Element: Equatable {
-    lhs == rhs.array
-}

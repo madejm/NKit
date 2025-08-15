@@ -1,5 +1,6 @@
 import Testing
 import SwiftUI
+import FixedArray
 @testable import NKit
 
 @Suite("NForEachReplacingTests")
@@ -495,9 +496,9 @@ final class NForEachReplacingTests {
         }
     }
     
-    @Test func testNForEachReplacingWithBindedTextsInConstantSizeArray() async {
-        let state: NState<ConstantSizeArray<String>> = .init(wrappedValue: ["A", "B", "C"])
-        let binding: NBinding<ConstantSizeArray<String>> = state.projectedValue
+    @Test func testNForEachReplacingWithBindedTextsInFixedArray() async {
+        let state: NState<FixedArray3<String>> = .init(wrappedValue: .init("A", "B", "C"))
+        let binding: NBinding<FixedArray3<String>> = state.projectedValue
         
         let rootView = NHStack { [unowned self] in
             NForEach(constantSize: binding) { (inner: NGet<String?>) in

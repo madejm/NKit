@@ -15,7 +15,10 @@ extension InlineArray: @retroactive Equatable where Element: Equatable {
 
 @available(macOS 26.0, iOS 26.0, *)
 extension InlineArray {
-    internal init(_ array: Array<Element>) {
+    internal init?(_ array: Array<Element>) {
+        guard array.count == count else {
+            return nil
+        }
         self.init() { (index: InlineArray<count, Element>.Index) in
             array[index]
         }
