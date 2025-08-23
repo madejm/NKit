@@ -28,6 +28,42 @@ extension NGet {
         
         return newGetter
     }
+    
+    public func map<V, M>(
+        optional: @escaping @MainActor (V) -> M,
+        nil valueForNil: @escaping @MainActor () -> M
+    ) -> NGet<M> where Value == V? {
+        let newGetter: NGet<M> = .init(get: {
+            if let value = self.wrappedValue {
+                return optional(value)
+            } else {
+                return valueForNil()
+            }
+        })
+        
+        self.onChange { newValue in
+            if let newValue {
+                newGetter.signalChange(optional(newValue))
+            } else {
+                newGetter.signalChange(valueForNil())
+            }
+        }
+        
+        return newGetter
+    }
+    
+    public func map<M>(
+        nil valueForNil: @escaping @MainActor () -> M
+    ) -> NGet<M> where Value == M? {
+        self.map(
+            optional: { (value: M) -> M in
+                value
+            },
+            nil: {
+                valueForNil()
+            }
+        )
+    }
 }
 
 extension NGet {
@@ -84,6 +120,21 @@ extension NGet {
         
         self.onChange { newValue in
             let value: T = newValue[keyPath: keyPath]
+            newBinding.signalChange(value)
+        }
+        
+        return newBinding
+    }
+    
+    @_disfavoredOverload
+    public subscript<V, T>(dynamicMember keyPath: KeyPath<V, T>) -> NGet<T?>
+    where Value == V? {
+        let newBinding: NGet<T?> = .init(get: {
+            self.wrappedValue?[keyPath: keyPath]
+        })
+        
+        self.onChange { newValue in
+            let value: T? = newValue?[keyPath: keyPath]
             newBinding.signalChange(value)
         }
         
