@@ -33,78 +33,92 @@ final class NForEachReplacingTests {
         let binding: NBinding<[Int]> = state.projectedValue
         
         let rootView = NHStack { [unowned self] in
+            self.createText("Header")
+            
             NForEach(binding) { (index: NGet<Int?>) in
                 if let value = index.wrappedValue {
                     self.createText("\(value)")
                 }
             }
+            
+            self.createText("Footer")
         }
         
-        #expect(rootView.stack.arrangedSubviews.count == 4)
-        #expect(newViewsCreated == 4)
+        #expect(rootView.stack.arrangedSubviews.count == 6)
+        #expect(newViewsCreated == 6)
         await #expect(deallocationChecker.getNotDeallocated().count == rootView.stack.arrangedSubviews.count)
         rootView.check { next, rest in
+            #expect(next() == "Header")
             #expect(next() == "0")
             #expect(next() == "1")
             #expect(next() == "2")
             #expect(next() == "0")
+            #expect(next() == "Footer")
             #expect(rest() == [])
         }
         
         print("\n🔧 Replacing 1 with 3")
         newViewsCreated = 0
         binding[1].wrappedValue = 3
-        #expect(rootView.stack.arrangedSubviews.count == 4)
+        #expect(rootView.stack.arrangedSubviews.count == 6)
         #expect(newViewsCreated == 1)
         await #expect(deallocationChecker.getNotDeallocated().count == rootView.stack.arrangedSubviews.count)
         rootView.check { next, rest in
+            #expect(next() == "Header")
             #expect(next() == "0")
             #expect(next() == "3")
             #expect(next() == "2")
             #expect(next() == "0")
+            #expect(next() == "Footer")
             #expect(rest() == [])
         }
         
         print("\n🔧 Swaping 2 and 3")
         newViewsCreated = 0
         binding.wrappedValue.swapAt(1, 2)
-        #expect(rootView.stack.arrangedSubviews.count == 4)
+        #expect(rootView.stack.arrangedSubviews.count == 6)
         #expect(newViewsCreated == 0)
         await #expect(deallocationChecker.getNotDeallocated().count == rootView.stack.arrangedSubviews.count)
         rootView.check { next, rest in
+            #expect(next() == "Header")
             #expect(next() == "0")
             #expect(next() == "2")
             #expect(next() == "3")
             #expect(next() == "0")
+            #expect(next() == "Footer")
             #expect(rest() == [])
         }
         
         print("\n🔧 Inserting 0")
         newViewsCreated = 0
         binding.wrappedValue.insert(0, at: 1)
-        #expect(rootView.stack.arrangedSubviews.count == 5)
+        #expect(rootView.stack.arrangedSubviews.count == 7)
         #expect(newViewsCreated == 1)
         await #expect(deallocationChecker.getNotDeallocated().count == rootView.stack.arrangedSubviews.count)
         rootView.check { next, rest in
+            #expect(next() == "Header")
             #expect(next() == "0")
             #expect(next() == "0")
             #expect(next() == "2")
             #expect(next() == "3")
             #expect(next() == "0")
+            #expect(next() == "Footer")
             #expect(rest() == [])
         }
         
         print("\n🔧 Removing 2")
         newViewsCreated = 0
         binding.wrappedValue.remove(at: 2)
-        #expect(rootView.stack.arrangedSubviews.count == 4)
+        #expect(rootView.stack.arrangedSubviews.count == 6)
         #expect(newViewsCreated == 0)
         await #expect(deallocationChecker.getNotDeallocated().count == rootView.stack.arrangedSubviews.count)
         rootView.check { next, rest in
+            #expect(next() == "Header")
             #expect(next() == "0")
             #expect(next() == "0")
             #expect(next() == "3")
             #expect(next() == "0")
+            #expect(next() == "Footer")
             #expect(rest() == [])
         }
     }
@@ -117,22 +131,40 @@ final class NForEachReplacingTests {
         let nestedBinding: NBinding<[String]> = nestedState.projectedValue
         
         let rootView = NHStack { [unowned self] in
+            self.createText("Header")
+            
             NForEach(binding) { (outer: NGet<Int?>) in
+                if let value = outer.wrappedValue {
+                    self.createText("Header \(value)")
+                }
+                
                 NForEach(nestedBinding) { (inner: NGet<String?>) in
                     if let value1 = outer.wrappedValue, let value2 = inner.wrappedValue {
                         self.createText("\(value1) \(value2)")
                     }
                 }
+                
+                if let value = outer.wrappedValue {
+                    self.createText("Footer \(value)")
+                }
             }
+            
+            self.createText("Footer")
         }
         
         rootView.printStack()
-        #expect(rootView.stack.arrangedSubviews.count == 2)
-        #expect(newViewsCreated == 2)
+        #expect(rootView.stack.arrangedSubviews.count == 8)
+        #expect(newViewsCreated == 8)
         await #expect(deallocationChecker.getNotDeallocated().count == rootView.stack.arrangedSubviews.count)
         rootView.check { next, rest in
+            #expect(next() == "Header")
+            #expect(next() == "Header 0")
             #expect(next() == "0 A")
+            #expect(next() == "Footer 0")
+            #expect(next() == "Header 1")
             #expect(next() == "1 A")
+            #expect(next() == "Footer 1")
+            #expect(next() == "Footer")
             #expect(rest() == [])
         }
         
@@ -140,14 +172,20 @@ final class NForEachReplacingTests {
         newViewsCreated = 0
         nestedBinding.wrappedValue.append("B")
         rootView.printStack()
-        #expect(rootView.stack.arrangedSubviews.count == 4)
+        #expect(rootView.stack.arrangedSubviews.count == 10)
         #expect(newViewsCreated == 2)
         await #expect(deallocationChecker.getNotDeallocated().count == rootView.stack.arrangedSubviews.count)
         rootView.check { next, rest in
+            #expect(next() == "Header")
+            #expect(next() == "Header 0")
             #expect(next() == "0 A")
             #expect(next() == "0 B")
+            #expect(next() == "Footer 0")
+            #expect(next() == "Header 1")
             #expect(next() == "1 A")
             #expect(next() == "1 B")
+            #expect(next() == "Footer 1")
+            #expect(next() == "Footer")
             #expect(rest() == [])
         }
         
@@ -155,14 +193,20 @@ final class NForEachReplacingTests {
         newViewsCreated = 0
         nestedBinding.wrappedValue[1] = "C"
         rootView.printStack()
-        #expect(rootView.stack.arrangedSubviews.count == 4)
+        #expect(rootView.stack.arrangedSubviews.count == 10)
         #expect(newViewsCreated == 2)
         await #expect(deallocationChecker.getNotDeallocated().count == rootView.stack.arrangedSubviews.count)
         rootView.check { next, rest in
+            #expect(next() == "Header")
+            #expect(next() == "Header 0")
             #expect(next() == "0 A")
             #expect(next() == "0 C")
+            #expect(next() == "Footer 0")
+            #expect(next() == "Header 1")
             #expect(next() == "1 A")
             #expect(next() == "1 C")
+            #expect(next() == "Footer 1")
+            #expect(next() == "Footer")
             #expect(rest() == [])
         }
         
@@ -170,14 +214,20 @@ final class NForEachReplacingTests {
         newViewsCreated = 0
         binding.wrappedValue[1] = 2
         rootView.printStack()
-        #expect(rootView.stack.arrangedSubviews.count == 4)
+        #expect(rootView.stack.arrangedSubviews.count == 10)
         #expect(newViewsCreated == 2)
         await #expect(deallocationChecker.getNotDeallocated().count == rootView.stack.arrangedSubviews.count)
         rootView.check { next, rest in
+            #expect(next() == "Header")
+            #expect(next() == "Header 0")
             #expect(next() == "0 A")
             #expect(next() == "0 C")
+            #expect(next() == "Footer 0")
+            #expect(next() == "Header 2")
             #expect(next() == "2 A")
             #expect(next() == "2 C")
+            #expect(next() == "Footer 2")
+            #expect(next() == "Footer")
             #expect(rest() == [])
         }
         
@@ -185,16 +235,22 @@ final class NForEachReplacingTests {
         newViewsCreated = 0
         nestedBinding.wrappedValue.insert("D", at: 1)
         rootView.printStack()
-        #expect(rootView.stack.arrangedSubviews.count == 6)
+        #expect(rootView.stack.arrangedSubviews.count == 12)
         #expect(newViewsCreated == 2)
         await #expect(deallocationChecker.getNotDeallocated().count == rootView.stack.arrangedSubviews.count)
         rootView.check { next, rest in
+            #expect(next() == "Header")
+            #expect(next() == "Header 0")
             #expect(next() == "0 A")
             #expect(next() == "0 D")
             #expect(next() == "0 C")
+            #expect(next() == "Footer 0")
+            #expect(next() == "Header 2")
             #expect(next() == "2 A")
             #expect(next() == "2 D")
             #expect(next() == "2 C")
+            #expect(next() == "Footer 2")
+            #expect(next() == "Footer")
             #expect(rest() == [])
         }
         
@@ -202,10 +258,16 @@ final class NForEachReplacingTests {
         newViewsCreated = 0
         nestedBinding.wrappedValue.removeAll()
         rootView.printStack()
-        #expect(rootView.stack.arrangedSubviews.count == 0)
+        #expect(rootView.stack.arrangedSubviews.count == 6)
         #expect(newViewsCreated == 0)
         await #expect(deallocationChecker.getNotDeallocated().count == rootView.stack.arrangedSubviews.count)
         rootView.check { next, rest in
+            #expect(next() == "Header")
+            #expect(next() == "Header 0")
+            #expect(next() == "Footer 0")
+            #expect(next() == "Header 2")
+            #expect(next() == "Footer 2")
+            #expect(next() == "Footer")
             #expect(rest() == [])
         }
         
@@ -213,14 +275,20 @@ final class NForEachReplacingTests {
         newViewsCreated = 0
         nestedBinding.wrappedValue = ["B", "A"]
         rootView.printStack()
-        #expect(rootView.stack.arrangedSubviews.count == 4)
+        #expect(rootView.stack.arrangedSubviews.count == 10)
         #expect(newViewsCreated == 4)
         await #expect(deallocationChecker.getNotDeallocated().count == rootView.stack.arrangedSubviews.count)
         rootView.check { next, rest in
+            #expect(next() == "Header")
+            #expect(next() == "Header 0")
             #expect(next() == "0 B")
             #expect(next() == "0 A")
+            #expect(next() == "Footer 0")
+            #expect(next() == "Header 2")
             #expect(next() == "2 B")
             #expect(next() == "2 A")
+            #expect(next() == "Footer 2")
+            #expect(next() == "Footer")
             #expect(rest() == [])
         }
         
@@ -228,10 +296,12 @@ final class NForEachReplacingTests {
         newViewsCreated = 0
         binding.wrappedValue.removeAll()
         rootView.printStack()
-        #expect(rootView.stack.arrangedSubviews.count == 0)
+        #expect(rootView.stack.arrangedSubviews.count == 2)
         #expect(newViewsCreated == 0)
         await #expect(deallocationChecker.getNotDeallocated().count == rootView.stack.arrangedSubviews.count)
         rootView.check { next, rest in
+            #expect(next() == "Header")
+            #expect(next() == "Footer")
             #expect(rest() == [])
         }
         
@@ -239,14 +309,20 @@ final class NForEachReplacingTests {
         newViewsCreated = 0
         binding.wrappedValue = [1, 0]
         rootView.printStack()
-        #expect(rootView.stack.arrangedSubviews.count == 4)
-        #expect(newViewsCreated == 4)
+        #expect(rootView.stack.arrangedSubviews.count == 10)
+        #expect(newViewsCreated == 8)
         await #expect(deallocationChecker.getNotDeallocated().count == rootView.stack.arrangedSubviews.count)
         rootView.check { next, rest in
+            #expect(next() == "Header")
+            #expect(next() == "Header 1")
             #expect(next() == "1 B")
             #expect(next() == "1 A")
+            #expect(next() == "Footer 1")
+            #expect(next() == "Header 0")
             #expect(next() == "0 B")
             #expect(next() == "0 A")
+            #expect(next() == "Footer 0")
+            #expect(next() == "Footer")
             #expect(rest() == [])
         }
     }

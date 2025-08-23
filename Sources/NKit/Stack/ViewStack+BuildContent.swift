@@ -31,8 +31,9 @@ extension ViewStack {
                     print_debug("🆕 STACK UPDATE START, changes:", changes.count)
                     
 //                    let start: Int = self.content().viewCount(upTo: i)
-                    let start: Int = readyContent.viewCount(upTo: i)
-                    let replaceStart: Int = start + changeOffset
+//                    let start: Int = readyContent.viewCount(upTo: i)
+//                    let replaceStart: Int = start + changeOffset
+                    let replaceStart: Int = changeOffset
                     
                     var viewsToRemove: [_View] = []
                     var viewsToInsert: [(index: StackIndex, view: _View)] = []
