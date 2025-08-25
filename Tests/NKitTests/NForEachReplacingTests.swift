@@ -603,7 +603,7 @@ final class NForEachReplacingTests {
         let binding: NBinding<InlineArray<_, String>> = state.projectedValue
         
         let rootView = NHStack { [unowned self] in
-            NForEach(binding) { (inner: NGet<String?>) in
+            NForEach(binding) { (inner: NGet<String>) in
                 self.createText(inner)
             }
         }

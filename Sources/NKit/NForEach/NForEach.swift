@@ -104,7 +104,7 @@ public final class NForEach: NView {
     public init<let count: Int, Element>(
         _ data: NGet<InlineArray<count, Element>>,
         separator: (() -> NView)? = nil,
-        @NViewBuilder content: @escaping (NGet<Element?>) -> [NView]
+        @NViewBuilder content: @escaping (NGet<Element>) -> [NView]
     ) where Element: Equatable {
         self.separator = separator
         self.engine = NForEachConstantEngine(
@@ -118,7 +118,7 @@ public final class NForEach: NView {
     public convenience init<let count: Int, Element>(
         _ data: NBinding<InlineArray<count, Element>>,
         separator: (() -> NView)? = nil,
-        @NViewBuilder content: @escaping (NGet<Element?>) -> [NView]
+        @NViewBuilder content: @escaping (NGet<Element>) -> [NView]
     ) where Element: Equatable {
         self.init(
             data.get,
