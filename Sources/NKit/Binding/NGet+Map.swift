@@ -1,19 +1,5 @@
 import Foundation
 
-extension NBinding {
-    public var get: NGet<Value> {
-        let newGetter: NGet<Value> = .init(get: {
-            self.wrappedValue
-        })
-        
-        self.onChange { newValue in
-            newGetter.signalChange(newValue)
-        }
-        
-        return newGetter
-    }
-}
-
 extension NGet {
     public func map<M>(
         up: @escaping @MainActor (Value) -> M
@@ -30,12 +16,12 @@ extension NGet {
     }
     
     public func map<V, M>(
-        optional: @escaping @MainActor (V) -> M,
-        nil valueForNil: @escaping @MainActor () -> M
+        some: @escaping @MainActor (V) -> M,
+        none valueForNil: @escaping @MainActor () -> M
     ) -> NGet<M> where Value == V? {
         let newGetter: NGet<M> = .init(get: {
             if let value = self.wrappedValue {
-                return optional(value)
+                return some(value)
             } else {
                 return valueForNil()
             }
@@ -43,26 +29,13 @@ extension NGet {
         
         self.onChange { newValue in
             if let newValue {
-                newGetter.signalChange(optional(newValue))
+                newGetter.signalChange(some(newValue))
             } else {
                 newGetter.signalChange(valueForNil())
             }
         }
         
         return newGetter
-    }
-    
-    public func map<M>(
-        nil valueForNil: @escaping @MainActor () -> M
-    ) -> NGet<M> where Value == M? {
-        self.map(
-            optional: { (value: M) -> M in
-                value
-            },
-            nil: {
-                valueForNil()
-            }
-        )
     }
 }
 

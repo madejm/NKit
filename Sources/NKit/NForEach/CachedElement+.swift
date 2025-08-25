@@ -88,7 +88,7 @@ extension CachedElement {
         fatalError("Cached element was deallocated and lastObjectViewCount was not set!")
     }
     
-    internal func countViews(until end: NForEach) -> (count: Int, stop: Bool) {
+    internal func countViews(until end: AnyObject) -> (count: Int, stop: Bool) {
         if let array {
             var count: Int = 0
             

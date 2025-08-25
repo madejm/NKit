@@ -149,7 +149,7 @@ extension NForEach {
         self.engine.viewsCountInCache
     }
     
-    internal func viewsCountInCache(until end: NForEach) -> (count: Int, stop: Bool) {
+    internal func viewsCountInCache(until end: AnyObject) -> (count: Int, stop: Bool) {
         self.engine.viewsCountInCache(until: end)
     }
     

@@ -48,7 +48,7 @@ extension NForEachDynamicCachableEngine: NForEachEngine {
         return count
     }
     
-    internal func viewsCountInCache(until end: NForEach) -> (count: Int, stop: Bool) {
+    internal func viewsCountInCache(until end: AnyObject) -> (count: Int, stop: Bool) {
         guard let cachedViews else {
             return (0, false)
         }

@@ -24,7 +24,7 @@ extension CachedView {
         }
     }
     
-    internal func countViews(until end: NForEach) -> (count: Int, stop: Bool) {
+    internal func countViews(until end: AnyObject) -> (count: Int, stop: Bool) {
         var count: Int = 0
         
         for element in elements {

@@ -40,7 +40,7 @@ extension NForEachConstantEngine: NForEachEngine {
         }
     }
     
-    func viewsCountInCache(until end: NForEach) -> (count: Int, stop: Bool) {
+    func viewsCountInCache(until end: AnyObject) -> (count: Int, stop: Bool) {
 //        guard !owner.isTheSameAs(end) else {
         guard owner !== end else {
             return (0, true)

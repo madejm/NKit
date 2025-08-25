@@ -2,18 +2,18 @@ import Foundation
 
 extension NGet {
     public static func combine(
-        _ one: any NAnyGet<Value>,
-        _ two: any NAnyGet<Value>
-    ) -> NGet<Value> where Value == Bool {
+        _ one: any NAnyGet<Bool>,
+        _ two: any NAnyGet<Bool>
+    ) -> NGet<Bool> {
         .combine(one, two) {
             $0 && $1
         }
     }
     
-    public static func combine(
-        _ one: any NAnyGet<Value>,
-        _ two: any NAnyGet<Value>,
-        operation: @escaping @MainActor (Value, Value) -> Value
+    public static func combine<T>(
+        _ one: any NAnyGet<T>,
+        _ two: any NAnyGet<T>,
+        operation: @escaping @MainActor (T, T) -> Value
     ) -> NGet<Value> {
         let newGet: NGet<Value> = .init(get: {
             operation(one.wrappedValue, two.wrappedValue)

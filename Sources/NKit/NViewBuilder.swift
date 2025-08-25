@@ -57,6 +57,8 @@ extension NView {
             for item in array {
                 item.setParent(parent)
             }
+        } else if let nIf = self as? NIf {
+            nIf.setNIfParent(parent)
         } else if let forEach = self as? NForEach {
             forEach.setNForEachParent(parent)
         } else {
@@ -64,7 +66,7 @@ extension NView {
         }
     }
     
-    internal func countViews(until end: NForEach) -> (count: Int, stop: Bool) {
+    internal func countViews(until end: AnyObject) -> (count: Int, stop: Bool) {
         if self is _View {
             return (1, false)
         } else if let array = self as? [NView] {
@@ -80,6 +82,12 @@ extension NView {
             }
             
             return (count, false)
+        } else if let nIf = self as? NIf {
+            guard nIf !== end else {
+                return (0, true)
+            }
+            
+            return nIf.viewsCountInCache(until: end)
         } else if let forEach = self as? NForEach {
             guard forEach !== end else {
                 return (0, true)
@@ -128,9 +136,22 @@ extension NView {
                 }
             )
             return views
-        } else if let forEach = self as? NForEach {
-//            forEach.strongifyCache()
+        } else if let nIf = self as? NIf {
+            let nViews: [NView] = nIf.ifViews
+            let views: [_View] = nViews.mapToViews(
+                onChange: { (changeOffset: Int, changes: [NChange<_View>]) in
+                    onChange(changeOffset, changes)
+                }
+            )
             
+            nIf.onDataChange { (viewsBeforeMe: Int, changes: [NChange<NView>]) in
+                let changes: [NChange<_View>] = changes.mapChanges(onChange: onChange)
+                
+                onChange(viewsBeforeMe, changes)
+            }
+            
+            return views
+        } else if let forEach = self as? NForEach {
             let nViews: [NView] = forEach.forEachViews
             let views: [_View] = nViews.mapToViews(
                 onChange: { (changeOffset: Int, changes: [NChange<_View>]) in
@@ -140,28 +161,8 @@ extension NView {
                 }
             )
             
-//            forEach.weakifyCache()
-            
             forEach.onDataChange { (viewsBeforeMe: Int, changes: [NChange<NView>]) in
-                let changes: [NChange<_View>] = changes
-                    .map { (change: NChange<NView>) in
-                        switch change {
-                        case .remove(let at, let count):
-                            return .remove(at: at, count: count)
-                        case .keep(let views):
-                            return .keep(views: views.views(
-                                onChange: onChange
-                            ))
-                        case .move(let from, let to, let views):
-                            return .move(from: from, to: to, views: views.views(
-                                onChange: onChange
-                            ))
-                        case .insert(let at, let views):
-                            return .insert(at: at, views: views.views(
-                                onChange: onChange
-                            ))
-                        }
-                    }
+                let changes: [NChange<_View>] = changes.mapChanges(onChange: onChange)
                 
                 onChange(viewsBeforeMe, changes)
             }
@@ -192,5 +193,31 @@ extension Array where Element == NView {
         }
         
         return views
+    }
+}
+
+extension Array where Element == NChange<NView> {
+    @MainActor
+    fileprivate func mapChanges(
+        onChange: @escaping @MainActor (_ changeOffset: Int, _ changes: [NChange<_View>]) -> Void
+    ) -> [NChange<_View>] {
+        self.map { (change: NChange<NView>) in
+            switch change {
+            case .remove(let at, let count):
+                return .remove(at: at, count: count)
+            case .keep(let views):
+                return .keep(views: views.views(
+                    onChange: onChange
+                ))
+            case .move(let from, let to, let views):
+                return .move(from: from, to: to, views: views.views(
+                    onChange: onChange
+                ))
+            case .insert(let at, let views):
+                return .insert(at: at, views: views.views(
+                    onChange: onChange
+                ))
+            }
+        }
     }
 }

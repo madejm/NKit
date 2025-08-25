@@ -139,29 +139,6 @@ extension NBinding {
     }
 }
 
-extension NBinding where Value == Bool {
-    public static prefix func !(original: NBinding<Value>) -> NBinding<Value> {
-        return original.map(
-            up: {
-                !$0
-            },
-            down: {
-                !$0
-            }
-        )
-    }
-}
-
-extension NGet where Value == Bool {
-    public static prefix func !(original: NGet<Value>) -> NGet<Value> {
-        return original.map(
-            up: {
-                !$0
-            }
-        )
-    }
-}
-
 extension NBinding {
     public func value<K, V>(
         key: K

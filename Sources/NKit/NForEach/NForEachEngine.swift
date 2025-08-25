@@ -12,7 +12,7 @@ internal protocol NForEachEngine {
     func setNForEachParent(_ parent: NView)
     
     var viewsCountInCache: Int { get }
-    func viewsCountInCache(until end: NForEach) -> (count: Int, stop: Bool)
+    func viewsCountInCache(until end: AnyObject) -> (count: Int, stop: Bool)
     
     var forEachViews: [NView] { get }
     
