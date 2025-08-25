@@ -18,7 +18,7 @@ public final class NIf: NView {
         _ expression: @escaping (T, T) -> Bool,
         _ expectedResult: T,
         @NViewBuilder ifTrue: @escaping () -> [NView],
-        @NViewBuilder else ifElse: @escaping () -> [NView] = { [] },
+        @NViewBuilder else ifElse: @escaping () -> [NView] = { [] }
     ) {
         self.ifTrue = ifTrue
         self.ifElse = ifElse
@@ -33,7 +33,7 @@ public final class NIf: NView {
     public init(
         _ binding: NGet<Bool>,
         @NViewBuilder ifTrue: @escaping () -> [NView],
-        @NViewBuilder else ifElse: @escaping () -> [NView] = { [] },
+        @NViewBuilder else ifElse: @escaping () -> [NView] = { [] }
     ) {
         self.ifTrue = ifTrue
         self.ifElse = ifElse

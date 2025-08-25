@@ -33,7 +33,7 @@ extension NAnyGet {
     }
     
     fileprivate func mapExpression(
-        _ expression: @escaping @Sendable (Value, @autoclosure () throws -> Value) throws -> Bool,
+        _ expression: @escaping (Value, @autoclosure () throws -> Value) throws -> Bool,
         _ value: @autoclosure @escaping () -> Value
     ) -> NGet<Bool> {
         self.get.map(
@@ -66,7 +66,7 @@ extension NAnyGet {
     }
     
     fileprivate func mapExpression(
-        _ expression: @escaping @Sendable (Value, @autoclosure () throws -> Value) throws -> Bool,
+        _ expression: @escaping (Value, @autoclosure () throws -> Value) throws -> Bool,
         _ another: any NAnyGet<Value>
     ) -> NGet<Bool> {
         NGet<Bool>.combine(self, another) {
