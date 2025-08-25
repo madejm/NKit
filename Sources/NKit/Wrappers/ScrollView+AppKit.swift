@@ -15,6 +15,18 @@ open class ScrollView: NSScrollView {
         }
     }
     
+    private var widthConstraint: NSLayoutConstraint?
+    
+    public convenience init(
+        axes: Axis = .both,
+        _ content: () -> NSView
+    ) {
+        self.init(
+            axes: axes,
+            content()
+        )
+    }
+    
     public init(
         axes: Axis = .both,
         _ content: NSView
@@ -40,6 +52,42 @@ open class ScrollView: NSScrollView {
     @available(*, unavailable)
     required public init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+    
+    public override func viewDidMoveToWindow() {
+        super.viewDidMoveToWindow()
+        
+        guard let superview else {
+            return
+        }
+        
+        var parent: NSView = superview
+        var child: NSView = self
+        
+        while true {
+            if let stack = parent as? NSStackView {
+                if stack.orientation == .vertical {
+                    break
+                } else {
+                    return
+                }
+            }
+            guard let newSuperview = parent.superview else {
+                break
+            }
+            child = parent
+            parent = newSuperview
+        }
+        
+        widthConstraint = parent.widthAnchor.constraint(equalTo: child.widthAnchor, multiplier: 1.0)
+        widthConstraint?.isActive = true
+    }
+    
+    public override func removeFromSuperview() {
+        widthConstraint?.isActive = false
+        widthConstraint = nil
+        
+        super.removeFromSuperview()
     }
 }
 #endif

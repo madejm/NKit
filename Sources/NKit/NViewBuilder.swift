@@ -203,20 +203,20 @@ extension Array where Element == NChange<NView> {
     ) -> [NChange<_View>] {
         self.map { (change: NChange<NView>) in
             switch change {
-            case .remove(let at, let count):
-                return .remove(at: at, count: count)
+            case .remove(let at, let count, let animated):
+                return .remove(at: at, count: count, animated: animated)
             case .keep(let views):
                 return .keep(views: views.views(
                     onChange: onChange
                 ))
-            case .move(let from, let to, let views):
+            case .move(let from, let to, let views, let animated):
                 return .move(from: from, to: to, views: views.views(
                     onChange: onChange
-                ))
-            case .insert(let at, let views):
+                ), animated: animated)
+            case .insert(let at, let views, let animated):
                 return .insert(at: at, views: views.views(
                     onChange: onChange
-                ))
+                ), animated: animated)
             }
         }
     }

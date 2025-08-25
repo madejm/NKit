@@ -8,6 +8,7 @@
 @MainActor
 public final class NIf: NView {
     private let binding: NGet<Bool>
+    private let animateChanges: Bool
     private let ifTrue: () -> [NView]
     private let ifElse: () -> [NView]
     private var cachedView: CachedView?
@@ -17,9 +18,11 @@ public final class NIf: NView {
         _ binding: NGet<T>,
         _ expression: @escaping (T, T) -> Bool,
         _ expectedResult: T,
+        animateChanges: Bool = false,
         @NViewBuilder ifTrue: @escaping () -> [NView],
         @NViewBuilder else ifElse: @escaping () -> [NView] = { [] }
     ) {
+        self.animateChanges = animateChanges
         self.ifTrue = ifTrue
         self.ifElse = ifElse
         self.binding = binding.map(
@@ -32,9 +35,11 @@ public final class NIf: NView {
     
     public init(
         _ binding: NGet<Bool>,
+        animateChanges: Bool = false,
         @NViewBuilder ifTrue: @escaping () -> [NView],
         @NViewBuilder else ifElse: @escaping () -> [NView] = { [] }
     ) {
+        self.animateChanges = animateChanges
         self.ifTrue = ifTrue
         self.ifElse = ifElse
         self.binding = binding
@@ -80,7 +85,7 @@ extension NIf {
         var changes: [NChange<NView>] = []
         
         if let cachedView {
-            changes.append(.remove(at: 0, count: cachedView.viewsCount))
+            changes.append(.remove(at: 0, count: cachedView.viewsCount, animated: animateChanges))
         }
         
         let newContents: [NView] = binding.wrappedValue ? ifTrue() : ifElse()
@@ -89,7 +94,7 @@ extension NIf {
             newContents.setParent(parent)
         }
         
-        changes.append(.insert(at: 0, views: newContents))
+        changes.append(.insert(at: 0, views: newContents, animated: animateChanges))
         
         cachedView = .init(
             hash: 0,
