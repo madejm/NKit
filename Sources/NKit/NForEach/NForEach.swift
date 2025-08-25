@@ -36,7 +36,7 @@ public final class NForEach: NView {
     public init<C>(
         _ data: NGet<C>,
         separator: (() -> NView)? = nil,
-        @NViewBuilder content: @escaping (NGet<C.Element?>) -> [NView]
+        @NViewBuilder content: @escaping (NGet<C.Element>) -> [NView]
     ) where C: RandomAccessCollection, C: Equatable, C.Element: Hashable {
         self.separator = separator
         self.engine = NForEachDynamicCachableEngine(
@@ -49,7 +49,7 @@ public final class NForEach: NView {
     public convenience init<C>(
         _ data: NBinding<C>,
         separator: (() -> NView)? = nil,
-        @NViewBuilder content: @escaping (NGet<C.Element?>) -> [NView]
+        @NViewBuilder content: @escaping (NGet<C.Element>) -> [NView]
     ) where C: RandomAccessCollection, C: Equatable, C.Element: Hashable {
         self.init(
             data.get,
@@ -77,7 +77,7 @@ public final class NForEach: NView {
     public init<Size, Element>(
         constantSize data: NGet<FixedArray<Size, Element>>,
         separator: (() -> NView)? = nil,
-        @NViewBuilder content: @escaping (NGet<Element?>) -> [NView]
+        @NViewBuilder content: @escaping (NGet<Element>) -> [NView]
     ) {
         self.separator = separator
         self.engine = NForEachConstantEngine(
@@ -90,7 +90,7 @@ public final class NForEach: NView {
     public convenience init<Size, Element>(
         constantSize data: NBinding<FixedArray<Size, Element>>,
         separator: (() -> NView)? = nil,
-        @NViewBuilder content: @escaping (NGet<Element?>) -> [NView]
+        @NViewBuilder content: @escaping (NGet<Element>) -> [NView]
     ) {
         self.init(
             data.get,

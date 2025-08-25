@@ -16,6 +16,26 @@ extension NGet {
         return newGetter
     }
     
+    public func map<M>(
+        optional: @escaping @MainActor (Value) -> M?
+    ) -> NGet<M> {
+        let newGetter: NGet<M> = .init(get: {
+            if let mappedOptional = optional(self.wrappedValue) {
+                return mappedOptional
+            } else {
+                fatalError("Get index out of range")
+            }
+        })
+        
+        self.onChange { newValue in
+            if let mappedOptional = optional(newValue) {
+                newGetter.signalChange(mappedOptional)
+            }
+        }
+        
+        return newGetter
+    }
+    
     public func map<V, M>(
         some: @escaping @MainActor (V) -> M,
         none valueForNil: @escaping @MainActor () -> M

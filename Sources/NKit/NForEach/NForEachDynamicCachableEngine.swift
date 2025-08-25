@@ -9,7 +9,7 @@
 internal final class NForEachDynamicCachableEngine<C>
 where C: RandomAccessCollection, C: Equatable, C.Element: Hashable {
     private let data: NGet<C>
-    private let content: (NGet<C.Element?>) -> [NView]
+    private let content: (NGet<C.Element>) -> [NView]
     private var cachedViews: [CachedView]? = []
     private var isCacheStrongified: Bool = true
     private /*unowned*/ var parent: NView?
@@ -17,7 +17,7 @@ where C: RandomAccessCollection, C: Equatable, C.Element: Hashable {
     
     public init(
         data: NGet<C>,
-        content: @escaping (NGet<C.Element?>) -> [NView]
+        content: @escaping (NGet<C.Element>) -> [NView]
     ) {
         self.data = data
         self.content = content

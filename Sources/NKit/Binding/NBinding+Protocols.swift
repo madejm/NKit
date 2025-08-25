@@ -1,7 +1,7 @@
 import Foundation
 
 extension NBinding: Sequence where Value: MutableCollection, Value.Element: Equatable {
-    public typealias Element = NBinding<Value.Element?>
+    public typealias Element = NBinding<Value.Element>
     public typealias Iterator = IndexingIterator<NBinding<Value>>
     public typealias SubSequence = Slice<NBinding<Value>>
 }

@@ -33,15 +33,10 @@ extension NSView {
         let nestedBinding: NBinding<[String]> = nestedState.projectedValue
         
         let rootView = NVStack {
-            NForEach(binding) { (outer: NGet<Int?>) in
-                NForEach(nestedBinding) { (inner: NGet<String?>) in
-                    if let value1 = outer.wrappedValue,
-                       let value2 = inner.wrappedValue {
-                        {
-                            let text = "\(value1) \(value2)"
-                            return Text(text)
-                        }()
-                    }
+            NForEach(binding) { (outer: NGet<Int>) in
+                NForEach(nestedBinding) { (inner: NGet<String>) in
+                    let text = "\(outer.wrappedValue) \(inner.wrappedValue)"
+                    Text(text)
                 }
             }
         }

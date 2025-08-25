@@ -20,8 +20,8 @@ final class NForEachReplacingTests {
         return text
     }
     
-    func createText(_ get: NGet<String?>) -> NKit.Text {
-        print("✨ Creating binded view: \(get.wrappedValue ?? "nil")")
+    func createText(_ get: NGet<String>) -> NKit.Text {
+        print("✨ Creating binded view: \(get.wrappedValue)")
         let text = Text(get)
         newViewsCreated += 1
         self.deallocationChecker.append(text)
@@ -35,10 +35,8 @@ final class NForEachReplacingTests {
         let rootView = NHStack { [unowned self] in
             self.createText("Header")
             
-            NForEach(binding) { (index: NGet<Int?>) in
-                if let value = index.wrappedValue {
-                    self.createText("\(value)")
-                }
+            NForEach(binding) { (index: NGet<Int>) in
+                self.createText("\(index.wrappedValue)")
             }
             
             self.createText("Footer")
@@ -133,20 +131,14 @@ final class NForEachReplacingTests {
         let rootView = NHStack { [unowned self] in
             self.createText("Header")
             
-            NForEach(binding) { (outer: NGet<Int?>) in
-                if let value = outer.wrappedValue {
-                    self.createText("Header \(value)")
+            NForEach(binding) { (outer: NGet<Int>) in
+                self.createText("Header \(outer.wrappedValue)")
+                
+                NForEach(nestedBinding) { (inner: NGet<String>) in
+                    self.createText("\(outer.wrappedValue) \(inner.wrappedValue)")
                 }
                 
-                NForEach(nestedBinding) { (inner: NGet<String?>) in
-                    if let value1 = outer.wrappedValue, let value2 = inner.wrappedValue {
-                        self.createText("\(value1) \(value2)")
-                    }
-                }
-                
-                if let value = outer.wrappedValue {
-                    self.createText("Footer \(value)")
-                }
+                self.createText("Footer \(outer.wrappedValue)")
             }
             
             self.createText("Footer")
@@ -215,7 +207,7 @@ final class NForEachReplacingTests {
         binding.wrappedValue[1] = 2
         rootView.printStack()
         #expect(rootView.stack.arrangedSubviews.count == 10)
-        #expect(newViewsCreated == 2)
+        #expect(newViewsCreated == 4)
         await #expect(deallocationChecker.getNotDeallocated().count == rootView.stack.arrangedSubviews.count)
         rootView.check { next, rest in
             #expect(next() == "Header")
@@ -333,10 +325,8 @@ final class NForEachReplacingTests {
         
         let rootView = NHStack { [unowned self] in
             NForEach([0, 1]) { (outer: Int) in
-                NForEach(nestedBinding) { (inner: NGet<String?>) in
-                    if let value2 = inner.wrappedValue {
-                        self.createText("\(outer) \(value2)")
-                    }
+                NForEach(nestedBinding) { (inner: NGet<String>) in
+                    self.createText("\(outer) \(inner.wrappedValue)")
                 }
             }
         }
@@ -430,11 +420,9 @@ final class NForEachReplacingTests {
         let binding: NBinding<[Int]> = state.projectedValue
         
         let rootView = NHStack { [unowned self] in
-            NForEach(binding) { (outer: NGet<Int?>) in
+            NForEach(binding) { (outer: NGet<Int>) in
                 NForEach(["A", "B"]) { (inner: String) in
-                    if let value1 = outer.wrappedValue {
-                        self.createText("\(value1) \(inner)")
-                    }
+                    self.createText("\(outer.wrappedValue) \(inner)")
                 }
             }
         }
@@ -528,8 +516,8 @@ final class NForEachReplacingTests {
         let binding: NBinding<[String]> = state.projectedValue
         
         let rootView = NHStack { [unowned self] in
-            NForEach(binding) { (inner: NGet<String?>) in
-                self.createText(inner)
+            NForEach(binding) { (inner: NGet<String>) in
+                self.createText(inner.wrappedValue)
             }
         }
         
@@ -577,7 +565,7 @@ final class NForEachReplacingTests {
         let binding: NBinding<FixedArray3<String>> = state.projectedValue
         
         let rootView = NHStack { [unowned self] in
-            NForEach(constantSize: binding) { (inner: NGet<String?>) in
+            NForEach(constantSize: binding) { (inner: NGet<String>) in
                 self.createText(inner)
             }
         }

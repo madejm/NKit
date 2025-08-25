@@ -1,7 +1,7 @@
 import Foundation
 
 extension NGet: Sequence where Value: Collection, Value.Element: Equatable {
-    public typealias Element = NGet<Value.Element?>
+    public typealias Element = NGet<Value.Element>
     public typealias Iterator = IndexingIterator<NGet<Value>>
     public typealias SubSequence = Slice<NGet<Value>>
 }
@@ -32,7 +32,7 @@ extension NGet: @preconcurrency Collection where Value: Collection, Value.Elemen
     
     public subscript(position: NGet<Value>.Index) -> NGet<Value>.Element {
         self.map(
-            up: { (collection: Value) -> Value.Element? in
+            optional: { (collection: Value) -> Value.Element? in
                 guard position < collection.endIndex else {
                     return nil
                 }

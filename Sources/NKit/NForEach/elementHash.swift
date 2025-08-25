@@ -6,7 +6,7 @@
 //
 
 @MainActor
-internal func elementHash<C>(_ element: NGet<C?>) -> Int? where C: Hashable {
+internal func elementHash<C>(_ element: NGet<C>) -> Int? where C: Hashable {
     let unwrapped: C? = element.wrappedValue
     
     guard let value: AnyHashable = unwrapped else {
