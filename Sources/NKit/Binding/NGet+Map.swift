@@ -1,4 +1,5 @@
 import Foundation
+import FixedArray
 
 extension NGet {
     public func map<M>(
@@ -78,7 +79,7 @@ extension NGet {
     public func map<let count: Int, Element>() -> NGet<InlineArray<count, Element>>
     where Value == [Element] {
         self.map(up: {
-            InlineArray($0)
+            InlineArray($0)!
         })
     }
 }

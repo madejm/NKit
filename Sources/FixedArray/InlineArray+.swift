@@ -15,7 +15,7 @@ extension InlineArray: @retroactive Equatable where Element: Equatable {
 
 @available(macOS 26.0, iOS 26.0, *)
 extension InlineArray {
-    internal init?(_ array: Array<Element>) {
+    package init?(_ array: Array<Element>) {
         guard array.count == count else {
             return nil
         }
@@ -27,7 +27,7 @@ extension InlineArray {
 
 @available(macOS 26.0, iOS 26.0, *)
 extension Array {
-    internal init<let count: Int>(_ inlineArray: InlineArray<count, Element>) {
+    package init<let count: Int>(_ inlineArray: InlineArray<count, Element>) {
         var array: [Element] = []
         array.reserveCapacity(inlineArray.count)
         

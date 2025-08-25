@@ -1,4 +1,5 @@
 import Foundation
+import FixedArray
 
 extension NBinding {
     public func map<M>(
@@ -78,7 +79,7 @@ extension NBinding {
                 Array($0)
             },
             down: {
-                InlineArray($0)
+                InlineArray($0)!
             }
         )
     }
@@ -87,7 +88,7 @@ extension NBinding {
     where Value == [Element] {
         self.map(
             up: {
-                InlineArray($0)
+                InlineArray($0)!
             },
             down: {
                 Array($0)
