@@ -3,7 +3,7 @@ import Foundation
 import AppKit
 
 public final class Input: NSTextField {
-    @NBinding private var textBinding: String?
+    @NBinding fileprivate var textBinding: String?
     
     public convenience init(
         _ textBinding: NBinding<String>,
@@ -28,6 +28,7 @@ public final class Input: NSTextField {
         
         self.stringValue = textBinding.wrappedValue ?? ""
         self.placeholderString = placeholder
+        self.delegate = self
         
         if let cell = self.cell {
             cell.usesSingleLineMode = !multiline
@@ -46,4 +47,14 @@ public final class Input: NSTextField {
         fatalError("init(coder:) has not been implemented")
     }
 }
+
+extension Input: NSControlTextEditingDelegate {
+    @MainActor public func controlTextDidEndEditing(_ obj: Notification) {
+        self.textBinding = self.stringValue
+    }
+}
+
+extension Input: NSTextFieldDelegate {
+}
+
 #endif
