@@ -3,11 +3,14 @@ import Foundation
 import AppKit
 
 open class NBaseViewController: NSViewController {
-    internal let controlledView: NControlledView
+    @NEnvironment(\.verticalSizeClass) private var verticalSizeClass
+    @NEnvironment(\.horizontalSizeClass) private var horizontalSizeClass
+    
+    internal let controlledView: any NControlledView
     nonisolated(unsafe) private var releaseChecker: ReleaseChecker!
     nonisolated(unsafe) private var modelReleaseChecker: ReleaseChecker?
     
-    public init(_ controlledView: NControlledView) {
+    public init(_ controlledView: any NControlledView) {
         self.controlledView = controlledView
         
         super.init(nibName: nil, bundle: nil)

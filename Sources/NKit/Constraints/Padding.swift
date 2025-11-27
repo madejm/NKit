@@ -21,14 +21,14 @@ internal final class NPadding: BaseView {
 
 extension _View {
     public func padding(
-        _ value: CGFloat
+        _ value: CGFloat = 12
     ) -> _View {
         NPadding(edges: .all, symbol: .equal, value: .constant(value), subview: self)
     }
     
     public func padding(
         _ edges: NEdge.Set,
-        _ value: CGFloat,
+        _ value: CGFloat = 12,
         symbol: NEdge.Symbol = .equal
     ) -> _View {
         NPadding(edges: edges, symbol: symbol, value: .constant(value), subview: self)

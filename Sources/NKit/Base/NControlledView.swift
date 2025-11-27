@@ -7,7 +7,18 @@ import UIKit
 
 @MainActor
 public protocol NControlledView {
+    associatedtype Controller: NBaseViewController = NBaseViewController
+    
     var body: _View { get }
+    
+    static func controller(_ view: Self) -> Controller
+}
+
+extension NControlledView where Controller == NBaseViewController {
+    
+    public static func controller(_ view: Self) -> Controller {
+        NBaseViewController(view)
+    }
 }
 
 public protocol NModelControlledView: NControlledView {
