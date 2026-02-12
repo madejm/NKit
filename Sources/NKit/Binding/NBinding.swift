@@ -39,6 +39,12 @@ public final class NBinding<Value: Equatable> {
         self.setClosure = set
     }
     
+    internal func signalChange(_ newValue: Value) {
+        self.onSets.forEach { subject in
+            subject.send(newValue)
+        }
+    }
+    
     public func onChange(
         _ new: @escaping (Value) -> Void
     ) {
