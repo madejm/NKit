@@ -10,11 +10,31 @@ extension Button {
     public convenience init(
         _ text: String,
         bezelStyle: NSButton.BezelStyle = .rounded,
+        buttonType: NSButton.ButtonType = .momentaryPushIn,
+        state stateBinding: NBinding<NSControl.StateValue>? = nil,
         action: @escaping () -> Void
     ) {
         self.init(
             NGet.constant(text),
             bezelStyle: bezelStyle,
+            buttonType: buttonType,
+            state: stateBinding,
+            action: action
+        )
+    }
+    
+    public convenience init(
+        _ text: String,
+        bezelStyle: NSButton.BezelStyle = .rounded,
+        buttonType: NSButton.ButtonType = .momentaryPushIn,
+        state stateBinding: NBinding<NSControl.StateValue>? = nil,
+        action: @escaping (Button) -> Void
+    ) {
+        self.init(
+            NGet.constant(text),
+            bezelStyle: bezelStyle,
+            buttonType: buttonType,
+            state: stateBinding,
             action: action
         )
     }
@@ -22,11 +42,31 @@ extension Button {
     public convenience init(
         _ textBinding: NBinding<String>,
         bezelStyle: NSButton.BezelStyle = .rounded,
+        buttonType: NSButton.ButtonType = .momentaryPushIn,
+        state stateBinding: NBinding<NSControl.StateValue>? = nil,
         action: @escaping () -> Void
     ) {
         self.init(
             textBinding.get,
             bezelStyle: bezelStyle,
+            buttonType: buttonType,
+            state: stateBinding,
+            action: action
+        )
+    }
+    
+    public convenience init(
+        _ textBinding: NBinding<String>,
+        bezelStyle: NSButton.BezelStyle = .rounded,
+        buttonType: NSButton.ButtonType = .momentaryPushIn,
+        state stateBinding: NBinding<NSControl.StateValue>? = nil,
+        action: @escaping (Button) -> Void
+    ) {
+        self.init(
+            textBinding.get,
+            bezelStyle: bezelStyle,
+            buttonType: buttonType,
+            state: stateBinding,
             action: action
         )
     }

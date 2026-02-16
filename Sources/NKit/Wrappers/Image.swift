@@ -10,7 +10,7 @@ extension Image {
         self.init(NGet.constant(image))
     }
     
-    public convenience init(_ imageBinding: NBinding<_Image>) {
+    public convenience init(_ imageBinding: NBinding<_Image?>) {
         self.init(imageBinding.get)
     }
 }

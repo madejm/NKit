@@ -2,12 +2,17 @@ import Foundation
 #if canImport(AppKit)
 import AppKit
 
-open class NBaseViewController: NSViewController {
-    internal let controlledView: NControlledView
+@MainActor
+public protocol ClosableViewController {
+    func windowDidClose()
+}
+
+open class NBaseViewController<View: NControlledView>: NSViewController, ClosableViewController {
+    public let controlledView: View
     nonisolated(unsafe) private var releaseChecker: ReleaseChecker!
     nonisolated(unsafe) private var modelReleaseChecker: ReleaseChecker?
     
-    public init(_ controlledView: NControlledView) {
+    public init(_ controlledView: View) {
         self.controlledView = controlledView
         
         super.init(nibName: nil, bundle: nil)

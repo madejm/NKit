@@ -3,9 +3,9 @@ import Foundation
 import AppKit
 
 open class Image: NSImageView {
-    @NGet private var imageBinding: NSImage
+    @NGet private var imageBinding: NSImage?
     
-    public init(_ imageBinding: NGet<NSImage>) {
+    public init(_ imageBinding: NGet<NSImage?>) {
         self._imageBinding = imageBinding
         
         super.init(frame: CGRect.zero)
