@@ -7,14 +7,14 @@ open class Stepper: NSStepper {
     
     public convenience init(
         _ value: Int,
-        range: ClosedRange<Int>?
+        range: ClosedRange<Int>? = nil
     ) {
         self.init(.constant(value), range: range)
     }
     
     public init(
         _ valueBinding: NBinding<Int>,
-        range: ClosedRange<Int>?
+        range: ClosedRange<Int>? = nil
     ) {
         self._valueBinding = valueBinding
         

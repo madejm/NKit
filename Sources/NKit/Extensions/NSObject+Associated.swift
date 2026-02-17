@@ -5,9 +5,11 @@ extension NSObject {
     internal enum AssociatedId {
         case gestureHandler
         case cancellables
+        case tag
         
         nonisolated(unsafe) fileprivate static var _gestureHandler = "gestureHandler"
         nonisolated(unsafe) fileprivate static var _cancellables = "cancellables"
+        nonisolated(unsafe) fileprivate static var _tag = "tag"
         
         fileprivate var key: UnsafeRawPointer {
             switch self {
@@ -15,6 +17,8 @@ extension NSObject {
                 return point(&AssociatedId._gestureHandler)
             case .cancellables:
                 return point(&AssociatedId._cancellables)
+            case .tag:
+                return point(&AssociatedId._tag)
             }
         }
         

@@ -99,15 +99,14 @@ extension NBinding {
 #endif
 
 extension NBinding {
-    public subscript<T>(dynamicMember keyPath: KeyPath<Value, T>) -> NBinding<T> {
-        let newBinding: NBinding<T> = .init(get: {
+    public subscript<T>(dynamicMember keyPath: KeyPath<Value, T>) -> NGet<T> {
+        let newBinding: NGet<T> = .init(get: {
             self.wrappedValue[keyPath: keyPath]
-        }, set: { _ in
         })
         
         self.onChange { newValue in
             let value: T = newValue[keyPath: keyPath]
-            newBinding.wrappedValue = value
+            newBinding.signalChange(value)
         }
         
         return newBinding
