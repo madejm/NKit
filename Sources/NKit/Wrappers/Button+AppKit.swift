@@ -22,7 +22,7 @@ open class Button: NSButton {
         bezelStyle: NSButton.BezelStyle = .rounded,
         buttonType: NSButton.ButtonType = .momentaryPushIn,
         state stateBinding: NBinding<NSControl.StateValue>? = nil,
-        @_inheritActorContext action: @escaping () -> Void
+        @_inheritActorContext action: (() -> Void)? = nil
     ) {
         self.init(
             textBinding,
@@ -30,7 +30,7 @@ open class Button: NSButton {
             buttonType: buttonType,
             state: stateBinding
         ) { _ in
-            action()
+            action?()
         }
     }
     
@@ -39,7 +39,7 @@ open class Button: NSButton {
         bezelStyle: NSButton.BezelStyle = .rounded,
         buttonType: NSButton.ButtonType = .momentaryPushIn,
         state stateBinding: NBinding<NSControl.StateValue>? = nil,
-        @_inheritActorContext action: @escaping (_ sender: Button) -> Void
+        @_inheritActorContext action: @escaping (Button) -> Void
     ) {
         self._textBinding = textBinding
         self.buttonAction = action
@@ -81,6 +81,19 @@ open class Button: NSButton {
     private func touchAction() {
         buttonAction(self)
         stateBinding?.wrappedValue = state
+    }
+}
+
+extension NBinding<Bool> {
+    public var controlState: NBinding<NSControl.StateValue> {
+        self.map(
+            up: {
+                $0 ? .on : .off
+            },
+            down: {
+                $0 == .on
+            }
+        )
     }
 }
 #endif

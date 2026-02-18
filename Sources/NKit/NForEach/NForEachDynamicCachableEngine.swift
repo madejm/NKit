@@ -12,9 +12,20 @@ where C: RandomAccessCollection, C: Equatable, C.Element: Hashable {
     private let animateChanges: Bool
     private let content: (NGet<C.Element>) -> [NView]
     private var cachedViews: [CachedView]? = []
-    private var isCacheStrongified: Bool = true
-    private /*unowned*/ var parent: NView?
+    private var isCacheStrongified: Bool = false
+    private var cachedParent: CachedElement?
     private unowned var owner: NForEach!
+    
+    private var parent: NView? {
+        get {
+            cachedParent?.element
+        }
+        set {
+            cachedParent = newValue.map {
+                CachedElement(view: $0, isStrongified: false)
+            }
+        }
+    }
     
     public init(
         data: NGet<C>,
@@ -102,7 +113,7 @@ extension NForEachDynamicCachableEngine: NForEachEngine {
             let cachedView: (newIndex: NViewIndex, oldIndex: NViewIndex, view: CachedView)? = cachedOld.getCached(hash: hash)
             
             if let cachedView {
-//                cachedView.view.strongify()
+                cachedView.view.strongify()
                 
                 let viewsCount: Int = cachedView.view.viewsCount
 //                let viewsCount: Int = cachedView.view.viewsCountInCache
@@ -128,7 +139,7 @@ extension NForEachDynamicCachableEngine: NForEachEngine {
                     print_debug("👉 moving from: \(oldOffset), to: \(newOffset),", newCachedView.views.debugStringValues)
                 }
                 
-//                cachedView.view.weakify()
+                cachedView.view.weakify()
                 
                 cachedNew.append(newCachedView)
                 currentCount += viewsCount
@@ -213,7 +224,8 @@ extension NForEachDynamicCachableEngine: NForEachEngine {
                 
                 let viewOffset: StackIndex = cachedCopy.viewsCount(upTo: element.offset)
                 
-                print_debug("🗑️ clearing at: \(viewOffset), count:", cachedToClear.viewsCount, cachedToClear.views.debugStringValues)
+//                print_debug("🗑️ clearing at: \(viewOffset), count:", cachedToClear.viewsCount, cachedToClear.views.debugStringValues)
+                print_debug("🗑️ clearing at: \(viewOffset), count:", cachedToClear.viewsCount)
                 
                 viewChanges.append(.remove(
                     at: viewOffset,

@@ -14,7 +14,7 @@ internal final class CachedElement {
     private(set) internal var object: (NView & AnyObject)?
     private(set) internal var nForEach: (NView & NForEach)?
     private(set) internal var strongView: _View?
-    private(set) internal /*weak*/ var weakView: _View? {
+    private(set) internal weak var weakView: _View? {
         willSet {
             guard let weakView else {
                 return
@@ -23,6 +23,14 @@ internal final class CachedElement {
                 lastWeakObjectViewCount = weakView.viewsCount
             }
         }
+    }
+    
+    internal var element: (any NView)? {
+        array?.compactMap(\.element) ??
+        object ??
+        nForEach ??
+        strongView ??
+        weakView
     }
     
     internal init(

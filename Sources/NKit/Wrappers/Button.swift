@@ -12,7 +12,7 @@ extension Button {
         bezelStyle: NSButton.BezelStyle = .rounded,
         buttonType: NSButton.ButtonType = .momentaryPushIn,
         state stateBinding: NBinding<NSControl.StateValue>? = nil,
-        action: @escaping () -> Void
+        action: (() -> Void)? = nil
     ) {
         self.init(
             NGet.constant(text),
@@ -44,7 +44,7 @@ extension Button {
         bezelStyle: NSButton.BezelStyle = .rounded,
         buttonType: NSButton.ButtonType = .momentaryPushIn,
         state stateBinding: NBinding<NSControl.StateValue>? = nil,
-        action: @escaping () -> Void
+        action: (() -> Void)? = nil
     ) {
         self.init(
             textBinding.get,

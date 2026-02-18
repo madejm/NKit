@@ -4,11 +4,22 @@ import UIKit
 
 open class Button: UIButton {
     @NGet private var textBinding: String
-    private let buttonAction: () -> Void
+    private let buttonAction: (Button) -> Void
+    
+    public convenience init(
+        _ textBinding: NGet<String>,
+        action: (@MainActor () -> Void)? = nil
+    ) {
+        self.init(
+            textBinding
+        ) { _ in
+            action?()
+        }
+    }
     
     public init(
         _ textBinding: NGet<String>,
-        action: @escaping @MainActor () -> Void
+        action: @escaping @MainActor (Button) -> Void
     ) {
         self._textBinding = textBinding
         self.buttonAction = action

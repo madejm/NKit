@@ -38,10 +38,20 @@ open class ScrollView: NSScrollView {
         
         NSLayoutConstraint.activate([
             self.contentView.topAnchor.constraint(equalTo: content.topAnchor),
-            self.contentView.leadingAnchor.constraint(equalTo: content.leadingAnchor),
-            content.heightAnchor.constraint(greaterThanOrEqualTo: self.contentView.heightAnchor),
-            content.widthAnchor.constraint(greaterThanOrEqualTo: self.contentView.widthAnchor)
+            self.contentView.leadingAnchor.constraint(equalTo: content.leadingAnchor)
         ])
+        
+        if axes.contains(.horizontal) {
+            content.widthAnchor.constraint(greaterThanOrEqualTo: self.contentView.widthAnchor).isActive = true
+        } else {
+            content.widthAnchor.constraint(equalTo: self.contentView.widthAnchor).isActive = true
+        }
+        
+        if axes.contains(.vertical) {
+            content.heightAnchor.constraint(greaterThanOrEqualTo: self.contentView.heightAnchor).isActive = true
+        } else {
+            content.heightAnchor.constraint(equalTo: self.contentView.heightAnchor).isActive = true
+        }
         
         self.scrollerStyle = .overlay
         self.hasHorizontalScroller = axes.contains(.horizontal)

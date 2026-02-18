@@ -5,12 +5,24 @@
 //  Created by Mejdej on 13/08/2025.
 //
 
+@MainActor
 internal final class NForEachConstantEngine<D> where D: RandomAccessCollection {
     private let data: D
     private let content: (D.Element) -> [NView]
-    private var views: [NView]?
-    private /*unowned*/ var parent: NView?
+    private var cachedViews: [CachedView]?
+    private var cachedParent: CachedElement?
     private unowned var owner: NForEach!
+    
+    private var parent: NView? {
+        get {
+            cachedParent?.element
+        }
+        set {
+            cachedParent = newValue.map {
+                CachedElement(view: $0, isStrongified: false)
+            }
+        }
+    }
     
     public init(
         data: D,
@@ -31,13 +43,18 @@ extension NForEachConstantEngine: NForEachEngine {
     }
     
     var viewsCountInCache: Int {
-        guard let views else {
+        guard let cachedViews else {
             return 0
         }
         
-        return views.reduce(into: 0) {
-            $0 += $1.viewsCount
+        var count: Int = 0
+        
+        for cachedView: CachedView in cachedViews {
+            count += cachedView.viewsCount
+//            count += cachedView.viewsCountInCache
         }
+        
+        return count
     }
     
     func viewsCountInCache(until end: AnyObject) -> (count: Int, stop: Bool) {
@@ -45,14 +62,14 @@ extension NForEachConstantEngine: NForEachEngine {
         guard owner !== end else {
             return (0, true)
         }
-        guard let views else {
+        guard let cachedViews else {
             return (0, false)
         }
         
         var count: Int = 0
         
-        for view in views {
-            let result: (count: Int, stop: Bool) = view.countViews(until: end)
+        for cachedView: CachedView in cachedViews {
+            let result: (count: Int, stop: Bool) = cachedView.countViews(until: end)
             count += result.count
             
             if result.stop {
@@ -64,7 +81,11 @@ extension NForEachConstantEngine: NForEachEngine {
     }
     
     var forEachViews: [NView] {
-        if let views {
+        if let cachedViews {
+            let views: [NView] = cachedViews
+                .compactMap {
+                    $0.views
+                }
             return views
         }
         
@@ -76,7 +97,7 @@ extension NForEachConstantEngine: NForEachEngine {
             views.setParent(parent)
         }
         
-        self.views = views
+        self.cachedViews = [ CachedView(hash: 0, views: views, isStrongified: false) ]
         return views
     }
     

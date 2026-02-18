@@ -4,25 +4,30 @@ import AppKit
 
 public final class Input: NSTextField {
     @NBinding fileprivate var textBinding: String?
+    private let didEndEditing: (() -> Void)?
     
     public convenience init(
         _ textBinding: NBinding<String>,
         placeholder: String? = nil,
-        multiline: Bool = false
+        multiline: Bool = false,
+        didEndEditing: (() -> Void)? = nil
     ) {
         self.init(
             textBinding.map(),
             placeholder: placeholder,
-            multiline: multiline
+            multiline: multiline,
+            didEndEditing: didEndEditing
         )
     }
     
     public init(
         _ textBinding: NBinding<String?>,
         placeholder: String? = nil,
-        multiline: Bool = false
+        multiline: Bool = false,
+        didEndEditing: (() -> Void)? = nil
     ) {
         self._textBinding = textBinding
+        self.didEndEditing = didEndEditing
         
         super.init(frame: .zero)
         
@@ -50,7 +55,10 @@ public final class Input: NSTextField {
 
 extension Input: NSControlTextEditingDelegate {
     @MainActor public func controlTextDidEndEditing(_ obj: Notification) {
-        self.textBinding = self.stringValue
+        if self.textBinding != self.stringValue {
+            self.textBinding = self.stringValue
+            didEndEditing?()
+        }
     }
 }
 
