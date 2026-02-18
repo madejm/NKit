@@ -40,8 +40,8 @@ extension NSViewController {
 
 extension NValue where Value == NSWindowController? {
     @MainActor
-    public func show<View: NControlledView>(
-        _ controller: NBaseViewController<View>,
+    public func show(
+        _ controller: any NBaseViewController,
         title: String?,
         frameAutosaveName: String? = nil
     ) {

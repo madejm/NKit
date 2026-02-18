@@ -7,15 +7,42 @@ public protocol ClosableViewController {
     func windowDidClose()
 }
 
-open class NBaseViewController<View: NControlledView>: NSViewController, ClosableViewController {
-    public let controlledView: View
+public typealias NBaseViewController = _NBaseViewController & NBaseViewControllerProtocol
+
+@MainActor
+public protocol NBaseViewControllerProtocol {
+    associatedtype View: NControlledView
+}
+
+extension NBaseViewControllerProtocol where Self: _NBaseViewController {
+    public var controlledView: View {
+        self._controlledView as! View
+    }
+    
+    fileprivate func checkError(anyView: any NControlledView) -> String? {
+        guard type(of: anyView) == View.self else {
+            return String(reflecting: View.self)
+        }
+        return nil
+    }
+}
+
+open class _NBaseViewController: NSViewController, ClosableViewController {
+    fileprivate let _controlledView: any NControlledView
     nonisolated(unsafe) private var releaseChecker: ReleaseChecker!
     nonisolated(unsafe) private var modelReleaseChecker: ReleaseChecker?
     
-    public init(_ controlledView: View) {
-        self.controlledView = controlledView
+    public init<ControlledView: NControlledView>(_ controlledView: ControlledView) {
+        self._controlledView = controlledView
         
         super.init(nibName: nil, bundle: nil)
+        
+        guard let protocolType = self as? (any NBaseViewController) else {
+            fatalError("_NBaseViewController is an abstract class, use NBaseViewController instead.")
+        }
+        if let error = protocolType.checkError(anyView: controlledView) {
+            fatalError("Trying to initialize \(String(reflecting: Self.self)) with wrong view type of \(String(reflecting: ControlledView.self)), should be \(error).")
+        }
         
         self.releaseChecker = ReleaseChecker(self, name: String(describing: self))
         
@@ -45,7 +72,7 @@ open class NBaseViewController<View: NControlledView>: NSViewController, Closabl
     
     open override func viewDidLoad() {
         super.viewDidLoad()
-        view.addSubviewAutomatically(controlledView.body)
+        view.addSubviewAutomatically(_controlledView.body)
     }
     
     open override func viewWillAppear() {
