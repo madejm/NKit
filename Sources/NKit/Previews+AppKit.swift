@@ -36,4 +36,46 @@ public struct NSViewPreview<View: NSView>: NSViewRepresentable {
         view.setContentHuggingPriority(.defaultHigh, for: .vertical)
     }
 }
+
+public struct NSStoryboardPreview: NSViewControllerRepresentable {
+    private let viewController: NSViewController?
+    
+    public init(
+        storyboard storyboardName: String,
+        window windowIdentifier: String,
+        bundle storyboardBundleOrNil: Bundle? = nil
+    ) {
+        let storyboard = NSStoryboard(
+            name: NSStoryboard.Name(storyboardName),
+            bundle: storyboardBundleOrNil
+        )
+        let controler: Any = storyboard.instantiateController(
+            withIdentifier: NSStoryboard.SceneIdentifier(windowIdentifier)
+        )
+        self.viewController = (controler as? NSWindowController)?.contentViewController
+    }
+    
+    public init(
+        storyboard storyboardName: String,
+        viewController viewControllerIdentifier: String,
+        bundle storyboardBundleOrNil: Bundle? = nil
+    ) {
+        let storyboard = NSStoryboard(
+            name: NSStoryboard.Name(storyboardName),
+            bundle: storyboardBundleOrNil
+        )
+        let controler: Any = storyboard.instantiateController(
+            withIdentifier: NSStoryboard.SceneIdentifier(viewControllerIdentifier)
+        )
+        self.viewController = controler as? NSViewController
+    }
+    
+    // MARK: - NSViewControllerRepresentable
+    public func makeNSViewController(context: Context) -> NSViewController {
+        viewController ?? NSViewController()
+    }
+    
+    public func updateNSViewController(_ nsViewController: NSViewController, context: Context) {
+    }
+}
 #endif

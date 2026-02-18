@@ -1,34 +1,18 @@
 import Foundation
 import Combine
 
+internal struct AssociatedId<Value> {
+    let key: String
+}
+
+extension AssociatedId where Value == Set<AnyCancellable> {
+    internal static let cancellables: Self = .init(key: "cancellables")
+}
+
 extension NSObject {
-    internal enum AssociatedId {
-        case gestureHandler
-        case cancellables
-        case tag
-        
-        nonisolated(unsafe) fileprivate static var _gestureHandler = "gestureHandler"
-        nonisolated(unsafe) fileprivate static var _cancellables = "cancellables"
-        nonisolated(unsafe) fileprivate static var _tag = "tag"
-        
-        fileprivate var key: UnsafeRawPointer {
-            switch self {
-            case .gestureHandler:
-                return point(&AssociatedId._gestureHandler)
-            case .cancellables:
-                return point(&AssociatedId._cancellables)
-            case .tag:
-                return point(&AssociatedId._tag)
-            }
-        }
-        
-        private func point(_ me: UnsafeRawPointer) -> UnsafeRawPointer {
-            me
-        }
-    }
     
     internal subscript<Value>(
-        associatedId associatedId: AssociatedId
+        associatedId associatedId: AssociatedId<Value>
     ) -> Value? {
         get {
             objc_getAssociatedObject(self, associatedId.key) as? Value
@@ -40,9 +24,7 @@ extension NSObject {
     
     internal var cancellables: Set<AnyCancellable> {
         get {
-            if let anyValue: Any? = self[associatedId: .cancellables],
-               anyValue != nil {
-                let value: Set<AnyCancellable> = anyValue as! Set<AnyCancellable>
+            if let value: Set<AnyCancellable> = self[associatedId: .cancellables] {
                 return value
             }
             

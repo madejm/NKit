@@ -48,6 +48,12 @@ open class NBaseViewController<View: NControlledView>: NSViewController, Closabl
         view.addSubviewAutomatically(controlledView.body)
     }
     
+    open override func viewWillAppear() {
+        super.viewWillAppear()
+        
+        self.releaseChecker.cancelExpectation()
+    }
+    
     open override func viewDidDisappear() {
         super.viewDidDisappear()
         

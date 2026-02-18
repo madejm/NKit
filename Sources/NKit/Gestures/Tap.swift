@@ -16,6 +16,10 @@ private final class GestureHandler {
     }
 }
 
+extension AssociatedId where Value == GestureHandler {
+    fileprivate static let gestureHandler: Self = .init(key: "gestureHandler")
+}
+
 extension _View {
     public func onTapGesture(
         count: Int = 1,

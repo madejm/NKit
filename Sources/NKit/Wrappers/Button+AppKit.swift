@@ -80,6 +80,7 @@ open class Button: NSButton {
     @objc
     private func touchAction() {
         buttonAction(self)
+        stateBinding?.wrappedValue = state
     }
 }
 #endif

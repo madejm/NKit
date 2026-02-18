@@ -10,6 +10,7 @@ import os.log
 internal final class ReleaseChecker: @unchecked Sendable {
     private weak var object: AnyObject?
     private let name: String
+    private var releaseExpected: Bool = false
     private var releaseConfirmed: Bool = false
     
     @available(macOS 11.0, iOS 14.0, *)
@@ -21,7 +22,12 @@ internal final class ReleaseChecker: @unchecked Sendable {
     }
     
     internal func expect() {
+        self.releaseExpected = true
+        
         DispatchQueue.global(qos: .userInitiated).asyncAfter(deadline: .now() + 1) {
+            guard self.releaseExpected else {
+                return
+            }
             if self.object == nil, !self.releaseConfirmed {
                 if #available(macOS 11.0, iOS 14.0, *) {
                     Self.logger.debug("🪤 \(self.name) released correctly ✅")
@@ -36,6 +42,10 @@ internal final class ReleaseChecker: @unchecked Sendable {
                 }
             }
         }
+    }
+    
+    internal func cancelExpectation() {
+        self.releaseExpected = false
     }
     
     internal func confirm() {
