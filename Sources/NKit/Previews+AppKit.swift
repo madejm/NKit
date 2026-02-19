@@ -19,11 +19,15 @@ public struct NSViewControllerPreview<ViewController: NSViewController>: NSViewC
     }
 }
 
-public struct NSViewPreview<View: NSView>: NSViewRepresentable {
-    private let view: View
+public struct NSViewPreview: NSViewRepresentable {
+    private let view: NSView
     
-    public init(_ builder: @escaping () -> View) {
+    public init<View: NSView>(_ builder: @escaping () -> View) {
         view = builder()
+    }
+    
+    public init<View: NControlledView>(_ builder: @escaping () -> View) {
+        view = builder().body
     }
     
     // MARK: - NSViewRepresentable

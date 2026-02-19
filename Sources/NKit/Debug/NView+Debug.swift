@@ -8,16 +8,23 @@
 extension NView {
     internal var debugStringValues: [Any] {
         #if DEBUG
-        if let d = self as? _View {
-            return [d.mirrorDescription]
-        } else if let a = self as? [NView] {
-            return ["ARR:", a.flatMap {
+        switch self.unpacked {
+        case .controlledView:
+            return ["CONTROLLED VIEW"]
+        case .view(let view):
+            return [view.mirrorDescription]
+        case .array(let array):
+            return ["ARR:", array.flatMap {
                 $0.debugStringValues
             }]
-        } else if let n = self as? NForEach {
+        case .forEach:
             return ["FOREACH"]
-        } else {
-            fatalError()
+        case .if:
+            return ["IF"]
+        case .otherObject(let object):
+            fatalError("Unhandled: \(object)")
+        case .other(let nView):
+            fatalError("Unhandled: \(nView)")
         }
         #else
         []

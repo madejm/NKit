@@ -75,7 +75,7 @@ extension ViewStack {
                         }
                     }
                     
-                    self.printStack()
+//                    self.printStack()
                     for view in viewsToRemove {
                         print_debug("removing", view.view.mirrorDescription, "at:", self.stack.arrangedSubviews.firstIndex(of: view.view).map { String($0) } ?? "?")
                         withAnimation(animate: view.animated) {
@@ -88,7 +88,7 @@ extension ViewStack {
                             $0.index < $1.index
                         }
                     
-                    self.printStack()
+//                    self.printStack()
                     for view in viewsToInsertSorted {
                         print_debug("inserting", view.view.mirrorDescription, "at:", view.index)
                         
@@ -96,7 +96,7 @@ extension ViewStack {
                             self.stack.insertArrangedSubview(view.view, at: view.index)
                         }
                     }
-                    self.printStack()
+//                    self.printStack()
                 }
             )
             
@@ -109,6 +109,7 @@ extension ViewStack {
     }
 }
 
+#if canImport(AppKit)
 extension NSView {
     fileprivate func withAnimation(
         animate: Bool = true,
@@ -127,3 +128,23 @@ extension NSView {
         }
     }
 }
+#elseif canImport(UIKit)
+extension UIView {
+    fileprivate func withAnimation(
+        animate: Bool = true,
+        duration: TimeInterval = 0.3,
+        _ block: @escaping () -> Void
+    ) {
+        if animate, duration > 0.0 {
+            UIView.animate(
+                withDuration: duration,
+                animations: {
+                    block()
+                }
+            )
+        } else {
+            block()
+        }
+    }
+}
+#endif

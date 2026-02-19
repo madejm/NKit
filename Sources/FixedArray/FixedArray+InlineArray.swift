@@ -54,18 +54,21 @@ extension InlineArray {
 }
 
 @available(macOS 26.0, *)
+@available(iOS 26.0, *)
 func testArrayInlineArray() {
     let array: Array<Int> = [1, 2, 3]
     let inlineArray: InlineArray<3, Int>? = .init(array)
 }
 
 @available(macOS 26.0, *)
+@available(iOS 26.0, *)
 func testInlineArrayArray() {
     let inlineArray: InlineArray<3, Int> = [1, 2, 3]
     let array: Array<Int> = .init(inlineArray)
 }
 
 @available(macOS 26.0, *)
+@available(iOS 26.0, *)
 func testFixedArrayInlineArray() {
     let fixedArray: FixedArray3<Int> = .init(1, 2, 3)
     let inlineArray3: InlineArray<3, Int>? = .init(fixedArray)
@@ -73,6 +76,7 @@ func testFixedArrayInlineArray() {
 }
 
 @available(macOS 26.0, *)
+@available(iOS 26.0, *)
 func testInlineArrayFixedArray() {
     let inlineArray: InlineArray<3, Int> = [1, 2, 3]
     let fixedArray: FixedArray3<Int>? = .init(inlineArray)

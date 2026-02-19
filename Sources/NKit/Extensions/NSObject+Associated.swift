@@ -1,39 +1,93 @@
 import Foundation
 import Combine
 
+@MainActor
 internal struct AssociatedId<Value> {
-    let key: String
+    let key: UnsafeRawPointer
+    
+    init(key: UnsafeRawPointer) {
+        self.key = key
+    }
 }
 
-extension AssociatedId where Value == Set<AnyCancellable> {
-    internal static let cancellables: Self = .init(key: "cancellables")
+internal protocol AssociatedIdDefaultable {
+    static var defaultValue: Self { get }
+}
+
+extension PassthroughSubject: AssociatedIdDefaultable {
+    internal static var defaultValue: PassthroughSubject<Output, Failure> {
+        .init()
+    }
 }
 
 extension NSObject {
     
+    private final class PACK: NSObject {
+        let value: Any
+        
+        init(_ value: Any) {
+            self.value = value
+        }
+    }
+    
+    @MainActor
+    private func getAssociatedValue<Value>(
+        associatedId: AssociatedId<Value>
+    ) -> Value? {
+        let object = objc_getAssociatedObject(self, associatedId.key)
+        let pack = object as? PACK
+        let value = pack?.value as? Value
+        return value
+    }
+    
+    @MainActor
+    private func setAssociatedValue<Value>(
+        value: Value?,
+        associatedId: AssociatedId<Value>
+    ) {
+        let pack = PACK(value as Any)
+        objc_setAssociatedObject(self, associatedId.key, pack, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+    }
+    
+    @MainActor
     internal subscript<Value>(
         associatedId associatedId: AssociatedId<Value>
     ) -> Value? {
         get {
-            objc_getAssociatedObject(self, associatedId.key) as? Value
+            getAssociatedValue(associatedId: associatedId)
         }
-        set(newValue) {
-            objc_setAssociatedObject(self, associatedId.key, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+        set {
+            setAssociatedValue(value: newValue, associatedId: associatedId)
         }
     }
     
-    internal var cancellables: Set<AnyCancellable> {
+    @MainActor
+    internal subscript<Value>(
+        associatedId associatedId: AssociatedId<Value>
+    ) -> Value where Value: AssociatedIdDefaultable {
         get {
-            if let value: Set<AnyCancellable> = self[associatedId: .cancellables] {
-                return value
-            }
-            
-            let value: Set<AnyCancellable> = []
-            self[associatedId: .cancellables] = value
-            return value
+            self[associatedId: associatedId, default: Value.defaultValue]
         }
         set {
-            self[associatedId: .cancellables] = newValue
+            self[associatedId: associatedId, default: Value.defaultValue] = newValue
+        }
+    }
+    
+    @MainActor
+    internal subscript<Value>(
+        associatedId associatedId: AssociatedId<Value>,
+        default defaultValue: Value
+    ) -> Value {
+        get {
+            let value: Value? = getAssociatedValue(associatedId: associatedId)
+            if let value {
+                return value
+            }
+            self[associatedId: associatedId] = defaultValue
+            return defaultValue
+        }
+        set {
+            setAssociatedValue(value: newValue, associatedId: associatedId)
         }
     }
 }

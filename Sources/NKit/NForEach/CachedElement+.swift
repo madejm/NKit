@@ -35,6 +35,12 @@ extension CachedElement {
         if let nForEach {
             return nForEach
         }
+        if let nIf {
+            return nIf
+        }
+        if let controlledView {
+            return controlledView
+        }
         if let strongView {
             return strongView
         }
@@ -53,6 +59,12 @@ extension CachedElement {
         }
         if let nForEach {
             return nForEach.viewsCount
+        }
+        if let nIf {
+            return nIf.viewsCount
+        }
+        if let controlledView {
+            return controlledView.viewsCount
         }
         if let strongView {
             return strongView.viewsCount
@@ -75,6 +87,12 @@ extension CachedElement {
         }
         if let nForEach {
             return nForEach.viewsCountInCache
+        }
+        if let nIf {
+            return nIf.viewsCountInCache
+        }
+        if let controlledView {
+            return controlledView.viewsCountInCache
         }
         if let strongView {
             return strongView.viewsCountInCache
@@ -108,6 +126,12 @@ extension CachedElement {
         }
         if let nForEach {
             return nForEach.countViews(until: end)
+        }
+        if let nIf {
+            return nIf.countViews(until: end)
+        }
+        if let controlledView {
+            return controlledView.countViews(until: end)
         }
         if let strongView {
             return strongView.countViews(until: end)

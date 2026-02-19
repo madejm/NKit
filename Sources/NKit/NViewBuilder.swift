@@ -51,25 +51,33 @@ extension NViewBuilder {
 
 extension NView {
     internal func setParent(_ parent: NView) {
-        if let v = self as? _View {
-            //
-        } else if let array = self as? [NView] {
+        switch self.unpacked {
+        case .controlledView:
+            break
+        case .view:
+            break
+        case .array(let array):
             for item in array {
                 item.setParent(parent)
             }
-        } else if let nIf = self as? NIf {
+        case .forEach(let nForEach):
+            nForEach.setNForEachParent(parent)
+        case .if(let nIf):
             nIf.setNIfParent(parent)
-        } else if let forEach = self as? NForEach {
-            forEach.setNForEachParent(parent)
-        } else {
-            fatalError()
+        case .otherObject(let object):
+            fatalError("Unhandled: \(object)")
+        case .other(let nView):
+            fatalError("Unhandled: \(nView)")
         }
     }
     
     internal func countViews(until end: AnyObject) -> (count: Int, stop: Bool) {
-        if self is _View {
+        switch self.unpacked {
+        case .controlledView:
             return (1, false)
-        } else if let array = self as? [NView] {
+        case .view:
+            return (1, false)
+        case .array(let array):
             var count: Int = 0
             
             for item in array {
@@ -82,61 +90,83 @@ extension NView {
             }
             
             return (count, false)
-        } else if let nIf = self as? NIf {
+        case .forEach(let nForEach):
+            guard nForEach !== end else {
+                return (0, true)
+            }
+            
+            return nForEach.viewsCountInCache(until: end)
+        case .if(let nIf):
             guard nIf !== end else {
                 return (0, true)
             }
             
             return nIf.viewsCountInCache(until: end)
-        } else if let forEach = self as? NForEach {
-            guard forEach !== end else {
-                return (0, true)
-            }
-            
-            return forEach.viewsCountInCache(until: end)
+        case .otherObject(let object):
+            fatalError("Unhandled: \(object)")
+        case .other(let nView):
+            fatalError("Unhandled: \(nView)")
         }
-        fatalError()
     }
     
     internal var viewsCount: Int {
-        if self is _View {
+        switch self.unpacked {
+        case .controlledView:
             return 1
-        } else if let array = self as? [NView] {
+        case .view:
+            return 1
+        case .array(let array):
             return array.viewsCount
-        } else if let forEach = self as? NForEach {
-            let nViews: [NView] = forEach.forEachViews
+        case .forEach(let nForEach):
+            let nViews: [NView] = nForEach.forEachViews
             return nViews.viewsCount
-//            return forEach.viewsCountInCache
+//            return nForEach.viewsCountInCache
+        case .if(let nIf):
+            fatalError("Unhandled: \(nIf)")
+        case .otherObject(let object):
+            fatalError("Unhandled: \(object)")
+        case .other(let nView):
+            fatalError("Unhandled: \(nView)")
         }
-        fatalError("NView type not handled: \(String(describing: self))")
     }
     
     internal var viewsCountInCache: Int {
-        if self is _View {
+        switch self.unpacked {
+        case .controlledView:
             return 1
-        } else if let array = self as? [NView] {
+        case .view:
+            return 1
+        case .array(let array):
             return array.viewsCountInCache
-        } else if let forEach = self as? NForEach {
-//            let nViews: [NView] = forEach.forEachViews
+        case .forEach(let nForEach):
+//            let nViews: [NView] = nForEach.forEachViews
 //            return nViews.viewsCount
-            return forEach.viewsCountInCache
+            return nForEach.viewsCountInCache
+        case .if(let nIf):
+            fatalError("Unhandled: \(nIf)")
+        case .otherObject(let object):
+            fatalError("Unhandled: \(object)")
+        case .other(let nView):
+            fatalError("Unhandled: \(nView)")
         }
-        fatalError("NView type not handled: \(String(describing: self))")
     }
     
     internal func views(
         onChange: @escaping @MainActor (_ changeOffset: Int, _ changes: [NChange<_View>]) -> Void
     ) -> [_View] {
-        if let view = self as? _View {
+        switch self.unpacked {
+        case .controlledView(let controlledView):
+            return [controlledView.body]
+        case .view(let view):
             return [view]
-        } else if let array = self as? [NView] {
+        case .array(let array):
             let views: [_View] = array.mapToViews(
                 onChange: {
                     onChange($0, $1)
                 }
             )
             return views
-        } else if let nIf = self as? NIf {
+        case .if(let nIf):
             let nViews: [NView] = nIf.ifViews
             let views: [_View] = nViews.mapToViews(
                 onChange: { (changeOffset: Int, changes: [NChange<_View>]) in
@@ -151,8 +181,8 @@ extension NView {
             }
             
             return views
-        } else if let forEach = self as? NForEach {
-            let nViews: [NView] = forEach.forEachViews
+        case .forEach(let nForEach):
+            let nViews: [NView] = nForEach.forEachViews
             let views: [_View] = nViews.mapToViews(
                 onChange: { (changeOffset: Int, changes: [NChange<_View>]) in
                     let offset: Int = changeOffset + 0
@@ -161,15 +191,18 @@ extension NView {
                 }
             )
             
-            forEach.onDataChange { (viewsBeforeMe: Int, changes: [NChange<NView>]) in
+            nForEach.onDataChange { (viewsBeforeMe: Int, changes: [NChange<NView>]) in
                 let changes: [NChange<_View>] = changes.mapChanges(onChange: onChange)
                 
                 onChange(viewsBeforeMe, changes)
             }
             
             return views
+        case .otherObject(let object):
+            fatalError("Unhandled: \(object)")
+        case .other(let nView):
+            fatalError("Unhandled: \(nView)")
         }
-        fatalError("NView type not handled: \(String(describing: self))")
     }
 }
 

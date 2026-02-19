@@ -72,7 +72,8 @@ open class _NBaseViewController: NSViewController, ClosableViewController {
     
     open override func viewDidLoad() {
         super.viewDidLoad()
-        view.addSubviewAutomatically(_controlledView.body)
+        let body = _controlledView.body
+        view.addSubviewAutomatically(body)
     }
     
     open override func viewWillAppear() {

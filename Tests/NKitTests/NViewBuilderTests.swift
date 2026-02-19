@@ -146,16 +146,26 @@ extension NColor {
 }
 
 extension Array where Element == NView {
+    @MainActor
     func flatten() -> [NView] {
         var result: [NView] = []
         
         for element in self {
-            if let view = element as? _View {
+            switch element.unpacked {
+            case .controlledView(let controlledView):
+                fatalError("Unhandled: \(controlledView)")
+            case .view(let view):
                 result.append(view)
-            } else if let array = element as? [NView] {
+            case .array(let array):
                 result.append(contentsOf: array)
-            } else {
-                fatalError()
+            case .forEach(let nForEach):
+                fatalError("Unhandled: \(nForEach)")
+            case .if(let nIf):
+                fatalError("Unhandled: \(nIf)")
+            case .otherObject(let object):
+                fatalError("Unhandled: \(object)")
+            case .other(let nView):
+                fatalError("Unhandled: \(nView)")
             }
         }
         

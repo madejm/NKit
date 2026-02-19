@@ -52,10 +52,17 @@ open class _NBaseView: BaseView {
         self.releaseChecker.confirm()
     }
     
+    #if canImport(AppKit)
     open override func viewDidMoveToSuperview() {
         super.viewDidMoveToSuperview()
         self.releaseChecker.cancelExpectation()
     }
+    #elseif canImport(UIKit)
+    open override func didMoveToSuperview() {
+        super.didMoveToSuperview()
+        self.releaseChecker.cancelExpectation()
+    }
+    #endif
     
     open override func removeFromSuperview() {
         super.removeFromSuperview()

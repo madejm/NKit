@@ -41,7 +41,7 @@ open class Button: UIButton {
     
     @objc
     private func touchAction() {
-        buttonAction()
+        buttonAction(self)
     }
 }
 #endif

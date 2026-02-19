@@ -12,9 +12,11 @@ internal final class CachedElement {
     
     private(set) internal var array: [CachedElement]?
     private(set) internal var object: (NView & AnyObject)?
-    private(set) internal var nForEach: (NView & NForEach)?
+    private(set) internal var nForEach: NForEach?
+    private(set) internal var nIf: NIf?
+    private(set) internal var controlledView: NControlledView?
     private(set) internal var strongView: _View?
-    private(set) internal weak var weakView: _View? {
+    private(set) internal /*weak*/ var weakView: _View? {
         willSet {
             guard let weakView else {
                 return
@@ -37,27 +39,34 @@ internal final class CachedElement {
         view: NView,
         isStrongified: Bool
     ) {
-        if let array = view as? [NView] {
+        switch view.unpacked {
+        case .controlledView(let controlledView):
+            self.DEBUG_TEXT = "CONTROLLED VIEW"
+            self.controlledView = controlledView
+        case .array(let array):
             self.DEBUG_TEXT = "ARRAY"
             self.array = array.map {
                 CachedElement(view: $0, isStrongified: isStrongified)
             }
-        } else if let object = view as? _View {
+        case .view(let view):
             self.DEBUG_TEXT = "_VIEW"
             if isStrongified {
-                self.strongView = object
+                self.strongView = view
             } else {
-                self.weakView = object
+                self.weakView = view
             }
             self.lastWeakObjectViewCount = 1
-        } else if let object = view as? NForEach {
+        case .forEach(let nForEach):
             self.DEBUG_TEXT = "NForEach"
-            self.nForEach = object
-        } else if let object = view as? (NView & AnyObject) {
+            self.nForEach = nForEach
+        case .if(let nIf):
+            self.DEBUG_TEXT = "NIf"
+            self.nIf = nIf
+        case .otherObject(let object):
             self.DEBUG_TEXT = "another"
             self.object = object
-        } else {
-            fatalError("Trying to cache non object value: \(String(describing: type(of: view)))!")
+        case .other(let nView):
+            fatalError("Trying to cache non object value: \(String(describing: type(of: nView)))!")
         }
     }
     
