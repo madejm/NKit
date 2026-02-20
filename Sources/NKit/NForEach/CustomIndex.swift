@@ -85,3 +85,11 @@ internal func += <T>(lhs: inout CustomIndex<T>, rhs: CustomIndex<T>) {
 internal func += <T>(lhs: inout CustomIndex<T>, rhs: Int) {
     lhs.rawValue += rhs
 }
+
+internal func -= <T>(lhs: inout CustomIndex<T>, rhs: CustomIndex<T>) {
+    lhs.rawValue -= rhs.rawValue
+}
+
+internal func -= <T>(lhs: inout CustomIndex<T>, rhs: Int) {
+    lhs.rawValue -= rhs
+}

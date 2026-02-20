@@ -31,6 +31,13 @@ internal final class NForEachConstantEngine<D> where D: RandomAccessCollection {
         self.data = data
         self.content = content
     }
+    
+    #if DEBUG
+    nonisolated
+    internal var describeTypeOfData: String {
+        "CONSTANT <\(String(describing: D.self))>"
+    }
+    #endif
 }
 
 extension NForEachConstantEngine: NForEachEngine {

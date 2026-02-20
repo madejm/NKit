@@ -5,7 +5,9 @@
 //  Created by Mejdej on 13/08/2025.
 //
 
+#if DEBUG
 nonisolated(unsafe) public var NKitDebugLoggingEnabled: Bool = false
+#endif
 
 package func print_debug(
     _ message1: @autoclosure () -> Any

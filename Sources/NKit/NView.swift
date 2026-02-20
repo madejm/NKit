@@ -29,12 +29,12 @@ internal enum NViewUnpacked {
 extension NView {
     
     internal var unpacked: NViewUnpacked {
-        if let controlledView = self as? NControlledView {
-            return .controlledView(controlledView)
-        } else if let array = self as? [NView] {
+        if let array = self as? [NView] {
             return .array(array)
         } else if let view = self as? _View {
             return .view(view)
+        } else if let controlledView = self as? NControlledView {
+            return .controlledView(controlledView)
         } else if let forEach = self as? NForEach {
             return .forEach(forEach)
         } else if let anIf = self as? NIf {

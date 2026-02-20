@@ -36,6 +36,13 @@ where C: RandomAccessCollection, C: Equatable, C.Element: Hashable {
         self.animateChanges = animateChanges
         self.content = content
     }
+    
+    #if DEBUG
+    nonisolated
+    internal var describeTypeOfData: String {
+        "DYNAMIC <\(String(describing: C.self))>"
+    }
+    #endif
 }
 
 extension NForEachDynamicCachableEngine: NForEachEngine {
@@ -139,10 +146,10 @@ extension NForEachDynamicCachableEngine: NForEachEngine {
                     print_debug("👉 moving from: \(oldOffset), to: \(newOffset),", newCachedView.views.debugStringValues)
                 }
                 
-                cachedView.view.weakify()
-                
                 cachedNew.append(newCachedView)
                 currentCount += viewsCount
+                
+                cachedView.view.weakify()
             } else {
                 let newContents: [NView] = content(element.element)
                 if let parent {

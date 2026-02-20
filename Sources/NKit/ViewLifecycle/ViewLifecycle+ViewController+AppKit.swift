@@ -5,8 +5,10 @@ import AppKit
 
 extension NSViewController {
     
+    nonisolated(unsafe)
     private static var swizzledLifecycle: Bool = false
     
+    nonisolated
     internal static func swizzleLifecycleIfNeeded() {
         guard !Self.swizzledLifecycle else {
             return

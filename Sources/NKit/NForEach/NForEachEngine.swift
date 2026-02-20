@@ -23,4 +23,9 @@ internal protocol NForEachEngine {
     func weakifyCache()
     func strongifyCache()
     func clearCache()
+    
+    #if DEBUG
+    nonisolated
+    var describeTypeOfData: String { get }
+    #endif
 }

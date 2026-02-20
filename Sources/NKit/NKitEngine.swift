@@ -4,10 +4,8 @@ import AppKit
 import UIKit
 #endif
 
-public enum NKitEngine {
-    @MainActor
-    public static func setupNKit() {
-        _View.swizzleLifecycleIfNeeded()
-        _ViewController.swizzleLifecycleIfNeeded()
-    }
+@_cdecl("setupNKit")
+internal func setupNKit() {
+    _View.swizzleLifecycleIfNeeded()
+    _ViewController.swizzleLifecycleIfNeeded()
 }

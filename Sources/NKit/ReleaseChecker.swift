@@ -24,7 +24,7 @@ internal final class ReleaseChecker: @unchecked Sendable {
     internal func expect() {
         self.releaseExpected = true
         
-        DispatchQueue.global(qos: .userInitiated).asyncAfter(deadline: .now() + 1) {
+        DispatchQueue.global(qos: .userInitiated).asyncAfter(deadline: .now() + 2) {
             guard self.releaseExpected else {
                 return
             }

@@ -12,6 +12,7 @@ public final class NIf: NView {
     private let ifTrue: () -> [NView]
     private let ifElse: () -> [NView]
     private var cachedView: CachedView?
+    private var isCacheStrongified: Bool = false
     private /*unowned*/ var parent: NView?
     
     public init<T>(
@@ -99,7 +100,7 @@ extension NIf {
         cachedView = .init(
             hash: 0,
             views: newContents,
-            isStrongified: true
+            isStrongified: self.isCacheStrongified
         )
         
         return changes
@@ -118,6 +119,20 @@ extension NIf {
         }
     }
     
+    internal func weakifyCache() {
+        self.isCacheStrongified = false
+        self.cachedView?.weakify()
+    }
+    
+    internal func strongifyCache() {
+        self.isCacheStrongified = true
+        self.cachedView?.strongify()
+    }
+    
+    internal func clearCache() {
+        self.cachedView?.clear()
+        self.cachedView = nil
+    }
 }
 
 extension NIf {

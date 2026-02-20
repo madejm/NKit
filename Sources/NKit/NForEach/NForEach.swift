@@ -6,6 +6,11 @@ public final class NForEach: NView {
     private let separator: (() -> NView)?
     private let engine: NForEachEngine
     
+    #if DEBUG
+    nonisolated
+    internal let describeTypeOfData: String
+    #endif
+    
     @_disfavoredOverload
     public init<D>(
         _ data: D,
@@ -17,6 +22,7 @@ public final class NForEach: NView {
             data: data,
             content: content
         )
+        self.describeTypeOfData = self.engine.describeTypeOfData
         self.engine.setOwner(self)
     }
     
@@ -45,6 +51,7 @@ public final class NForEach: NView {
             animateChanges: animateChanges,
             content: content
         )
+        self.describeTypeOfData = self.engine.describeTypeOfData
         self.engine.setOwner(self)
     }
     
@@ -88,6 +95,7 @@ public final class NForEach: NView {
             data: data,
             content: content
         )
+        self.describeTypeOfData = self.engine.describeTypeOfData
         self.engine.setOwner(self)
     }
     
@@ -115,6 +123,7 @@ public final class NForEach: NView {
             data: data.map(),
             content: content
         )
+        self.describeTypeOfData = self.engine.describeTypeOfData
         self.engine.setOwner(self)
     }
     
@@ -133,7 +142,7 @@ public final class NForEach: NView {
     #endif
     
     deinit {
-        print_debug("💥 DEINIT NForEach")
+        print_debug("💥 DEINIT NForEach [\(describeTypeOfData)]")
     }
 }
 

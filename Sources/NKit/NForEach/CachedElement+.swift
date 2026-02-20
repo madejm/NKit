@@ -25,89 +25,94 @@ extension CachedElement {
 
 extension CachedElement {
     internal var view: NView {
-        if let array {
+        switch _element {
+        case .array(let array):
             let mapped: [NView] = array.map { $0.view }
             return mapped
+        case .object(let object):
+            guard let value = object.value else {
+                fatalError("Cached element was deallocated!")
+            }
+            return value
+        case .nForEach(let nForEach):
+            return nForEach.value
+        case .nIf(let nIf):
+            return nIf.value
+        case .controlledView(let nControlledView):
+            return nControlledView
+        case .view(let view):
+            guard let value = view.value else {
+                fatalError("Cached element was deallocated!")
+            }
+            return value
         }
-        if let object {
-            return object
-        }
-        if let nForEach {
-            return nForEach
-        }
-        if let nIf {
-            return nIf
-        }
-        if let controlledView {
-            return controlledView
-        }
-        if let strongView {
-            return strongView
-        }
-        if let weakView {
-            return weakView
-        }
-        fatalError("Cached element was deallocated!")
     }
     
     internal var viewsCount: Int {
-        if let array {
+        switch _element {
+        case .array(let array):
             return array.reduce(into: 0) { $0 += $1.viewsCount }
+        case .object(let object):
+            if let value = object.value {
+                return value.viewsCount
+            } else {
+                guard let lastWeakObjectViewCount = object.lastWeakObjectViewCount else {
+                    fatalError("Cached element was deallocated and lastObjectViewCount was not set!")
+                }
+                return lastWeakObjectViewCount
+            }
+        case .nForEach(let nForEach):
+            return nForEach.value.viewsCount
+        case .nIf(let nIf):
+            return nIf.value.viewsCount
+        case .controlledView(let nControlledView):
+            return nControlledView.viewsCount
+        case .view(let view):
+            if let value = view.value {
+                return value.viewsCount
+            } else {
+                guard let lastWeakObjectViewCount = view.lastWeakObjectViewCount else {
+                    fatalError("Cached element was deallocated and lastObjectViewCount was not set!")
+                }
+                return lastWeakObjectViewCount
+            }
         }
-        if let object {
-            return object.viewsCount
-        }
-        if let nForEach {
-            return nForEach.viewsCount
-        }
-        if let nIf {
-            return nIf.viewsCount
-        }
-        if let controlledView {
-            return controlledView.viewsCount
-        }
-        if let strongView {
-            return strongView.viewsCount
-        }
-        if let weakView {
-            return weakView.viewsCount
-        }
-        if let lastWeakObjectViewCount {
-            return lastWeakObjectViewCount
-        }
-        fatalError("Cached element was deallocated and lastObjectViewCount was not set!")
     }
     
     internal var viewsCountInCache: Int {
-        if let array {
+        switch _element {
+        case .array(let array):
             return array.reduce(into: 0) { $0 += $1.viewsCountInCache }
+        case .object(let object):
+            if let value = object.value {
+                return value.viewsCountInCache
+            } else {
+                guard let lastWeakObjectViewCount = object.lastWeakObjectViewCount else {
+                    fatalError("Cached element was deallocated and lastObjectViewCount was not set!")
+                }
+                return lastWeakObjectViewCount
+            }
+        case .nForEach(let nForEach):
+            return nForEach.value.viewsCountInCache
+        case .nIf(let nIf):
+            return nIf.value.viewsCountInCache
+        case .controlledView(let nControlledView):
+            return nControlledView.viewsCountInCache
+        case .view(let view):
+            if let value = view.value {
+                return value.viewsCountInCache
+            } else {
+                guard let lastWeakObjectViewCount = view.lastWeakObjectViewCount else {
+                    fatalError("Cached element was deallocated and lastObjectViewCount was not set!")
+                }
+                return lastWeakObjectViewCount
+            }
         }
-        if let object {
-            return object.viewsCountInCache
-        }
-        if let nForEach {
-            return nForEach.viewsCountInCache
-        }
-        if let nIf {
-            return nIf.viewsCountInCache
-        }
-        if let controlledView {
-            return controlledView.viewsCountInCache
-        }
-        if let strongView {
-            return strongView.viewsCountInCache
-        }
-        if let weakView {
-            return weakView.viewsCountInCache
-        }
-        if let lastWeakObjectViewCount {
-            return lastWeakObjectViewCount
-        }
-        fatalError("Cached element was deallocated and lastObjectViewCount was not set!")
     }
     
     internal func countViews(until end: AnyObject) -> (count: Int, stop: Bool) {
-        if let array {
+        switch _element {
+        case .array(let array):
             var count: Int = 0
             
             for element in array {
@@ -120,29 +125,30 @@ extension CachedElement {
             }
             
             return (count, false)
+        case .object(let object):
+            if let value = object.value {
+                return value.countViews(until: end)
+            } else {
+                guard let lastWeakObjectViewCount = object.lastWeakObjectViewCount else {
+                    fatalError("Cached element was deallocated and lastObjectViewCount was not set!")
+                }
+                return (lastWeakObjectViewCount, false)
+            }
+        case .nForEach(let nForEach):
+            return nForEach.value.countViews(until: end)
+        case .nIf(let nIf):
+            return nIf.value.countViews(until: end)
+        case .controlledView(let nControlledView):
+            return nControlledView.countViews(until: end)
+        case .view(let view):
+            if let value = view.value {
+                return value.countViews(until: end)
+            } else {
+                guard let lastWeakObjectViewCount = view.lastWeakObjectViewCount else {
+                    fatalError("Cached element was deallocated and lastObjectViewCount was not set!")
+                }
+                return (lastWeakObjectViewCount, false)
+            }
         }
-        if let object {
-            return object.countViews(until: end)
-        }
-        if let nForEach {
-            return nForEach.countViews(until: end)
-        }
-        if let nIf {
-            return nIf.countViews(until: end)
-        }
-        if let controlledView {
-            return controlledView.countViews(until: end)
-        }
-        if let strongView {
-            return strongView.countViews(until: end)
-        }
-        if let weakView {
-            return weakView.countViews(until: end)
-        }
-        if let lastWeakObjectViewCount {
-            return (lastWeakObjectViewCount, false)
-        }
-        fatalError("Cannot count views, object was dellocated!")
     }
-    
 }

@@ -20,8 +20,13 @@ let package = Package(
     ],
     targets: [
         .target(
+            name: "NKitHook",
+            publicHeadersPath: "."
+        ),
+        .target(
             name: "NKit",
             dependencies: [
+                "NKitHook",
                 "FixedArray"
             ]
         ),

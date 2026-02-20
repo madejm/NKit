@@ -55,7 +55,7 @@ public final class Text: NSTextField {
     
     deinit {
         #if DEBUG
-        print_debug("💥 DEINIT Text \(debugStringValue)")
+        print_debug("💥 DEINIT Text \"\(debugStringValue)\"")
         #endif
     }
 }

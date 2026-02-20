@@ -156,7 +156,8 @@ extension NView {
     ) -> [_View] {
         switch self.unpacked {
         case .controlledView(let controlledView):
-            return [controlledView.body]
+            let controlledViewBody: _View = controlledView.body
+            return [controlledViewBody]
         case .view(let view):
             return [view]
         case .array(let array):
@@ -175,9 +176,9 @@ extension NView {
             )
             
             nIf.onDataChange { (viewsBeforeMe: Int, changes: [NChange<NView>]) in
-                let changes: [NChange<_View>] = changes.mapChanges(onChange: onChange)
+                let mappedChanges: [NChange<_View>] = changes.mapChanges(onChange: onChange)
                 
-                onChange(viewsBeforeMe, changes)
+                onChange(viewsBeforeMe, mappedChanges)
             }
             
             return views
@@ -192,9 +193,9 @@ extension NView {
             )
             
             nForEach.onDataChange { (viewsBeforeMe: Int, changes: [NChange<NView>]) in
-                let changes: [NChange<_View>] = changes.mapChanges(onChange: onChange)
+                let mappedChanges: [NChange<_View>] = changes.mapChanges(onChange: onChange)
                 
-                onChange(viewsBeforeMe, changes)
+                onChange(viewsBeforeMe, mappedChanges)
             }
             
             return views

@@ -17,6 +17,11 @@ extension ViewStack {
         
         let readyContent: [NView] = self.content()
         
+        self.retainedDynamicViews = readyContent
+            .filter {
+                $0 is NForEach || $0 is NIf
+            }
+        
         for i in 0..<readyContent.count {
             let nView: NView = readyContent[i]
             
@@ -58,6 +63,7 @@ extension ViewStack {
                                 let toIndex: StackIndex = replaceStart + element.offset + to
 //                                let NAME1 = element.element.textFieldString
                                 let view: _View = self.stack.arrangedSubviews[fromIndex]
+                                view.skipParentChanges += 2
                                 
                                 print_debug("    MOVING", view.mirrorDescription, fromIndex, "->", toIndex)
                                 viewsToRemove.append((view: view, animated: animated))

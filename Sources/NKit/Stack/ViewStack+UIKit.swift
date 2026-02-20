@@ -6,6 +6,8 @@ public class ViewStack: BaseView {
     internal let stack: UIStackView
     internal let content: /*@MainActor*/ () -> [NView]
     
+    internal var retainedDynamicViews: [Any] = []
+    
     internal init(
         alignment: BaseAlignment,
         orientation: Orientation,

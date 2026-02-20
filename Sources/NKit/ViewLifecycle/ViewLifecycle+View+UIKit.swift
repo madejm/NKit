@@ -4,8 +4,11 @@ import Combine
 import UIKit
 
 extension UIView {
+    
+    nonisolated(unsafe)
     private static var swizzledLifecycle: Bool = false
     
+    nonisolated
     internal static func swizzleLifecycleIfNeeded() {
         guard !Self.swizzledLifecycle else {
             return
