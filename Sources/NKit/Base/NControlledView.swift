@@ -10,6 +10,43 @@ public protocol NControlledView: NView {
     var body: _View { get }
 }
 
+extension NControlledView {
+    internal func bodyWithPreparation() -> _View {
+        let body = self.body
+        
+        let releaseChecker = ReleaseChecker()
+        releaseChecker.prepare(
+            body,
+            customName: {
+                if self is (AnyObject & NView) {
+                    return String(reflecting: self)
+                } else {
+                    return String(reflecting: type(of: self))
+                }
+            }()
+        )
+        body[associatedId: .releaseChecker] = releaseChecker
+        
+        body.viewDidMoveToSuperviewPublisher
+            .sink {
+                releaseChecker.cancelExpectation()
+            }
+            .store(in: &body.cancellables)
+        
+        body.removeFromSuperviewPublisher
+            .sink {
+                releaseChecker.expect()
+            }
+            .store(in: &body.cancellables)
+        
+        return body
+    }
+}
+
+extension AssociatedId where Value == ReleaseChecker {
+    internal static let releaseChecker: Self = .init(key: "releaseChecker")
+}
+
 public protocol NModelControlledView: NControlledView {
     associatedtype Model
     

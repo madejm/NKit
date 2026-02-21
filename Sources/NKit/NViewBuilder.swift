@@ -157,7 +157,7 @@ extension NView {
     ) -> [_View] {
         switch self.unpacked {
         case .controlledView(let controlledView):
-            let controlledViewBody: _View = controlledView.body
+            let controlledViewBody: _View = controlledView.bodyWithPreparation()
             return [controlledViewBody]
         case .view(let view):
             return [view]
