@@ -13,7 +13,7 @@ where C: RandomAccessCollection, C: Equatable, C.Element: Hashable {
     private let content: (NGet<C.Element>) -> [NView]
     private var cachedViews: [CachedView]? = []
     private var isCacheStrongified: Bool = true
-    private var cachedParent: CachedElement?
+    private var cachedParent: CachedElement<CachedElementDynamicWeak>?
     private unowned var owner: NForEach!
     
     private var parent: NView? {
@@ -24,8 +24,7 @@ where C: RandomAccessCollection, C: Equatable, C.Element: Hashable {
             cachedParent = newValue.map {
                 CachedElement(
                     view: $0,
-                    isStrongified: false,
-                    isRoot: false
+                    isStrongified: false
                 )
             }
         }

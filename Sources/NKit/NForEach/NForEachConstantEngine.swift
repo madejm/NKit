@@ -10,7 +10,7 @@ internal final class NForEachConstantEngine<D> where D: RandomAccessCollection {
     private let data: D
     private let content: (D.Element) -> [NView]
     private var cachedViews: [CachedView]?
-    private var cachedParent: CachedElement?
+    private var cachedParent: CachedElement<CachedElementDynamicWeak>?
     private unowned var owner: NForEach!
     
     private var parent: NView? {
@@ -21,8 +21,7 @@ internal final class NForEachConstantEngine<D> where D: RandomAccessCollection {
             cachedParent = newValue.map {
                 CachedElement(
                     view: $0,
-                    isStrongified: false,
-                    isRoot: false
+                    isStrongified: false
                 )
             }
         }

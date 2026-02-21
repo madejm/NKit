@@ -13,7 +13,7 @@ public final class NIf: NView {
     private let ifElse: () -> [NView]
     private var cachedView: CachedView?
     private var isCacheStrongified: Bool = false
-    private var cachedParent: CachedElement?
+    private var cachedParent: CachedElement<CachedElementDynamicWeak>?
     
     private var parent: NView? {
         get {
@@ -23,8 +23,7 @@ public final class NIf: NView {
             cachedParent = newValue.map {
                 CachedElement(
                     view: $0,
-                    isStrongified: false,
-                    isRoot: false
+                    isStrongified: false
                 )
             }
         }

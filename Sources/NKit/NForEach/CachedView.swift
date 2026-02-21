@@ -9,7 +9,7 @@
 internal struct CachedView {
     internal var isAvailable: Bool = true
     internal let hash: Int
-    internal let elements: [CachedElement]
+    internal let elements: [CachedElement<CachedElementDynamicStrong>]
     
     internal init(
         hash: Int,
@@ -21,8 +21,7 @@ internal struct CachedView {
         self.elements = views.map {
             CachedElement(
                 view: $0,
-                isStrongified: isStrongified,
-                isRoot: isRoot
+                isStrongified: isStrongified
             )
         }
     }
