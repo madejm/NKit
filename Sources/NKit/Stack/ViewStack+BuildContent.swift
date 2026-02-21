@@ -18,8 +18,8 @@ extension ViewStack {
         let readyContent: [NView] = self.content()
         
         self.retainedDynamicViews = readyContent
-            .filter {
-                $0 is NForEach || $0 is NIf
+            .compactMap {
+                $0 as? NCacheable
             }
         
         for i in 0..<readyContent.count {

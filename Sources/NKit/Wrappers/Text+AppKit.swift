@@ -6,7 +6,7 @@ public final class Text: NSTextField {
     @NGet private var textBinding: NSAttributedString
     
     #if DEBUG
-    nonisolated(unsafe) private var debugStringValue: String
+    nonisolated(unsafe) internal var debugStringValue: String
     #endif
     
     public init(

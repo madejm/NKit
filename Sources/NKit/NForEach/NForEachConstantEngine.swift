@@ -19,7 +19,11 @@ internal final class NForEachConstantEngine<D> where D: RandomAccessCollection {
         }
         set {
             cachedParent = newValue.map {
-                CachedElement(view: $0, isStrongified: false)
+                CachedElement(
+                    view: $0,
+                    isStrongified: false,
+                    isRoot: false
+                )
             }
         }
     }
@@ -104,7 +108,7 @@ extension NForEachConstantEngine: NForEachEngine {
             views.setParent(parent)
         }
         
-        self.cachedViews = [ CachedView(hash: 0, views: views, isStrongified: false) ]
+        self.cachedViews = [ CachedView(hash: 0, views: views, isStrongified: true, isRoot: true) ]
         return views
     }
     

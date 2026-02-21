@@ -12,7 +12,7 @@ where C: RandomAccessCollection, C: Equatable, C.Element: Hashable {
     private let animateChanges: Bool
     private let content: (NGet<C.Element>) -> [NView]
     private var cachedViews: [CachedView]? = []
-    private var isCacheStrongified: Bool = false
+    private var isCacheStrongified: Bool = true
     private var cachedParent: CachedElement?
     private unowned var owner: NForEach!
     
@@ -22,7 +22,11 @@ where C: RandomAccessCollection, C: Equatable, C.Element: Hashable {
         }
         set {
             cachedParent = newValue.map {
-                CachedElement(view: $0, isStrongified: false)
+                CachedElement(
+                    view: $0,
+                    isStrongified: false,
+                    isRoot: false
+                )
             }
         }
     }
@@ -163,7 +167,8 @@ extension NForEachDynamicCachableEngine: NForEachEngine {
                 let newCachedView: CachedView = .init(
                     hash: hash ?? 0,
                     views: newContents,
-                    isStrongified: self.isCacheStrongified
+                    isStrongified: self.isCacheStrongified,
+                    isRoot: true
                 )
                 
                 print_debug("👉 inserting at: \(newOffset), count: \(newViewsCount),", newContents.debugStringValues)

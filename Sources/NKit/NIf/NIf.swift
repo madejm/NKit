@@ -13,7 +13,22 @@ public final class NIf: NView {
     private let ifElse: () -> [NView]
     private var cachedView: CachedView?
     private var isCacheStrongified: Bool = false
-    private /*unowned*/ var parent: NView?
+    private var cachedParent: CachedElement?
+    
+    private var parent: NView? {
+        get {
+            cachedParent?.element
+        }
+        set {
+            cachedParent = newValue.map {
+                CachedElement(
+                    view: $0,
+                    isStrongified: false,
+                    isRoot: false
+                )
+            }
+        }
+    }
     
     public init<T>(
         _ binding: NGet<T>,
@@ -100,7 +115,8 @@ extension NIf {
         cachedView = .init(
             hash: 0,
             views: newContents,
-            isStrongified: self.isCacheStrongified
+            isStrongified: self.isCacheStrongified,
+            isRoot: true
         )
         
         return changes
@@ -118,20 +134,22 @@ extension NIf {
             changed(viewsBeforeMe ?? 0, changes)
         }
     }
+}
+
+extension NIf: NCacheable {
     
-    internal func weakifyCache() {
+    internal func weakify() {
         self.isCacheStrongified = false
         self.cachedView?.weakify()
     }
     
-    internal func strongifyCache() {
+    internal func strongify() {
         self.isCacheStrongified = true
         self.cachedView?.strongify()
     }
     
-    internal func clearCache() {
-        self.cachedView?.clear()
-        self.cachedView = nil
+    internal func clear() {
+        self.cachedView?.strongify()
     }
 }
 

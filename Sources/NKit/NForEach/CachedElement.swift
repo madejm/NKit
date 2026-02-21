@@ -118,7 +118,8 @@ internal final class CachedElement {
             
             func strongify() {
                 guard !isStrongified else {
-                    fatalError("Trying to strongify an already strong element")
+//                    fatalError("Trying to strongify an already strong element")
+                    return
                 }
                 guard let thisView = weakView else {
                     fatalError("Trying to strongify nil")
@@ -130,7 +131,8 @@ internal final class CachedElement {
             
             func weakify() {
                 guard isStrongified else {
-                    fatalError("Trying to weakify an already weak element")
+//                    fatalError("Trying to weakify an already weak element")
+                    return
                 }
                 guard let thisView = strongView else {
                     fatalError("Trying to weakify nil")
@@ -148,18 +150,82 @@ internal final class CachedElement {
         }
         
         @MainActor
-        final class Weak<T: AnyObject> {
+        final class Weak<T: AnyObject & NCacheable> {
+            private var strongValue: T?
             private weak var weakValue: T?
+            private var isStrongified: Bool
+            private var isCleared: Bool = false
+            private let isRoot: Bool
             
-            init(_ value: T) {
-                self.weakValue = value
+            init(value: T, isStrongified: Bool, isRoot: Bool) {
+                if isStrongified || isRoot {
+                    self.strongValue = value
+                    self.weakValue = nil
+                } else {
+                    self.strongValue = nil
+                    self.weakValue = value
+                }
+                self.isRoot = isRoot
+                self.isStrongified = isStrongified
             }
             
             var value: T {
-                guard let weakValue else {
-                    fatalError("Cached element was deallocated!")
+                if isStrongified || isRoot {
+                    guard let strongValue else {
+                        fatalError("Cached element was deallocated!")
+                    }
+                    return strongValue
+                } else {
+                    guard let weakValue else {
+                        fatalError("Cached element was deallocated!")
+                    }
+                    return weakValue
                 }
-                return weakValue
+            }
+            
+            func strongify() {
+                guard !isStrongified else {
+                    fatalError("Trying to strongify an already strong element")
+                }
+                isStrongified = true
+                
+                if isRoot {
+                    guard let thisValue = strongValue else {
+                        fatalError("Root is nil!")
+                    }
+                    thisValue.strongify()
+                } else {
+                    guard let thisValue = weakValue else {
+                        fatalError("Trying to strongify nil")
+                    }
+                    thisValue.strongify()
+                    strongValue = thisValue
+                    weakValue = nil
+                }
+            }
+            
+            func weakify() {
+                guard isStrongified else {
+                    fatalError("Trying to weakify an already weak element")
+                }
+                isStrongified = false
+                
+                guard let thisValue = strongValue else {
+                    fatalError("Trying to weakify nil")
+                }
+                thisValue.weakify()
+                if !isRoot {
+                    weakValue = thisValue
+                    strongValue = nil
+                }
+            }
+            
+            func clear() {
+                isCleared = true
+                weakValue?.clear()
+                strongValue?.clear()
+                weakValue = nil
+                strongValue = nil
             }
         }
         
@@ -197,7 +263,8 @@ internal final class CachedElement {
     
     internal init(
         view: NView,
-        isStrongified: Bool
+        isStrongified: Bool,
+        isRoot: Bool
     ) {
         self.isStrongified = isStrongified
         
@@ -212,11 +279,12 @@ internal final class CachedElement {
             self.DEBUG_TEXT = "ARRAY [\(String(describing: type(of: array)))]"
             #endif
             self._element = .array(array.map {
-                CachedElement(view: $0, isStrongified: isStrongified)
+                CachedElement(view: $0, isStrongified: isStrongified, isRoot: isRoot)
             })
         case .view(let view):
             #if DEBUG
-            self.DEBUG_TEXT = "_VIEW [\(String(describing: type(of: view)))]"
+            let textValue: String? = ((view as? Text)?.debugStringValue).map { " (\($0))"}
+            self.DEBUG_TEXT = "_VIEW [\(String(describing: type(of: view)))\(textValue ?? "")]"
             #endif
             if isStrongified {
                 self._element = .view(.init(strongView: view))
@@ -227,12 +295,20 @@ internal final class CachedElement {
             #if DEBUG
             self.DEBUG_TEXT = "NForEach [\(nForEach.describeTypeOfData)]"
             #endif
-            self._element = .nForEach(.init(nForEach))
+            self._element = .nForEach(.init(
+                value: nForEach,
+                isStrongified: isStrongified,
+                isRoot: isRoot
+            ))
         case .if(let nIf):
             #if DEBUG
             self.DEBUG_TEXT = "NIf"
             #endif
-            self._element = .nIf(.init(nIf))
+            self._element = .nIf(.init(
+                value: nIf,
+                isStrongified: isStrongified,
+                isRoot: isRoot
+            ))
         case .otherObject(let object):
             #if DEBUG
             self.DEBUG_TEXT = "OTHER OBJECT [\(String(describing: type(of: object)))]"
@@ -240,7 +316,7 @@ internal final class CachedElement {
             if isStrongified {
                 self._element = .object(.init(strongObject: object))
             } else {
-                self._element = .object(.init(strongObject: object))
+                self._element = .object(.init(weakObject: object))
             }
         case .other(let nView):
             fatalError("Trying to cache non object value: \(String(describing: type(of: nView)))!")
@@ -254,9 +330,10 @@ internal final class CachedElement {
     }
     
     internal func strongify() {
-        guard !isStrongified else {
-            fatalError("Trying to strongify an already strong cache")
-        }
+//        guard !isStrongified else {
+//            fatalError("Trying to strongify an already strong cache")
+//            return
+//        }
         self.isStrongified = true
         
         switch _element {
@@ -267,9 +344,9 @@ internal final class CachedElement {
         case .object(let object):
             object.strongify()
         case .nForEach(let nForEach):
-            nForEach.value.strongifyCache()
+            nForEach.strongify()
         case .nIf(let nIf):
-            nIf.value.strongifyCache()
+            nIf.strongify()
         case .controlledView:
             break
         case .view(let view):
@@ -278,9 +355,9 @@ internal final class CachedElement {
     }
     
     internal func weakify() {
-        guard isStrongified else {
-            fatalError("Trying to weakify an already weak cache")
-        }
+//        guard isStrongified else {
+//            fatalError("Trying to weakify an already weak cache")
+//        }
         self.isStrongified = false
         
         switch _element {
@@ -291,9 +368,9 @@ internal final class CachedElement {
         case .object(let object):
             object.weakify()
         case .nForEach(let nForEach):
-            nForEach.value.weakifyCache()
+            nForEach.weakify()
         case .nIf(let nIf):
-            nIf.value.weakifyCache()
+            nIf.weakify()
         case .controlledView:
             break
         case .view(let view):
@@ -310,9 +387,9 @@ internal final class CachedElement {
         case .object(let object):
             object.clear()
         case .nForEach(let nForEach):
-            nForEach.value.clearCache()
+            nForEach.clear()
         case .nIf(let nIf):
-            nIf.value.clearCache()
+            nIf.clear()
         case .controlledView:
             break
         case .view(let view):

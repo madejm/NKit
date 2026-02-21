@@ -147,12 +147,12 @@ public final class NForEach: NView {
 }
 
 extension NForEach {
-//    internal func isTheSameAs(_ other: NForEach) -> Bool {
-//        guard let another = other as? Self else {
-//            return false
-//        }
-//        return another === self
-//    }
+    //    internal func isTheSameAs(_ other: NForEach) -> Bool {
+    //        guard let another = other as? Self else {
+    //            return false
+    //        }
+    //        return another === self
+    //    }
     
     internal func setNForEachParent(_ parent: NView) {
         self.engine.setNForEachParent(parent)
@@ -175,16 +175,19 @@ extension NForEach {
     ) {
         self.engine.onDataChange(changed: changed)
     }
+}
+
+extension NForEach: NCacheable {
     
-    internal func weakifyCache() {
+    internal func weakify() {
         self.engine.weakifyCache()
     }
     
-    internal func strongifyCache() {
+    internal func strongify() {
         self.engine.strongifyCache()
     }
     
-    internal func clearCache() {
+    internal func clear() {
         self.engine.clearCache()
     }
 }

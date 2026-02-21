@@ -20,7 +20,7 @@ final class DeallocationChecker {
     }
     
     @MainActor
-    func append(_ newElement: _View) {
+    func append(_ newElement: AnyObject) {
         elements.append(WeakElement(
             element: newElement
         ))
@@ -35,7 +35,14 @@ final class DeallocationChecker {
         try? await Task.sleep(nanoseconds: 1_000_000)
         
         return elements.compactMap {
-            $0.element?.mirrorDescription
+            guard let element = $0.element else {
+                return nil
+            }
+            if let view = element as? _View {
+                return view.mirrorDescription
+            } else {
+                return String(describing: element)
+            }
         }
     }
 }
@@ -44,10 +51,10 @@ extension DeallocationChecker {
     @MainActor
     final class WeakElement {
         
-        private(set) weak var element: _View?
+        private(set) weak var element: AnyObject?
         
         init(
-            element: _View
+            element: AnyObject
         ) {
             self.element = element
         }
@@ -79,3 +86,17 @@ extension DeallocationChecker.WeakElement: @preconcurrency CustomReflectable {
     }
 }
 #endif
+
+extension NForEach {
+    func checkDealloc(in deallocationChecker: DeallocationChecker) -> Self {
+        deallocationChecker.append(self)
+        return self
+    }
+}
+
+extension NIf {
+    func checkDealloc(in deallocationChecker: DeallocationChecker) -> Self {
+        deallocationChecker.append(self)
+        return self
+    }
+}

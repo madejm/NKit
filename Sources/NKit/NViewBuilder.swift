@@ -183,6 +183,7 @@ extension NView {
             
             return views
         case .forEach(let nForEach):
+            nForEach.strongify()
             let nViews: [NView] = nForEach.forEachViews
             let views: [_View] = nViews.mapToViews(
                 onChange: { (changeOffset: Int, changes: [NChange<_View>]) in
@@ -191,6 +192,7 @@ extension NView {
                     onChange(offset, changes)
                 }
             )
+            nForEach.weakify()
             
             nForEach.onDataChange { (viewsBeforeMe: Int, changes: [NChange<NView>]) in
                 let mappedChanges: [NChange<_View>] = changes.mapChanges(onChange: onChange)

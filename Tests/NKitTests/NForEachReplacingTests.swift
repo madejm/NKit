@@ -5,9 +5,10 @@ import FixedArray
 
 @Suite("NForEachReplacingTests")
 @MainActor
-final class NForEachReplacingTests {
-    nonisolated(unsafe) let deallocationChecker = DeallocationChecker()
-    var newViewsCreated: Int = 0
+struct NForEachReplacingTests {
+    nonisolated(unsafe) let viewChecker = DeallocationChecker()
+    nonisolated(unsafe) let dynamicChecker = DeallocationChecker()
+    @NValue var newViewsCreated: Int = 0
     
     init() {
     }
@@ -16,7 +17,7 @@ final class NForEachReplacingTests {
         print("✨ Creating static view: \(string)")
         let text = Text(string)
         newViewsCreated += 1
-        self.deallocationChecker.append(text)
+        self.viewChecker.append(text)
         return text
     }
     
@@ -24,7 +25,7 @@ final class NForEachReplacingTests {
         print("✨ Creating binded view: \(get.wrappedValue)")
         let text = Text(get)
         newViewsCreated += 1
-        self.deallocationChecker.append(text)
+        self.viewChecker.append(text)
         return text
     }
     
@@ -32,19 +33,21 @@ final class NForEachReplacingTests {
         let state: NState<[Int]> = .init(wrappedValue: [0, 1, 2, 0])
         let binding: NBinding<[Int]> = state.projectedValue
         
-        let rootView = NHStack { [unowned self] in
+        var rootView: NHStack! = NHStack {
             self.createText("Header")
             
             NForEach(binding) { (index: NGet<Int>) in
                 self.createText("\(index.wrappedValue)")
             }
+            .checkDealloc(in: dynamicChecker)
             
             self.createText("Footer")
         }
         
         #expect(rootView.stack.arrangedSubviews.count == 6)
         #expect(newViewsCreated == 6)
-        await #expect(deallocationChecker.getNotDeallocated().count == rootView.stack.arrangedSubviews.count)
+        await #expect(viewChecker.getNotDeallocated().count == rootView.stack.arrangedSubviews.count)
+        await #expect(dynamicChecker.getNotDeallocated().count == 1)
         rootView.check { next, rest in
             #expect(next() == "Header")
             #expect(next() == "0")
@@ -60,7 +63,8 @@ final class NForEachReplacingTests {
         binding[1].wrappedValue = 3
         #expect(rootView.stack.arrangedSubviews.count == 6)
         #expect(newViewsCreated == 1)
-        await #expect(deallocationChecker.getNotDeallocated().count == rootView.stack.arrangedSubviews.count)
+        await #expect(viewChecker.getNotDeallocated().count == rootView.stack.arrangedSubviews.count)
+        await #expect(dynamicChecker.getNotDeallocated().count == 1)
         rootView.check { next, rest in
             #expect(next() == "Header")
             #expect(next() == "0")
@@ -76,7 +80,8 @@ final class NForEachReplacingTests {
         binding.wrappedValue.swapAt(1, 2)
         #expect(rootView.stack.arrangedSubviews.count == 6)
         #expect(newViewsCreated == 0)
-        await #expect(deallocationChecker.getNotDeallocated().count == rootView.stack.arrangedSubviews.count)
+        await #expect(viewChecker.getNotDeallocated().count == rootView.stack.arrangedSubviews.count)
+        await #expect(dynamicChecker.getNotDeallocated().count == 1)
         rootView.check { next, rest in
             #expect(next() == "Header")
             #expect(next() == "0")
@@ -92,7 +97,8 @@ final class NForEachReplacingTests {
         binding.wrappedValue.insert(0, at: 1)
         #expect(rootView.stack.arrangedSubviews.count == 7)
         #expect(newViewsCreated == 1)
-        await #expect(deallocationChecker.getNotDeallocated().count == rootView.stack.arrangedSubviews.count)
+        await #expect(viewChecker.getNotDeallocated().count == rootView.stack.arrangedSubviews.count)
+        await #expect(dynamicChecker.getNotDeallocated().count == 1)
         rootView.check { next, rest in
             #expect(next() == "Header")
             #expect(next() == "0")
@@ -109,7 +115,8 @@ final class NForEachReplacingTests {
         binding.wrappedValue.remove(at: 2)
         #expect(rootView.stack.arrangedSubviews.count == 6)
         #expect(newViewsCreated == 0)
-        await #expect(deallocationChecker.getNotDeallocated().count == rootView.stack.arrangedSubviews.count)
+        await #expect(viewChecker.getNotDeallocated().count == rootView.stack.arrangedSubviews.count)
+        await #expect(dynamicChecker.getNotDeallocated().count == 1)
         rootView.check { next, rest in
             #expect(next() == "Header")
             #expect(next() == "0")
@@ -119,6 +126,9 @@ final class NForEachReplacingTests {
             #expect(next() == "Footer")
             #expect(rest() == [])
         }
+        
+        rootView = nil
+        await #expect(dynamicChecker.getNotDeallocated().count == 0)
     }
     
     @Test func testNForEachReplacingOuterAndNested() async {
@@ -128,7 +138,7 @@ final class NForEachReplacingTests {
         let nestedState: NState<[String]> = .init(wrappedValue: ["A"])
         let nestedBinding: NBinding<[String]> = nestedState.projectedValue
         
-        let rootView = NHStack { [unowned self] in
+        var rootView: NHStack! = NHStack {
             self.createText("Header")
             
             NForEach(binding) { (outer: NGet<Int>) in
@@ -137,9 +147,11 @@ final class NForEachReplacingTests {
                 NForEach(nestedBinding) { (inner: NGet<String>) in
                     self.createText("\(outer.wrappedValue) \(inner.wrappedValue)")
                 }
+                .checkDealloc(in: dynamicChecker)
                 
                 self.createText("Footer \(outer.wrappedValue)")
             }
+            .checkDealloc(in: dynamicChecker)
             
             self.createText("Footer")
         }
@@ -147,7 +159,8 @@ final class NForEachReplacingTests {
         rootView.printStack()
         #expect(rootView.stack.arrangedSubviews.count == 8)
         #expect(newViewsCreated == 8)
-        await #expect(deallocationChecker.getNotDeallocated().count == rootView.stack.arrangedSubviews.count)
+        await #expect(viewChecker.getNotDeallocated().count == rootView.stack.arrangedSubviews.count)
+        await #expect(dynamicChecker.getNotDeallocated().count == 3)
         rootView.check { next, rest in
             #expect(next() == "Header")
             #expect(next() == "Header 0")
@@ -166,7 +179,8 @@ final class NForEachReplacingTests {
         rootView.printStack()
         #expect(rootView.stack.arrangedSubviews.count == 10)
         #expect(newViewsCreated == 2)
-        await #expect(deallocationChecker.getNotDeallocated().count == rootView.stack.arrangedSubviews.count)
+        await #expect(viewChecker.getNotDeallocated().count == rootView.stack.arrangedSubviews.count)
+        await #expect(dynamicChecker.getNotDeallocated().count == 3)
         rootView.check { next, rest in
             #expect(next() == "Header")
             #expect(next() == "Header 0")
@@ -187,7 +201,8 @@ final class NForEachReplacingTests {
         rootView.printStack()
         #expect(rootView.stack.arrangedSubviews.count == 10)
         #expect(newViewsCreated == 2)
-        await #expect(deallocationChecker.getNotDeallocated().count == rootView.stack.arrangedSubviews.count)
+        await #expect(viewChecker.getNotDeallocated().count == rootView.stack.arrangedSubviews.count)
+        await #expect(dynamicChecker.getNotDeallocated().count == 3)
         rootView.check { next, rest in
             #expect(next() == "Header")
             #expect(next() == "Header 0")
@@ -208,7 +223,8 @@ final class NForEachReplacingTests {
         rootView.printStack()
         #expect(rootView.stack.arrangedSubviews.count == 10)
         #expect(newViewsCreated == 4)
-        await #expect(deallocationChecker.getNotDeallocated().count == rootView.stack.arrangedSubviews.count)
+        await #expect(viewChecker.getNotDeallocated().count == rootView.stack.arrangedSubviews.count)
+        await #expect(dynamicChecker.getNotDeallocated().count == 3)
         rootView.check { next, rest in
             #expect(next() == "Header")
             #expect(next() == "Header 0")
@@ -229,7 +245,8 @@ final class NForEachReplacingTests {
         rootView.printStack()
         #expect(rootView.stack.arrangedSubviews.count == 12)
         #expect(newViewsCreated == 2)
-        await #expect(deallocationChecker.getNotDeallocated().count == rootView.stack.arrangedSubviews.count)
+        await #expect(viewChecker.getNotDeallocated().count == rootView.stack.arrangedSubviews.count)
+        await #expect(dynamicChecker.getNotDeallocated().count == 3)
         rootView.check { next, rest in
             #expect(next() == "Header")
             #expect(next() == "Header 0")
@@ -252,7 +269,8 @@ final class NForEachReplacingTests {
         rootView.printStack()
         #expect(rootView.stack.arrangedSubviews.count == 6)
         #expect(newViewsCreated == 0)
-        await #expect(deallocationChecker.getNotDeallocated().count == rootView.stack.arrangedSubviews.count)
+        await #expect(viewChecker.getNotDeallocated().count == rootView.stack.arrangedSubviews.count)
+        await #expect(dynamicChecker.getNotDeallocated().count == 3)
         rootView.check { next, rest in
             #expect(next() == "Header")
             #expect(next() == "Header 0")
@@ -269,7 +287,8 @@ final class NForEachReplacingTests {
         rootView.printStack()
         #expect(rootView.stack.arrangedSubviews.count == 10)
         #expect(newViewsCreated == 4)
-        await #expect(deallocationChecker.getNotDeallocated().count == rootView.stack.arrangedSubviews.count)
+        await #expect(viewChecker.getNotDeallocated().count == rootView.stack.arrangedSubviews.count)
+        await #expect(dynamicChecker.getNotDeallocated().count == 3)
         rootView.check { next, rest in
             #expect(next() == "Header")
             #expect(next() == "Header 0")
@@ -290,7 +309,8 @@ final class NForEachReplacingTests {
         rootView.printStack()
         #expect(rootView.stack.arrangedSubviews.count == 2)
         #expect(newViewsCreated == 0)
-        await #expect(deallocationChecker.getNotDeallocated().count == rootView.stack.arrangedSubviews.count)
+        await #expect(viewChecker.getNotDeallocated().count == rootView.stack.arrangedSubviews.count)
+        await #expect(dynamicChecker.getNotDeallocated().count == 1)
         rootView.check { next, rest in
             #expect(next() == "Header")
             #expect(next() == "Footer")
@@ -303,7 +323,8 @@ final class NForEachReplacingTests {
         rootView.printStack()
         #expect(rootView.stack.arrangedSubviews.count == 10)
         #expect(newViewsCreated == 8)
-        await #expect(deallocationChecker.getNotDeallocated().count == rootView.stack.arrangedSubviews.count)
+        await #expect(viewChecker.getNotDeallocated().count == rootView.stack.arrangedSubviews.count)
+        await #expect(dynamicChecker.getNotDeallocated().count == 3)
         rootView.check { next, rest in
             #expect(next() == "Header")
             #expect(next() == "Header 1")
@@ -317,24 +338,30 @@ final class NForEachReplacingTests {
             #expect(next() == "Footer")
             #expect(rest() == [])
         }
+        
+        rootView = nil
+        await #expect(dynamicChecker.getNotDeallocated().count == 0)
     }
     
     @Test func testNForEachReplacingOnlyNested() async {
         let nestedState: NState<[String]> = .init(wrappedValue: ["A"])
         let nestedBinding: NBinding<[String]> = nestedState.projectedValue
         
-        let rootView = NHStack { [unowned self] in
+        var rootView: NHStack! = NHStack {
             NForEach([0, 1]) { (outer: Int) in
                 NForEach(nestedBinding) { (inner: NGet<String>) in
                     self.createText("\(outer) \(inner.wrappedValue)")
                 }
+                .checkDealloc(in: dynamicChecker)
             }
+            .checkDealloc(in: dynamicChecker)
         }
         
         rootView.printStack()
         #expect(rootView.stack.arrangedSubviews.count == 2)
         #expect(newViewsCreated == 2)
-        await #expect(deallocationChecker.getNotDeallocated().count == rootView.stack.arrangedSubviews.count)
+        await #expect(viewChecker.getNotDeallocated().count == rootView.stack.arrangedSubviews.count)
+        await #expect(dynamicChecker.getNotDeallocated().count == 3)
         rootView.check { next, rest in
             #expect(next() == "0 A")
             #expect(next() == "1 A")
@@ -347,7 +374,8 @@ final class NForEachReplacingTests {
         rootView.printStack()
         #expect(rootView.stack.arrangedSubviews.count == 4)
         #expect(newViewsCreated == 2)
-        await #expect(deallocationChecker.getNotDeallocated().count == rootView.stack.arrangedSubviews.count)
+        await #expect(viewChecker.getNotDeallocated().count == rootView.stack.arrangedSubviews.count)
+        await #expect(dynamicChecker.getNotDeallocated().count == 3)
         rootView.check { next, rest in
             #expect(next() == "0 A")
             #expect(next() == "0 B")
@@ -362,7 +390,8 @@ final class NForEachReplacingTests {
         rootView.printStack()
         #expect(rootView.stack.arrangedSubviews.count == 4)
         #expect(newViewsCreated == 2)
-        await #expect(deallocationChecker.getNotDeallocated().count == rootView.stack.arrangedSubviews.count)
+        await #expect(viewChecker.getNotDeallocated().count == rootView.stack.arrangedSubviews.count)
+        await #expect(dynamicChecker.getNotDeallocated().count == 3)
         rootView.check { next, rest in
             #expect(next() == "0 A")
             #expect(next() == "0 C")
@@ -377,7 +406,8 @@ final class NForEachReplacingTests {
         rootView.printStack()
         #expect(rootView.stack.arrangedSubviews.count == 6)
         #expect(newViewsCreated == 2)
-        await #expect(deallocationChecker.getNotDeallocated().count == rootView.stack.arrangedSubviews.count)
+        await #expect(viewChecker.getNotDeallocated().count == rootView.stack.arrangedSubviews.count)
+        await #expect(dynamicChecker.getNotDeallocated().count == 3)
         rootView.check { next, rest in
             #expect(next() == "0 A")
             #expect(next() == "0 D")
@@ -394,7 +424,8 @@ final class NForEachReplacingTests {
         rootView.printStack()
         #expect(rootView.stack.arrangedSubviews.count == 0)
         #expect(newViewsCreated == 0)
-        await #expect(deallocationChecker.getNotDeallocated().count == rootView.stack.arrangedSubviews.count)
+        await #expect(viewChecker.getNotDeallocated().count == rootView.stack.arrangedSubviews.count)
+        await #expect(dynamicChecker.getNotDeallocated().count == 3)
         rootView.check { next, rest in
             #expect(rest() == [])
         }
@@ -405,7 +436,8 @@ final class NForEachReplacingTests {
         rootView.printStack()
         #expect(rootView.stack.arrangedSubviews.count == 4)
         #expect(newViewsCreated == 4)
-        await #expect(deallocationChecker.getNotDeallocated().count == rootView.stack.arrangedSubviews.count)
+        await #expect(viewChecker.getNotDeallocated().count == rootView.stack.arrangedSubviews.count)
+        await #expect(dynamicChecker.getNotDeallocated().count == 3)
         rootView.check { next, rest in
             #expect(next() == "0 B")
             #expect(next() == "0 A")
@@ -413,24 +445,30 @@ final class NForEachReplacingTests {
             #expect(next() == "1 A")
             #expect(rest() == [])
         }
+        
+        rootView = nil
+        await #expect(dynamicChecker.getNotDeallocated().count == 0)
     }
     
     @Test func testNForEachReplacingOnlyOuter() async {
         let state: NState<[Int]> = .init(wrappedValue: [0])
         let binding: NBinding<[Int]> = state.projectedValue
         
-        let rootView = NHStack { [unowned self] in
+        var rootView: NHStack! = NHStack {
             NForEach(binding) { (outer: NGet<Int>) in
                 NForEach(["A", "B"]) { (inner: String) in
                     self.createText("\(outer.wrappedValue) \(inner)")
                 }
+                .checkDealloc(in: dynamicChecker)
             }
+            .checkDealloc(in: dynamicChecker)
         }
         
         rootView.printStack()
         #expect(rootView.stack.arrangedSubviews.count == 2)
         #expect(newViewsCreated == 2)
-        await #expect(deallocationChecker.getNotDeallocated().count == rootView.stack.arrangedSubviews.count)
+        await #expect(viewChecker.getNotDeallocated().count == rootView.stack.arrangedSubviews.count)
+        await #expect(dynamicChecker.getNotDeallocated().count == 2)
         rootView.check { next, rest in
             #expect(next() == "0 A")
             #expect(next() == "0 B")
@@ -443,7 +481,8 @@ final class NForEachReplacingTests {
         rootView.printStack()
         #expect(rootView.stack.arrangedSubviews.count == 4)
         #expect(newViewsCreated == 2)
-        await #expect(deallocationChecker.getNotDeallocated().count == rootView.stack.arrangedSubviews.count)
+        await #expect(viewChecker.getNotDeallocated().count == rootView.stack.arrangedSubviews.count)
+        await #expect(dynamicChecker.getNotDeallocated().count == 3)
         rootView.check { next, rest in
             #expect(next() == "0 A")
             #expect(next() == "0 B")
@@ -458,7 +497,8 @@ final class NForEachReplacingTests {
         rootView.printStack()
         #expect(rootView.stack.arrangedSubviews.count == 4)
         #expect(newViewsCreated == 2)
-        await #expect(deallocationChecker.getNotDeallocated().count == rootView.stack.arrangedSubviews.count)
+        await #expect(viewChecker.getNotDeallocated().count == rootView.stack.arrangedSubviews.count)
+        await #expect(dynamicChecker.getNotDeallocated().count == 3)
         rootView.check { next, rest in
             #expect(next() == "0 A")
             #expect(next() == "0 B")
@@ -473,7 +513,8 @@ final class NForEachReplacingTests {
         rootView.printStack()
         #expect(rootView.stack.arrangedSubviews.count == 6)
         #expect(newViewsCreated == 2)
-        await #expect(deallocationChecker.getNotDeallocated().count == rootView.stack.arrangedSubviews.count)
+        await #expect(viewChecker.getNotDeallocated().count == rootView.stack.arrangedSubviews.count)
+        await #expect(dynamicChecker.getNotDeallocated().count == 4)
         rootView.check { next, rest in
             #expect(next() == "0 A")
             #expect(next() == "0 B")
@@ -490,7 +531,8 @@ final class NForEachReplacingTests {
         rootView.printStack()
         #expect(rootView.stack.arrangedSubviews.count == 0)
         #expect(newViewsCreated == 0)
-        await #expect(deallocationChecker.getNotDeallocated().count == rootView.stack.arrangedSubviews.count)
+        await #expect(viewChecker.getNotDeallocated().count == rootView.stack.arrangedSubviews.count)
+        await #expect(dynamicChecker.getNotDeallocated().count == 1)
         rootView.check { next, rest in
             #expect(rest() == [])
         }
@@ -501,7 +543,8 @@ final class NForEachReplacingTests {
         rootView.printStack()
         #expect(rootView.stack.arrangedSubviews.count == 4)
         #expect(newViewsCreated == 4)
-        await #expect(deallocationChecker.getNotDeallocated().count == rootView.stack.arrangedSubviews.count)
+        await #expect(viewChecker.getNotDeallocated().count == rootView.stack.arrangedSubviews.count)
+        await #expect(dynamicChecker.getNotDeallocated().count == 3)
         rootView.check { next, rest in
             #expect(next() == "1 A")
             #expect(next() == "1 B")
@@ -509,22 +552,27 @@ final class NForEachReplacingTests {
             #expect(next() == "0 B")
             #expect(rest() == [])
         }
+        
+        rootView = nil
+        await #expect(dynamicChecker.getNotDeallocated().count == 0)
     }
     
     @Test func testNForEachReplacingWithBindedTexts() async {
         let state: NState<[String]> = .init(wrappedValue: ["A", "B"])
         let binding: NBinding<[String]> = state.projectedValue
         
-        let rootView = NHStack { [unowned self] in
+        var rootView: NHStack! = NHStack {
             NForEach(binding) { (inner: NGet<String>) in
                 self.createText(inner.wrappedValue)
             }
+            .checkDealloc(in: dynamicChecker)
         }
         
         rootView.printStack()
         #expect(rootView.stack.arrangedSubviews.count == 2)
         #expect(newViewsCreated == 2)
-        await #expect(deallocationChecker.getNotDeallocated().count == rootView.stack.arrangedSubviews.count)
+        await #expect(viewChecker.getNotDeallocated().count == rootView.stack.arrangedSubviews.count)
+        await #expect(dynamicChecker.getNotDeallocated().count == 1)
         rootView.check { next, rest in
             #expect(next() == "A")
             #expect(next() == "B")
@@ -537,7 +585,8 @@ final class NForEachReplacingTests {
         rootView.printStack()
         #expect(rootView.stack.arrangedSubviews.count == 3)
         #expect(newViewsCreated == 1)
-        await #expect(deallocationChecker.getNotDeallocated().count == rootView.stack.arrangedSubviews.count)
+        await #expect(viewChecker.getNotDeallocated().count == rootView.stack.arrangedSubviews.count)
+        await #expect(dynamicChecker.getNotDeallocated().count == 1)
         rootView.check { next, rest in
             #expect(next() == "A")
             #expect(next() == "B")
@@ -551,29 +600,35 @@ final class NForEachReplacingTests {
         rootView.printStack()
         #expect(rootView.stack.arrangedSubviews.count == 3)
         #expect(newViewsCreated == 1)
-        await #expect(deallocationChecker.getNotDeallocated().count == rootView.stack.arrangedSubviews.count)
+        await #expect(viewChecker.getNotDeallocated().count == rootView.stack.arrangedSubviews.count)
+        await #expect(dynamicChecker.getNotDeallocated().count == 1)
         rootView.check { next, rest in
             #expect(next() == "A")
             #expect(next() == "D")
             #expect(next() == "C")
             #expect(rest() == [])
         }
+        
+        rootView = nil
+        await #expect(dynamicChecker.getNotDeallocated().count == 0)
     }
     
     @Test func testNForEachReplacingWithBindedTextsInFixedArray() async {
         let state: NState<FixedArray3<String>> = .init(wrappedValue: .init("A", "B", "C"))
         let binding: NBinding<FixedArray3<String>> = state.projectedValue
         
-        let rootView = NHStack { [unowned self] in
+        var rootView: NHStack! = NHStack {
             NForEach(constantSize: binding) { (inner: NGet<String>) in
                 self.createText(inner)
             }
+            .checkDealloc(in: dynamicChecker)
         }
         
         rootView.printStack()
         #expect(rootView.stack.arrangedSubviews.count == 3)
         #expect(newViewsCreated == 3)
-        await #expect(deallocationChecker.getNotDeallocated().count == rootView.stack.arrangedSubviews.count)
+        await #expect(viewChecker.getNotDeallocated().count == rootView.stack.arrangedSubviews.count)
+        await #expect(dynamicChecker.getNotDeallocated().count == 1)
         rootView.check { next, rest in
             #expect(next() == "A")
             #expect(next() == "B")
@@ -587,13 +642,17 @@ final class NForEachReplacingTests {
         rootView.printStack()
         #expect(rootView.stack.arrangedSubviews.count == 3)
         #expect(newViewsCreated == 0)
-        await #expect(deallocationChecker.getNotDeallocated().count == rootView.stack.arrangedSubviews.count)
+        await #expect(viewChecker.getNotDeallocated().count == rootView.stack.arrangedSubviews.count)
+        await #expect(dynamicChecker.getNotDeallocated().count == 1)
         rootView.check { next, rest in
             #expect(next() == "A")
             #expect(next() == "D")
             #expect(next() == "C")
             #expect(rest() == [])
         }
+        
+        rootView = nil
+        await #expect(dynamicChecker.getNotDeallocated().count == 0)
     }
     
     #if swift(>=6.2)
@@ -602,16 +661,18 @@ final class NForEachReplacingTests {
         let state: NState<InlineArray<_, String>> = .init(wrappedValue: ["A", "B", "C"])
         let binding: NBinding<InlineArray<_, String>> = state.projectedValue
         
-        let rootView = NHStack { [unowned self] in
+        var rootView: NHStack! = NHStack {
             NForEach(binding) { (inner: NGet<String>) in
                 self.createText(inner)
             }
+            .checkDealloc(in: dynamicChecker)
         }
         
         rootView.printStack()
         #expect(rootView.stack.arrangedSubviews.count == 3)
         #expect(newViewsCreated == 3)
-        await #expect(deallocationChecker.getNotDeallocated().count == rootView.stack.arrangedSubviews.count)
+        await #expect(viewChecker.getNotDeallocated().count == rootView.stack.arrangedSubviews.count)
+        await #expect(dynamicChecker.getNotDeallocated().count == 1)
         rootView.check { next, rest in
             #expect(next() == "A")
             #expect(next() == "B")
@@ -625,13 +686,17 @@ final class NForEachReplacingTests {
         rootView.printStack()
         #expect(rootView.stack.arrangedSubviews.count == 3)
         #expect(newViewsCreated == 0)
-        await #expect(deallocationChecker.getNotDeallocated().count == rootView.stack.arrangedSubviews.count)
+        await #expect(viewChecker.getNotDeallocated().count == rootView.stack.arrangedSubviews.count)
+        await #expect(dynamicChecker.getNotDeallocated().count == 1)
         rootView.check { next, rest in
             #expect(next() == "A")
             #expect(next() == "D")
             #expect(next() == "C")
             #expect(rest() == [])
         }
+        
+        rootView = nil
+        await #expect(dynamicChecker.getNotDeallocated().count == 0)
     }
     #endif
 }

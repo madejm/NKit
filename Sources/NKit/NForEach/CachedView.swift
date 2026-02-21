@@ -14,11 +14,16 @@ internal struct CachedView {
     internal init(
         hash: Int,
         views: [NView],
-        isStrongified: Bool
+        isStrongified: Bool,
+        isRoot: Bool
     ) {
         self.hash = hash
         self.elements = views.map {
-            CachedElement(view: $0, isStrongified: isStrongified)
+            CachedElement(
+                view: $0,
+                isStrongified: isStrongified,
+                isRoot: isRoot
+            )
         }
     }
     
