@@ -5,8 +5,10 @@
 //  Created by Mejdej on 13/08/2025.
 //
 
-extension Array where Element == CachedView {
-    internal mutating func getCached(hash: Int?) -> (oldIndex: NViewIndex, view: CachedView)? {
+extension Array {
+    @MainActor
+    internal mutating func getCached<H: Equatable>(hash: H?) -> (oldIndex: NViewIndex, view: CachedView<H>)?
+    where Element == CachedView<H> {
         guard let cachedIndex: Int = self.firstIndex(where: {
             guard $0.isAvailable else {
                 return false
@@ -16,39 +18,41 @@ extension Array where Element == CachedView {
             return nil
         }
         
-        let cachedView: CachedView = self[cachedIndex]
+        let cachedView: CachedView<H> = self[cachedIndex]
         self[cachedIndex].isAvailable = false
         
         return (NViewIndex(rawValue: cachedIndex), cachedView)
     }
     
+//    @MainActor
+//    internal func viewsCount<H>() -> Int
+//    where Element == CachedView<H> {
+//        var count: Int = 0
+//        
+//        for cached in self {
+//            let views: [NView] = cached.views
+//            count += views.viewsCount
+//        }
+//        
+//        return count
+//    }
+    
     @MainActor
-    internal var viewsCount: Int {
-        var count: Int = 0
+    internal func viewsCount<H>(upTo index: Int) -> StackIndex
+    where Element == CachedView<H> {
+        var count: StackIndex = 0
         
-        for cached in self {
-            let views: [NView] = cached.views
-            count += views.viewsCount
+        for i in 0..<index {
+            let cached: CachedView<H> = self[i]
+            count += cached.viewsCount
         }
         
         return count
     }
     
     @MainActor
-    internal func viewsCount(upTo index: Int) -> StackIndex {
-        var count: StackIndex = 0
-        
-        for i in 0..<index {
-            let cached: CachedView = self[i]
-            count += cached.viewsCount
-        }
-        
-        return count
-    }
-}
-
-extension Array where Element == (oldIndex: NViewIndex, view: CachedView) {
-    internal mutating func getCached(hash: Int?) -> (newIndex: NViewIndex, oldIndex: NViewIndex, view: CachedView)? {
+    internal mutating func getCached<H: Equatable>(hash: H?) -> (newIndex: NViewIndex, oldIndex: NViewIndex, view: CachedView<H>)?
+    where Element == (oldIndex: NViewIndex, view: CachedView<H>) {
         guard let cachedIndex: Int = self.firstIndex(where: {
             guard $0.view.isAvailable else {
                 return false
@@ -59,21 +63,22 @@ extension Array where Element == (oldIndex: NViewIndex, view: CachedView) {
             return nil
         }
         
-        let cachedView = self[cachedIndex]
+        let cachedView: (oldIndex: NViewIndex, view: CachedView<H>) = self[cachedIndex]
         self[cachedIndex].view.isAvailable = false
         
         return (NViewIndex(rawValue: cachedIndex), cachedView.oldIndex, cachedView.view)
     }
     
-    @MainActor
-    internal func viewsCount(upTo index: NViewIndex) -> StackIndex {
-        var count: StackIndex = 0
-        
-        for i in 0..<index.rawValue {
-            let cached: CachedView = self[i].view
-            count += cached.viewsCount
-        }
-        
-        return count
-    }
+//    @MainActor
+//    internal func viewsCount<H>(upTo index: NViewIndex) -> StackIndex
+//    where Element == (oldIndex: NViewIndex, view: CachedView<H>) {
+//        var count: StackIndex = 0
+//        
+//        for i in 0..<index.rawValue {
+//            let cached: CachedView<H> = self[i].view
+//            count += cached.viewsCount
+//        }
+//        
+//        return count
+//    }
 }

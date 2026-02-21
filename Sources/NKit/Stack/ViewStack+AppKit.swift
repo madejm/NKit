@@ -6,6 +6,7 @@ public class ViewStack: BaseView {
     internal let stack: NSStackView
     internal let content: /*@MainActor*/ () -> [NView]
     
+    nonisolated(unsafe)
     internal var retainedDynamicViews: [NCacheable]?
     
     public init(
@@ -68,6 +69,12 @@ public class ViewStack: BaseView {
     @available(*, unavailable)
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+    
+    deinit {
+        self.retainedDynamicViews?.forEach {
+            $0.releaseChecker.expect()
+        }
     }
     
     internal func setupSubviews() {

@@ -6,6 +6,7 @@ public class ViewStack: BaseView {
     internal let stack: UIStackView
     internal let content: /*@MainActor*/ () -> [NView]
     
+    nonisolated(unsafe)
     internal var retainedDynamicViews: [NCacheable]?
     
     internal init(
@@ -63,6 +64,12 @@ public class ViewStack: BaseView {
         
         self.prepare()
         self.setupSubviews()
+    }
+    
+    deinit {
+        self.retainedDynamicViews?.forEach {
+            $0.releaseChecker.expect()
+        }
     }
     
     private func setupSubviews() {

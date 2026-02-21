@@ -177,7 +177,8 @@ extension CachedElement.Element {
         
         func strongify() {
             guard !isStrongified else {
-                fatalError("Trying to strongify an already strong element")
+                return
+//                fatalError("Trying to strongify an already strong element")
             }
             isStrongified = true
             value.strongify()
@@ -185,7 +186,8 @@ extension CachedElement.Element {
         
         func weakify() {
             guard isStrongified else {
-                fatalError("Trying to weakify an already weak element")
+                return
+//                fatalError("Trying to weakify an already weak element")
             }
             isStrongified = false
             value.weakify()

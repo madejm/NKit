@@ -11,7 +11,7 @@ where C: RandomAccessCollection, C: Equatable, C.Element: Hashable {
     private let data: NGet<C>
     private let animateChanges: Bool
     private let content: (NGet<C.Element>) -> [NView]
-    private var cachedViews: [CachedView]? = []
+    private var cachedViews: [CachedView<Int>]? = []
     private var isCacheStrongified: Bool = true
     private var cachedParent: CachedElement<CachedElementDynamicWeak>?
     private unowned var owner: NForEach!
@@ -64,7 +64,7 @@ extension NForEachDynamicCachableEngine: NForEachEngine {
         
         var count: Int = 0
         
-        for cachedView: CachedView in cachedViews {
+        for cachedView: CachedView<Int> in cachedViews {
             count += cachedView.viewsCount
 //            count += cachedView.viewsCountInCache
         }
@@ -79,7 +79,7 @@ extension NForEachDynamicCachableEngine: NForEachEngine {
         
         var count: Int = 0
         
-        for cachedView: CachedView in cachedViews {
+        for cachedView: CachedView<Int> in cachedViews {
             let result: (count: Int, stop: Bool) = cachedView.countViews(until: end)
             count += result.count
             
@@ -96,7 +96,7 @@ extension NForEachDynamicCachableEngine: NForEachEngine {
             return []
         }
         
-        let newCached: [(oldIndex: NViewIndex, view: CachedView)] = cachedViews
+        let newCached: [(oldIndex: NViewIndex, view: CachedView<Int>)] = cachedViews
             .enumerated()
             .map {
                 (oldIndex: NViewIndex(rawValue: $0.offset), view: $0.element)
@@ -110,24 +110,24 @@ extension NForEachDynamicCachableEngine: NForEachEngine {
         return views
     }
     
-    internal func forEachViewsFromCache(newCached: [(oldIndex: NViewIndex, view: CachedView)]) -> [NChange<NView>] {
+    internal func forEachViewsFromCache(newCached: [(oldIndex: NViewIndex, view: CachedView<Int>)]) -> [NChange<NView>] {
         var changes: [NChange<NView>] = []
         
-        var cachedOld: [(oldIndex: NViewIndex, view: CachedView)] = newCached
-        var cachedNew: [CachedView] = []
+        var cachedOld: [(oldIndex: NViewIndex, view: CachedView<Int>)] = newCached
+        var cachedNew: [CachedView<Int>] = []
         
         var currentCount: Int = 0
         
         for element in data.enumerated() {
             let hash: Int? = elementHash(element.element)
-            let cachedView: (newIndex: NViewIndex, oldIndex: NViewIndex, view: CachedView)? = cachedOld.getCached(hash: hash)
+            let cachedView: (newIndex: NViewIndex, oldIndex: NViewIndex, view: CachedView<Int>)? = cachedOld.getCached(hash: hash)
             
             if let cachedView {
                 cachedView.view.strongify()
                 
                 let viewsCount: Int = cachedView.view.viewsCount
 //                let viewsCount: Int = cachedView.view.viewsCountInCache
-                let newCachedView: CachedView = cachedView.view
+                let newCachedView: CachedView<Int> = cachedView.view
                 
                 let newOffset: StackIndex = StackIndex(rawValue: currentCount)
 //                let oldOffset: StackIndex = cachedOld.viewsCount(upTo: cachedView.newIndex)
@@ -163,11 +163,10 @@ extension NForEachDynamicCachableEngine: NForEachEngine {
 //                let newViewsCount: Int = newContents.viewsCountInCache
                 let newOffset: StackIndex = StackIndex(rawValue: currentCount)
                 
-                let newCachedView: CachedView = .init(
+                let newCachedView: CachedView<Int> = .init(
                     hash: hash ?? 0,
                     views: newContents,
-                    isStrongified: self.isCacheStrongified,
-                    isRoot: true
+                    isStrongified: self.isCacheStrongified
                 )
                 
                 print_debug("👉 inserting at: \(newOffset), count: \(newViewsCount),", newContents.debugStringValues)
@@ -213,21 +212,21 @@ extension NForEachDynamicCachableEngine: NForEachEngine {
             }
             
             var viewChanges: [NChange<NView>] = []
-            var newCached: [(oldIndex: NViewIndex, view: CachedView)] = []
+            var newCached: [(oldIndex: NViewIndex, view: CachedView<Int>)] = []
             
             for hashable in newValue {
                 let newHash: Int = hashable.hashValue
                 
-                guard let cachedView: (oldIndex: NViewIndex, view: CachedView) = cachedCopy.getCached(hash: newHash) else {
+                guard let cachedView: (oldIndex: NViewIndex, view: CachedView<Int>) = cachedCopy.getCached(hash: newHash) else {
                     continue
                 }
                 newCached.append(cachedView)
             }
             
-            var cachesToClear: [CachedView] = []
+            var cachesToClear: [CachedView<Int>] = []
             
             for element in cachedCopy.enumerated() {
-                let cachedToClear: CachedView = element.element
+                let cachedToClear: CachedView<Int> = element.element
                 
                 guard cachedToClear.isAvailable else {
                     continue

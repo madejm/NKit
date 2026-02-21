@@ -11,9 +11,11 @@ public final class NIf: NView {
     private let animateChanges: Bool
     private let ifTrue: () -> [NView]
     private let ifElse: () -> [NView]
-    private var cachedView: CachedView?
-    private var isCacheStrongified: Bool = false
+    private var cachedView: CachedView<Bool>?
+    private var isCacheStrongified: Bool = true
     private var cachedParent: CachedElement<CachedElementDynamicWeak>?
+    
+    internal let releaseChecker =  ReleaseChecker(onlyImportant: true)
     
     private var parent: NView? {
         get {
@@ -46,6 +48,7 @@ public final class NIf: NView {
                 return result
             }
         )
+        self.releaseChecker.prepare(self)
     }
     
     public init(
@@ -58,6 +61,43 @@ public final class NIf: NView {
         self.ifTrue = ifTrue
         self.ifElse = ifElse
         self.binding = binding
+        self.releaseChecker.prepare(self)
+    }
+    
+    public convenience init<T>(
+        _ binding: NBinding<T>,
+        _ expression: @escaping (T, T) -> Bool,
+        _ expectedResult: T,
+        animateChanges: Bool = false,
+        @NViewBuilder ifTrue: @escaping () -> [NView],
+        @NViewBuilder else ifElse: @escaping () -> [NView] = { [] }
+    ) {
+        self.init(
+            binding.get,
+            expression,
+            expectedResult,
+            animateChanges: animateChanges,
+            ifTrue: ifTrue,
+            else: ifElse
+        )
+    }
+    
+    public convenience init(
+        _ binding: NBinding<Bool>,
+        animateChanges: Bool = false,
+        @NViewBuilder ifTrue: @escaping () -> [NView],
+        @NViewBuilder else ifElse: @escaping () -> [NView] = { [] }
+    ) {
+        self.init(
+            binding.get,
+            animateChanges: animateChanges,
+            ifTrue: ifTrue,
+            else: ifElse
+        )
+    }
+    
+    deinit {
+        self.releaseChecker.confirm()
     }
 }
 
@@ -66,7 +106,7 @@ extension NIf {
         self.parent = parent
     }
     
-    internal func viewsCountInCache(until end: AnyObject) -> (count: Int, stop: Bool) {
+    internal func ifViewsCountInCache(until end: AnyObject) -> (count: Int, stop: Bool) {
         guard let cachedView else {
             return (0, false)
         }
@@ -99,11 +139,19 @@ extension NIf {
     internal func ifViewsFromCache() -> [NChange<NView>] {
         var changes: [NChange<NView>] = []
         
-        if let cachedView {
-            changes.append(.remove(at: 0, count: cachedView.viewsCount, animated: animateChanges))
+        let boolean: Bool = binding.wrappedValue
+        
+        if let cachedView  {
+            if cachedView.hash == boolean {
+                // nothing changed
+                changes.append(.keep(views: cachedView.views))
+                return changes
+            } else {
+                changes.append(.remove(at: 0, count: cachedView.viewsCount, animated: animateChanges))
+            }
         }
         
-        let newContents: [NView] = binding.wrappedValue ? ifTrue() : ifElse()
+        let newContents: [NView] = boolean ? ifTrue() : ifElse()
         
         if let parent {
             newContents.setParent(parent)
@@ -112,10 +160,9 @@ extension NIf {
         changes.append(.insert(at: 0, views: newContents, animated: animateChanges))
         
         cachedView = .init(
-            hash: 0,
+            hash: boolean,
             views: newContents,
-            isStrongified: self.isCacheStrongified,
-            isRoot: true
+            isStrongified: self.isCacheStrongified
         )
         
         return changes

@@ -29,7 +29,7 @@ extension NBaseViewControllerProtocol where Self: _NBaseViewController {
 
 open class _NBaseViewController: NSViewController, ClosableViewController {
     fileprivate let _controlledView: any NControlledView
-    nonisolated(unsafe) private var releaseChecker: ReleaseChecker!
+    private let releaseChecker = ReleaseChecker()
     nonisolated(unsafe) private var modelReleaseChecker: ReleaseChecker?
     
     public init<ControlledView: NControlledView>(_ controlledView: ControlledView) {
@@ -44,14 +44,16 @@ open class _NBaseViewController: NSViewController, ClosableViewController {
             fatalError("Trying to initialize \(String(reflecting: Self.self)) with wrong view type of \(String(reflecting: ControlledView.self)), should be \(error).")
         }
         
-        self.releaseChecker = ReleaseChecker(self, name: String(describing: self))
+        self.releaseChecker.prepare(self)
         
         if let modelControlledView = controlledView as? (any NModelControlledView),
            let model = modelControlledView.model as? AnyObject {
-            self.modelReleaseChecker = ReleaseChecker(
+            let modelReleaseChecker = ReleaseChecker()
+            modelReleaseChecker.prepare(
                 model,
-                name: "Model of \(String(describing: modelControlledView))"
+                customName: "Model of \(String(reflecting: modelControlledView))"
             )
+            self.modelReleaseChecker = modelReleaseChecker
         }
     }
     

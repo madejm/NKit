@@ -27,7 +27,7 @@ extension NBaseViewProtocol where Self: _NBaseView {
 
 open class _NBaseView: BaseView {
     fileprivate let _view: any NControlledView
-    nonisolated(unsafe) private var releaseChecker: ReleaseChecker!
+    private let releaseChecker = ReleaseChecker()
     
     public init<ControlledView: NControlledView>(_ view: ControlledView) {
         self._view = view
@@ -41,7 +41,7 @@ open class _NBaseView: BaseView {
             fatalError("Trying to initialize \(String(reflecting: Self.self)) with wrong view type of \(String(reflecting: ControlledView.self)), should be \(error).")
         }
         
-        self.releaseChecker = ReleaseChecker(self, name: String(describing: self))
+        self.releaseChecker.prepare(self)
         
         self.prepare()
         

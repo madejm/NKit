@@ -6,6 +6,8 @@ public final class NForEach: NView {
     private let separator: (() -> NView)?
     private let engine: NForEachEngine
     
+    internal let releaseChecker = ReleaseChecker(onlyImportant: true)
+    
     #if DEBUG
     nonisolated
     internal let describeTypeOfData: String
@@ -24,6 +26,7 @@ public final class NForEach: NView {
         )
         self.describeTypeOfData = self.engine.describeTypeOfData
         self.engine.setOwner(self)
+        self.releaseChecker.prepare(self)
     }
     
     @_disfavoredOverload
@@ -53,6 +56,7 @@ public final class NForEach: NView {
         )
         self.describeTypeOfData = self.engine.describeTypeOfData
         self.engine.setOwner(self)
+        self.releaseChecker.prepare(self)
     }
     
     public convenience init<C>(
@@ -97,6 +101,7 @@ public final class NForEach: NView {
         )
         self.describeTypeOfData = self.engine.describeTypeOfData
         self.engine.setOwner(self)
+        self.releaseChecker.prepare(self)
     }
     
     public convenience init<Size, Element>(
@@ -125,6 +130,7 @@ public final class NForEach: NView {
         )
         self.describeTypeOfData = self.engine.describeTypeOfData
         self.engine.setOwner(self)
+        self.releaseChecker.prepare(self)
     }
     
     @available(macOS 26.0, iOS 26.0, *)
@@ -142,6 +148,7 @@ public final class NForEach: NView {
     #endif
     
     deinit {
+        self.releaseChecker.confirm()
         print_debug("💥 DEINIT NForEach [\(describeTypeOfData)]")
     }
 }
@@ -158,11 +165,11 @@ extension NForEach {
         self.engine.setNForEachParent(parent)
     }
     
-    internal var viewsCountInCache: Int {
+    internal var forEachViewsCountInCache: Int {
         self.engine.viewsCountInCache
     }
     
-    internal func viewsCountInCache(until end: AnyObject) -> (count: Int, stop: Bool) {
+    internal func forEachViewsCountInCache(until end: AnyObject) -> (count: Int, stop: Bool) {
         self.engine.viewsCountInCache(until: end)
     }
     

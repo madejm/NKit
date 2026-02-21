@@ -9,7 +9,7 @@
 internal final class NForEachConstantEngine<D> where D: RandomAccessCollection {
     private let data: D
     private let content: (D.Element) -> [NView]
-    private var cachedViews: [CachedView]?
+    private var cachedViews: [CachedView<Int>]?
     private var cachedParent: CachedElement<CachedElementDynamicWeak>?
     private unowned var owner: NForEach!
     
@@ -59,7 +59,7 @@ extension NForEachConstantEngine: NForEachEngine {
         
         var count: Int = 0
         
-        for cachedView: CachedView in cachedViews {
+        for cachedView: CachedView<Int> in cachedViews {
             count += cachedView.viewsCount
 //            count += cachedView.viewsCountInCache
         }
@@ -78,7 +78,7 @@ extension NForEachConstantEngine: NForEachEngine {
         
         var count: Int = 0
         
-        for cachedView: CachedView in cachedViews {
+        for cachedView: CachedView<Int> in cachedViews {
             let result: (count: Int, stop: Bool) = cachedView.countViews(until: end)
             count += result.count
             
@@ -107,7 +107,7 @@ extension NForEachConstantEngine: NForEachEngine {
             views.setParent(parent)
         }
         
-        self.cachedViews = [ CachedView(hash: 0, views: views, isStrongified: true, isRoot: true) ]
+        self.cachedViews = [ CachedView(hash: 0, views: views, isStrongified: true) ]
         return views
     }
     

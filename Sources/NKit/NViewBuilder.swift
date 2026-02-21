@@ -95,13 +95,13 @@ extension NView {
                 return (0, true)
             }
             
-            return nForEach.viewsCountInCache(until: end)
+            return nForEach.forEachViewsCountInCache(until: end)
         case .if(let nIf):
             guard nIf !== end else {
                 return (0, true)
             }
             
-            return nIf.viewsCountInCache(until: end)
+            return nIf.ifViewsCountInCache(until: end)
         case .otherObject(let object):
             fatalError("Unhandled: \(object)")
         case .other(let nView):
@@ -116,13 +116,14 @@ extension NView {
         case .view:
             return 1
         case .array(let array):
-            return array.viewsCount
+            return array.arrayViewsCount()
         case .forEach(let nForEach):
             let nViews: [NView] = nForEach.forEachViews
-            return nViews.viewsCount
+            return nViews.arrayViewsCount()
 //            return nForEach.viewsCountInCache
         case .if(let nIf):
-            fatalError("Unhandled: \(nIf)")
+            let nViews: [NView] = nIf.ifViews
+            return nViews.arrayViewsCount()
         case .otherObject(let object):
             fatalError("Unhandled: \(object)")
         case .other(let nView):
@@ -137,11 +138,11 @@ extension NView {
         case .view:
             return 1
         case .array(let array):
-            return array.viewsCountInCache
+            return array.arrayViewsCountInCache
         case .forEach(let nForEach):
 //            let nViews: [NView] = nForEach.forEachViews
 //            return nViews.viewsCount
-            return nForEach.viewsCountInCache
+            return nForEach.forEachViewsCountInCache
         case .if(let nIf):
             fatalError("Unhandled: \(nIf)")
         case .otherObject(let object):
@@ -168,12 +169,14 @@ extension NView {
             )
             return views
         case .if(let nIf):
+            nIf.strongify()
             let nViews: [NView] = nIf.ifViews
             let views: [_View] = nViews.mapToViews(
                 onChange: { (changeOffset: Int, changes: [NChange<_View>]) in
                     onChange(changeOffset, changes)
                 }
             )
+            nIf.weakify()
             
             nIf.onDataChange { (viewsBeforeMe: Int, changes: [NChange<NView>]) in
                 let mappedChanges: [NChange<_View>] = changes.mapChanges(onChange: onChange)

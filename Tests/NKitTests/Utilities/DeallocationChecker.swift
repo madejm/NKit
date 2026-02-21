@@ -31,6 +31,18 @@ final class DeallocationChecker {
     }
     
     @MainActor
+    func cleanup() {
+        elements.removeAll(where: { $0.element == nil })
+    }
+    
+    @MainActor
+    func getDeallocatedCount() async -> Int {
+        try? await Task.sleep(nanoseconds: 1_000_000)
+        
+        return elements.count(where: { $0.element == nil })
+    }
+    
+    @MainActor
     func getNotDeallocated() async -> [Any] {
         try? await Task.sleep(nanoseconds: 1_000_000)
         

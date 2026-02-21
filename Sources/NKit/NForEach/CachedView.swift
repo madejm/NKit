@@ -6,16 +6,15 @@
 //
 
 @MainActor
-internal struct CachedView {
+internal struct CachedView<H> {
     internal var isAvailable: Bool = true
-    internal let hash: Int
+    internal let hash: H
     internal let elements: [CachedElement<CachedElementDynamicStrong>]
     
     internal init(
-        hash: Int,
+        hash: H,
         views: [NView],
-        isStrongified: Bool,
-        isRoot: Bool
+        isStrongified: Bool
     ) {
         self.hash = hash
         self.elements = views.map {
