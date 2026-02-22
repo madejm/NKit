@@ -38,8 +38,8 @@ extension CachedElement {
             return nForEach.value
         case .nIf(let nIf):
             return nIf.value
-        case .controlledView(let nControlledView):
-            return nControlledView
+        case .other(let nView):
+            return nView
         case .view(let view):
             guard let value = view.value else {
                 fatalError("Cached element was deallocated!")
@@ -65,8 +65,8 @@ extension CachedElement {
             return nForEach.value.viewsCount
         case .nIf(let nIf):
             return nIf.value.viewsCount
-        case .controlledView(let nControlledView):
-            return nControlledView.viewsCount
+        case .other(let nView):
+            return nView.viewsCount
         case .view(let view):
             if let value = view.value {
                 return value.viewsCount
@@ -96,8 +96,8 @@ extension CachedElement {
             return nForEach.value.viewsCountInCache
         case .nIf(let nIf):
             return nIf.value.viewsCountInCache
-        case .controlledView(let nControlledView):
-            return nControlledView.viewsCountInCache
+        case .other(let nView):
+            return nView.viewsCountInCache
         case .view(let view):
             if let value = view.value {
                 return value.viewsCountInCache
@@ -138,8 +138,8 @@ extension CachedElement {
             return nForEach.value.countViews(until: end)
         case .nIf(let nIf):
             return nIf.value.countViews(until: end)
-        case .controlledView(let nControlledView):
-            return nControlledView.countViews(until: end)
+        case .other(let nView):
+            return nView.countViews(until: end)
         case .view(let view):
             if let value = view.value {
                 return value.countViews(until: end)

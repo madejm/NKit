@@ -151,6 +151,10 @@ public final class NForEach: NView {
         self.releaseChecker.confirm()
         print_debug("💥 DEINIT NForEach [\(describeTypeOfData)]")
     }
+    
+    public var body: _View {
+        fatalError("NForEach does not produce a body!")
+    }
 }
 
 extension NForEach {

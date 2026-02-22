@@ -25,8 +25,8 @@ internal final class CachedElement<D: CachedElementDynamicStrategy> {
             nForEach.value
         case .nIf(let nIf):
             nIf.value
-        case .controlledView(let nControlledView):
-            nControlledView
+        case .other(let nView):
+            nView
         case .view(let view):
             view.value
         }
@@ -39,11 +39,6 @@ internal final class CachedElement<D: CachedElementDynamicStrategy> {
         self.isStrongified = isStrongified
         
         switch view.unpacked {
-        case .controlledView(let controlledView):
-            #if DEBUG
-            self.DEBUG_TEXT = "CONTROLLED VIEW [\(String(describing: type(of: controlledView)))]"
-            #endif
-            self._element = .controlledView(controlledView)
         case .array(let array):
             #if DEBUG
             self.DEBUG_TEXT = "ARRAY [\(String(describing: type(of: array)))]"
@@ -87,7 +82,10 @@ internal final class CachedElement<D: CachedElementDynamicStrategy> {
                 self._element = .object(.init(weakObject: object))
             }
         case .other(let nView):
-            fatalError("Trying to cache non object value: \(String(describing: type(of: nView)))!")
+            #if DEBUG
+            self.DEBUG_TEXT = "OTHER [\(String(describing: type(of: nView)))]"
+            #endif
+            self._element = .other(nView)
         }
     }
     
@@ -115,7 +113,7 @@ internal final class CachedElement<D: CachedElementDynamicStrategy> {
             nForEach.strongify()
         case .nIf(let nIf):
             nIf.strongify()
-        case .controlledView:
+        case .other:
             break
         case .view(let view):
             view.strongify()
@@ -139,7 +137,7 @@ internal final class CachedElement<D: CachedElementDynamicStrategy> {
             nForEach.weakify()
         case .nIf(let nIf):
             nIf.weakify()
-        case .controlledView:
+        case .other:
             break
         case .view(let view):
             view.weakify()
@@ -158,7 +156,7 @@ internal final class CachedElement<D: CachedElementDynamicStrategy> {
             nForEach.clear()
         case .nIf(let nIf):
             nIf.clear()
-        case .controlledView:
+        case .other:
             break
         case .view(let view):
             view.clear()

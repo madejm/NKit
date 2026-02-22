@@ -13,7 +13,7 @@ extension CachedElement {
         case object(Object)
         case nForEach(Dynamic<NForEach>)
         case nIf(Dynamic<NIf>)
-        case controlledView(NControlledView)
+        case other(NView)
         case view(View)
     }
 }

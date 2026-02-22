@@ -9,8 +9,6 @@ extension NView {
     internal var debugStringValues: [Any] {
         #if DEBUG
         switch self.unpacked {
-        case .controlledView:
-            return ["CONTROLLED VIEW"]
         case .view(let view):
             return [view.mirrorDescription]
         case .array(let array):
@@ -24,7 +22,7 @@ extension NView {
         case .otherObject(let object):
             fatalError("Unhandled: \(object)")
         case .other(let nView):
-            fatalError("Unhandled: \(nView)")
+            return ["Other NVIEW"]
         }
         #else
         []

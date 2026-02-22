@@ -52,8 +52,6 @@ extension NViewBuilder {
 extension NView {
     internal func setParent(_ parent: NView) {
         switch self.unpacked {
-        case .controlledView:
-            break
         case .view:
             break
         case .array(let array):
@@ -66,15 +64,13 @@ extension NView {
             nIf.setNIfParent(parent)
         case .otherObject(let object):
             fatalError("Unhandled: \(object)")
-        case .other(let nView):
-            fatalError("Unhandled: \(nView)")
+        case .other:
+            break
         }
     }
     
     internal func countViews(until end: AnyObject) -> (count: Int, stop: Bool) {
         switch self.unpacked {
-        case .controlledView:
-            return (1, false)
         case .view:
             return (1, false)
         case .array(let array):
@@ -104,15 +100,13 @@ extension NView {
             return nIf.ifViewsCountInCache(until: end)
         case .otherObject(let object):
             fatalError("Unhandled: \(object)")
-        case .other(let nView):
-            fatalError("Unhandled: \(nView)")
+        case .other:
+            return (1, false)
         }
     }
     
     internal var viewsCount: Int {
         switch self.unpacked {
-        case .controlledView:
-            return 1
         case .view:
             return 1
         case .array(let array):
@@ -126,15 +120,13 @@ extension NView {
             return nViews.arrayViewsCount()
         case .otherObject(let object):
             fatalError("Unhandled: \(object)")
-        case .other(let nView):
-            fatalError("Unhandled: \(nView)")
+        case .other:
+            return 1
         }
     }
     
     internal var viewsCountInCache: Int {
         switch self.unpacked {
-        case .controlledView:
-            return 1
         case .view:
             return 1
         case .array(let array):
@@ -148,7 +140,7 @@ extension NView {
         case .otherObject(let object):
             fatalError("Unhandled: \(object)")
         case .other(let nView):
-            fatalError("Unhandled: \(nView)")
+            return 1
         }
     }
     
@@ -156,9 +148,6 @@ extension NView {
         onChange: @escaping @MainActor (_ changeOffset: Int, _ changes: [NChange<_View>]) -> Void
     ) -> [_View] {
         switch self.unpacked {
-        case .controlledView(let controlledView):
-            let controlledViewBody: _View = controlledView.bodyWithPreparation()
-            return [controlledViewBody]
         case .view(let view):
             return [view]
         case .array(let array):
@@ -207,7 +196,8 @@ extension NView {
         case .otherObject(let object):
             fatalError("Unhandled: \(object)")
         case .other(let nView):
-            fatalError("Unhandled: \(nView)")
+            let viewBody: _View = nView.bodyWithPreparation()
+            return [viewBody]
         }
     }
 }

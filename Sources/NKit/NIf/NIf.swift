@@ -99,6 +99,10 @@ public final class NIf: NView {
     deinit {
         self.releaseChecker.confirm()
     }
+    
+    public var body: _View {
+        fatalError("NIf does not produce a body!")
+    }
 }
 
 extension NIf {

@@ -58,7 +58,9 @@ extension NSView {
     @objc private func swizzled_viewDidMoveToSuperview() {
         self.swizzled_viewDidMoveToSuperview()
         
-        self[associatedId: .viewDidMoveToSuperviewId].send()
+        if self.superview != nil {
+            self[associatedId: .viewDidMoveToSuperviewId].send()
+        }
     }
     
     @objc private func swizzled_viewWillMove(toWindow newWindow: NSWindow?) {

@@ -8,11 +8,28 @@
 import os.log
 
 internal final class ReleaseChecker: @unchecked Sendable {
+    private final class Expectation: @unchecked Sendable {
+        private var expectation: (() -> Void)?
+        
+        init(expectation: @escaping () -> Void) {
+            self.expectation = expectation
+            
+            DispatchQueue.global(qos: .userInitiated).asyncAfter(deadline: .now() + 2) { [weak self] in
+                self?.expectation?()
+            }
+        }
+        
+        func cancel() {
+            self.expectation = nil
+        }
+    }
+    
     private let onlyImportant: Bool
     private weak var object: AnyObject?
     private var name: String?
     private var releaseExpected: Bool = false
     private var releaseConfirmed: Bool = false
+    private var expectation: Expectation?
     
     @available(macOS 11.0, iOS 14.0, *)
     private static let logger: Logger = Logger.init(subsystem: "NKit", category: "ReleaseChecker")
@@ -50,9 +67,13 @@ internal final class ReleaseChecker: @unchecked Sendable {
             }
             return
         }
+        guard !self.releaseExpected else {
+            return
+        }
         self.releaseExpected = true
         
-        DispatchQueue.global(qos: .userInitiated).asyncAfter(deadline: .now() + 2) {
+        self.expectation = Expectation {
+            self.expectation = nil
             guard self.releaseExpected else {
                 return
             }
@@ -86,6 +107,8 @@ internal final class ReleaseChecker: @unchecked Sendable {
             return
         }
         self.releaseExpected = false
+        self.expectation?.cancel()
+        self.expectation = nil
     }
     
     internal func confirm(

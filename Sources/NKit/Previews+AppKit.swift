@@ -26,7 +26,7 @@ public struct NSViewPreview: NSViewRepresentable {
         view = builder()
     }
     
-    public init<View: NControlledView>(_ builder: @escaping () -> View) {
+    public init<View: NView>(_ builder: @escaping () -> View) {
         view = builder().body
     }
     
