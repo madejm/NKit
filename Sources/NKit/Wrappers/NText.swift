@@ -1,8 +1,11 @@
 import Foundation
-#if canImport(UIKit)
+#if canImport(AppKit)
+import AppKit
+#elseif canImport(UIKit)
 import UIKit
+#endif
 
-extension Text {
+extension NText {
     public convenience init(
         _ text: NSAttributedString,
         alignment: NSTextAlignment = .left,
@@ -28,7 +31,7 @@ extension Text {
     }
 }
 
-extension Text {
+extension NText {
     public convenience init(
         _ textBinding: NBinding<NSAttributedString>,
         alignment: NSTextAlignment = .left,
@@ -54,19 +57,19 @@ extension Text {
     }
     
     public convenience init(
-        _ textBinding: NGet<NSAttributedString>,
+        _ textBinding: NGet<NSAttributedString?>,
         alignment: NSTextAlignment = .left,
         multiline: Bool = true
     ) {
         self.init(
-            textBinding.map(),
+            textBinding.map(up: { $0 ?? NSAttributedString() }),
             alignment: alignment,
             multiline: multiline
         )
     }
 }
 
-extension Text {
+extension NText {
     public convenience init(
         _ textBinding: NBinding<String>,
         alignment: NSTextAlignment = .left,
@@ -111,10 +114,9 @@ extension Text {
         multiline: Bool = true
     ) {
         self.init(
-            textBinding.map(),
+            textBinding.map(up: { $0 ?? "" }),
             alignment: alignment,
             multiline: multiline
         )
     }
 }
-#endif

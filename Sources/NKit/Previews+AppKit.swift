@@ -3,7 +3,7 @@ import Foundation
 import SwiftUI
 import AppKit
 
-public struct NSViewControllerPreview<ViewController: NSViewController>: NSViewControllerRepresentable {
+public struct NViewControllerPreview<ViewController: NSViewController>: NSViewControllerRepresentable {
     private let viewController: ViewController
 
     public init(_ builder: @escaping () -> ViewController) {
@@ -19,7 +19,7 @@ public struct NSViewControllerPreview<ViewController: NSViewController>: NSViewC
     }
 }
 
-public struct NSViewPreview: NSViewRepresentable {
+public struct NViewPreview: NSViewRepresentable {
     private let view: NSView
     
     public init<View: NSView>(_ builder: @escaping () -> View) {
@@ -41,7 +41,7 @@ public struct NSViewPreview: NSViewRepresentable {
     }
 }
 
-public struct NSStoryboardPreview: NSViewControllerRepresentable {
+public struct NStoryboardPreview: NSViewControllerRepresentable {
     private let viewController: NSViewController?
     
     public init(

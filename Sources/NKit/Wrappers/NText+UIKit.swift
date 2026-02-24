@@ -1,8 +1,8 @@
 import Foundation
-#if canImport(AppKit)
-import AppKit
+#if canImport(UIKit)
+import UIKit
 
-public final class Text: NSTextField {
+public final class NText: UILabel {
     @NGet private var textBinding: NSAttributedString
     
     #if DEBUG
@@ -12,7 +12,7 @@ public final class Text: NSTextField {
     public init(
         _ textBinding: NGet<NSAttributedString>,
         alignment: NSTextAlignment = .left,
-        multiline: Bool = true
+        multiline: Bool = false
     ) {
         self._textBinding = textBinding
         
@@ -22,25 +22,18 @@ public final class Text: NSTextField {
         
         super.init(frame: .zero)
         
-        self.attributedStringValue = textBinding.wrappedValue
-        self.isEditable = false
-        self.drawsBackground = false
-        self.isBezeled = false
-        self.isSelectable = false
-        self.alignment = alignment
+        self.attributedText = textBinding.wrappedValue
+        self.textAlignment = alignment
         self.setContentHuggingPriority(.required, for: .horizontal)
         self.setContentHuggingPriority(.required, for: .vertical)
         self.setContentCompressionResistancePriority(.required, for: .horizontal)
         self.setContentCompressionResistancePriority(.required, for: .vertical)
         
-        if let cell = self.cell {
-            cell.usesSingleLineMode = !multiline
-            cell.wraps = multiline
-            cell.lineBreakMode = .byWordWrapping
-        }
+        self.numberOfLines = 0
+        self.lineBreakMode = .byWordWrapping
         
         self._textBinding.onChange { [weak self] in
-            self?.attributedStringValue = $0
+            self?.attributedText = $0
             
             #if DEBUG
             self?.debugStringValue = $0.string
@@ -61,16 +54,17 @@ public final class Text: NSTextField {
 }
 
 #if swift(>=6.1)
-extension Text: @MainActor CustomReflectable {
+extension NText: @MainActor CustomReflectable {
     public var customMirror: Mirror {
-        Mirror(self, children: ["stringValue": stringValue])
+        Mirror(self, children: ["text": text])
     }
 }
 #else
-extension Text: @preconcurrency CustomReflectable {
+extension NText: @preconcurrency CustomReflectable {
     public var customMirror: Mirror {
-        Mirror(self, children: ["stringValue": stringValue])
+        Mirror(self, children: ["text": text])
     }
 }
 #endif
 #endif
+

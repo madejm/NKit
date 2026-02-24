@@ -5,7 +5,7 @@ import AppKit
 import UIKit
 #endif
 
-public class NVStack: ViewStack {
+public class NVStack: NViewStack {
     public init(
         alignment: Alignment = .leading,
         spacing: CGFloat = 0,
@@ -22,7 +22,7 @@ public class NVStack: ViewStack {
     }
 }
 
-public class NHStack: ViewStack {
+public class NHStack: NViewStack {
     public init(
         alignment: Alignment = .center,
         spacing: CGFloat = 0,

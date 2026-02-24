@@ -2,7 +2,7 @@ import Foundation
 #if canImport(AppKit)
 import AppKit
 
-open class Checkbox: NSButton {
+open class NCheckbox: NSButton {
     @NGet private var titleBinding: String
     @NBinding private var stateBinding: Bool
     

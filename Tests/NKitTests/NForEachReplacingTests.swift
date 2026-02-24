@@ -13,7 +13,7 @@ struct NForEachReplacingTests {
     init() {
     }
     
-    func createText(_ string: String) -> NKit.Text {
+    func createText(_ string: String) -> NText {
         print("✨ Creating static view: \(string)")
         let text = Text(string)
         newViewsCreated += 1
@@ -21,7 +21,7 @@ struct NForEachReplacingTests {
         return text
     }
     
-    func createText(_ get: NGet<String>) -> NKit.Text {
+    func createText(_ get: NGet<String>) -> NText {
         print("✨ Creating binded view: \(get.wrappedValue)")
         let text = Text(get)
         newViewsCreated += 1

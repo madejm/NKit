@@ -48,7 +48,7 @@ internal final class CachedElement<D: CachedElementDynamicStrategy> {
             })
         case .view(let view):
             #if DEBUG
-            let textValue: String? = ((view as? Text)?.debugStringValue).map { " (\($0))"}
+            let textValue: String? = ((view as? NText)?.debugStringValue).map { " (\($0))"}
             self.DEBUG_TEXT = "_VIEW [\(String(describing: type(of: view)))\(textValue ?? "")]"
             #endif
             if isStrongified {

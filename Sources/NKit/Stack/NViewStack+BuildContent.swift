@@ -7,7 +7,7 @@ import UIKit
 
 import SwiftUI
 
-extension ViewStack {
+extension NViewStack {
     internal func buildContent() {
         for subview in self.stack.arrangedSubviews {
             subview.removeFromSuperview()

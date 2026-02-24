@@ -2,7 +2,7 @@ import Foundation
 #if canImport(UIKit)
 import UIKit
 
-public class ViewStack: BaseView {
+public class NViewStack: BaseView {
     internal let stack: UIStackView
     internal let content: /*@MainActor*/ () -> [NView]
     

@@ -1,8 +1,8 @@
 import Foundation
-#if canImport(AppKit)
-import AppKit
+#if canImport(UIKit)
+import UIKit
 
-open class Switch: NSSwitch {
+open class NSwitch: UISwitch {
     @NBinding private var stateBinding: Bool
     
     public init(
@@ -12,12 +12,11 @@ open class Switch: NSSwitch {
         
         super.init(frame: .zero)
         
-        self.state = stateBinding.wrappedValue ? .on : .off
-        self.target = self
-        self.action = #selector(touchAction)
+        self.isOn = stateBinding.wrappedValue
+        self.addTarget(self, action: #selector(touchAction), for: .valueChanged)
         
-        self._stateBinding.onChange {
-            self.state = $0 ? .on : .off
+        self._stateBinding.onChange { [weak self] in
+            self?.isOn = $0
         }
     }
     
@@ -28,7 +27,7 @@ open class Switch: NSSwitch {
     
     @objc
     private func touchAction() {
-        self.stateBinding = self.state == .on
+        self.stateBinding = self.isOn
     }
 }
 #endif

@@ -2,9 +2,9 @@ import Foundation
 #if canImport(AppKit)
 import AppKit
 
-open class Button: NSButton {
+open class NButton: NSButton {
     @NGet private var textBinding: String
-    private let buttonAction: (Button) -> Void
+    private let buttonAction: (NButton) -> Void
     private let stateBinding: NBinding<NSControl.StateValue>?
     
     open override var state: NSControl.StateValue {
@@ -39,7 +39,7 @@ open class Button: NSButton {
         bezelStyle: NSButton.BezelStyle = .rounded,
         buttonType: NSButton.ButtonType = .momentaryPushIn,
         state stateBinding: NBinding<NSControl.StateValue>? = nil,
-        @_inheritActorContext action: @escaping (Button) -> Void
+        @_inheritActorContext action: @escaping (NButton) -> Void
     ) {
         self._textBinding = textBinding
         self.buttonAction = action

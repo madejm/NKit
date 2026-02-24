@@ -2,7 +2,7 @@ import Foundation
 #if canImport(UIKit)
 import UIKit
 
-public final class Input: UITextField {
+public final class NInput: UITextField {
     @NBinding private var textBinding: String?
     
     public convenience init(

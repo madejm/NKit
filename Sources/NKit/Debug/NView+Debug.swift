@@ -21,7 +21,7 @@ extension NView {
             return ["IF"]
         case .otherObject(let object):
             fatalError("Unhandled: \(object)")
-        case .other(let nView):
+        case .other:
             return ["Other NVIEW"]
         }
         #else
@@ -30,14 +30,14 @@ extension NView {
     }
 }
 
-extension ViewStack {
+extension NViewStack {
     internal func printStack() {
         #if DEBUG
         print("CURRENT STACK:")
         
         for i in 0..<self.stack.arrangedSubviews.count {
             let ar = self.stack.arrangedSubviews[i]
-            let tf = ar as? Text
+            let tf = ar as? NText
             #if canImport(AppKit)
             let sv = tf?.stringValue
             #elseif canImport(UIKit)

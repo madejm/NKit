@@ -6,7 +6,7 @@ import UIKit
 #endif
 
 #if canImport(AppKit)
-extension Button {
+extension NButton {
     public convenience init(
         _ text: String,
         bezelStyle: NSButton.BezelStyle = .rounded,
@@ -28,7 +28,7 @@ extension Button {
         bezelStyle: NSButton.BezelStyle = .rounded,
         buttonType: NSButton.ButtonType = .momentaryPushIn,
         state stateBinding: NBinding<NSControl.StateValue>? = nil,
-        action: @escaping (Button) -> Void
+        action: @escaping (NButton) -> Void
     ) {
         self.init(
             NGet.constant(text),
@@ -60,7 +60,7 @@ extension Button {
         bezelStyle: NSButton.BezelStyle = .rounded,
         buttonType: NSButton.ButtonType = .momentaryPushIn,
         state stateBinding: NBinding<NSControl.StateValue>? = nil,
-        action: @escaping (Button) -> Void
+        action: @escaping (NButton) -> Void
     ) {
         self.init(
             textBinding.get,
@@ -72,7 +72,7 @@ extension Button {
     }
 }
 #elseif canImport(UIKit)
-extension Button {
+extension NButton {
     public convenience init(
         _ text: String,
         action: @escaping () -> Void

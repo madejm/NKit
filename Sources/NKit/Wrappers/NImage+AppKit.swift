@@ -2,7 +2,7 @@ import Foundation
 #if canImport(AppKit)
 import AppKit
 
-open class Image: NSImageView {
+open class NImage: NSImageView {
     @NGet private var imageBinding: NSImage?
     
     public init(_ imageBinding: NGet<NSImage?>) {

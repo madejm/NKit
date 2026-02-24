@@ -25,7 +25,7 @@ extension NSView {
 }
 
 #Preview {
-    NSViewPreview {
+    NViewPreview {
         let state: NState<[Int]> = .init(wrappedValue: [0, 1])
         let binding: NBinding<[Int]> = state.projectedValue
         
@@ -36,7 +36,7 @@ extension NSView {
             NForEach(binding) { (outer: NGet<Int>) in
                 NForEach(nestedBinding) { (inner: NGet<String>) in
                     let text = "\(outer.wrappedValue) \(inner.wrappedValue)"
-                    Text(text)
+                    NText(text)
                 }
             }
         }

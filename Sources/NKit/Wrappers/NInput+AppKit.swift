@@ -2,7 +2,7 @@ import Foundation
 #if canImport(AppKit)
 import AppKit
 
-public final class Input: NSTextField {
+public final class NInput: NSTextField {
     @NBinding fileprivate var textBinding: String?
     private let didEndEditing: (() -> Void)?
     
@@ -53,7 +53,7 @@ public final class Input: NSTextField {
     }
 }
 
-extension Input: NSControlTextEditingDelegate {
+extension NInput: NSControlTextEditingDelegate {
     @MainActor public func controlTextDidEndEditing(_ obj: Notification) {
         if self.textBinding != self.stringValue {
             self.textBinding = self.stringValue
@@ -62,7 +62,7 @@ extension Input: NSControlTextEditingDelegate {
     }
 }
 
-extension Input: NSTextFieldDelegate {
+extension NInput: NSTextFieldDelegate {
 }
 
 #endif

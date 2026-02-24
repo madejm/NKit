@@ -47,7 +47,7 @@ extension NHStack {
     }
 }
 
-extension ViewStack {
+extension NViewStack {
     #if canImport(AppKit)
     public typealias BaseAlignment = NSLayoutConstraint.Attribute
     public typealias Orientation = NSUserInterfaceLayoutOrientation

@@ -2,7 +2,7 @@ import Foundation
 #if canImport(UIKit)
 import UIKit
 
-open class ScrollView: UIScrollView {
+open class NScrollView: UIScrollView {
     public enum Direction {
         case vertical
         case horizontal

@@ -62,8 +62,8 @@ extension NView {
             nForEach.setNForEachParent(parent)
         case .if(let nIf):
             nIf.setNIfParent(parent)
-        case .otherObject(let object):
-            fatalError("Unhandled: \(object)")
+        case .otherObject:
+            break
         case .other:
             break
         }
@@ -98,8 +98,8 @@ extension NView {
             }
             
             return nIf.ifViewsCountInCache(until: end)
-        case .otherObject(let object):
-            fatalError("Unhandled: \(object)")
+        case .otherObject:
+            return (1, false)
         case .other:
             return (1, false)
         }
@@ -118,8 +118,8 @@ extension NView {
         case .if(let nIf):
             let nViews: [NView] = nIf.ifViews
             return nViews.arrayViewsCount()
-        case .otherObject(let object):
-            fatalError("Unhandled: \(object)")
+        case .otherObject:
+            return 1
         case .other:
             return 1
         }
@@ -137,9 +137,9 @@ extension NView {
             return nForEach.forEachViewsCountInCache
         case .if(let nIf):
             fatalError("Unhandled: \(nIf)")
-        case .otherObject(let object):
-            fatalError("Unhandled: \(object)")
-        case .other(let nView):
+        case .otherObject:
+            return 1
+        case .other:
             return 1
         }
     }
@@ -194,7 +194,8 @@ extension NView {
             
             return views
         case .otherObject(let object):
-            fatalError("Unhandled: \(object)")
+            let viewBody: _View = object.bodyWithPreparation()
+            return [viewBody]
         case .other(let nView):
             let viewBody: _View = nView.bodyWithPreparation()
             return [viewBody]

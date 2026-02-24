@@ -2,9 +2,9 @@ import Foundation
 #if canImport(UIKit)
 import UIKit
 
-open class Button: UIButton {
+open class NButton: UIButton {
     @NGet private var textBinding: String
-    private let buttonAction: (Button) -> Void
+    private let buttonAction: (NButton) -> Void
     
     public convenience init(
         _ textBinding: NGet<String>,
@@ -19,7 +19,7 @@ open class Button: UIButton {
     
     public init(
         _ textBinding: NGet<String>,
-        action: @escaping @MainActor (Button) -> Void
+        action: @escaping @MainActor (NButton) -> Void
     ) {
         self._textBinding = textBinding
         self.buttonAction = action

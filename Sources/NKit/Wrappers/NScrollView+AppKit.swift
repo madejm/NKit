@@ -2,7 +2,7 @@ import Foundation
 #if canImport(AppKit)
 import AppKit
 
-open class ScrollView: NSScrollView {
+open class NScrollView: NSScrollView {
     public struct Axis: OptionSet {
         nonisolated(unsafe) public static let horizontal = Axis(rawValue: 1 << 0)
         nonisolated(unsafe) public static let vertical = Axis(rawValue: 1 << 1)

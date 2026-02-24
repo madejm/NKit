@@ -13,7 +13,7 @@ import Testing
 final class TextTests {
     var newViewsCreated: Int = 0
     
-    func createText(_ get: NGet<String>) -> NKit.Text {
+    func createText(_ get: NGet<String>) -> NText {
         print("✨ Creating view: \(get.wrappedValue)")
         let text = Text(get)
         newViewsCreated += 1
