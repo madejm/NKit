@@ -10,7 +10,7 @@ extension _View {
         width: CGFloat? = nil,
         height: CGFloat? = nil,
         symbol: NEdge.Symbol = .equal
-    ) -> _View {
+    ) -> Self {
         self.frame(
             width: width.map { .constant($0) },
             height: height.map { .constant($0) },
@@ -22,7 +22,7 @@ extension _View {
         width: NGet<CGFloat>? = nil,
         height: NGet<CGFloat>? = nil,
         symbol: NEdge.Symbol = .equal
-    ) -> _View {
+    ) -> Self {
         if let width = width {
             let constraint = self.widthAnchor.constraint(constant: width.wrappedValue, symbol: symbol)
             
