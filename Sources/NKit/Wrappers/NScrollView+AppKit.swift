@@ -3,32 +3,12 @@ import Foundation
 import AppKit
 
 open class NScrollView: NSScrollView {
-    public struct Axis: OptionSet {
-        nonisolated(unsafe) public static let horizontal = Axis(rawValue: 1 << 0)
-        nonisolated(unsafe) public static let vertical = Axis(rawValue: 1 << 1)
-        nonisolated(unsafe) public static let both: Axis = [.horizontal, .vertical]
-        
-        public let rawValue: Int8
-        
-        public init(rawValue: Int8) {
-            self.rawValue = rawValue
-        }
-    }
     
     private var widthConstraint: NSLayoutConstraint?
     
-    public convenience init(
-        axes: Axis = .both,
-        _ content: () -> NSView
-    ) {
-        self.init(
-            axes: axes,
-            content()
-        )
-    }
-    
     public init(
         axes: Axis = .both,
+        showsIndicators: Bool = true,
         _ content: NSView
     ) {
         super.init(frame: .zero)
@@ -53,9 +33,8 @@ open class NScrollView: NSScrollView {
             content.heightAnchor.constraint(equalTo: self.contentView.heightAnchor).isActive = true
         }
         
-        self.scrollerStyle = .overlay
-        self.hasHorizontalScroller = axes.contains(.horizontal)
-        self.hasVerticalScroller = axes.contains(.vertical)
+        self.hasHorizontalScroller = showsIndicators && axes.contains(.horizontal)
+        self.hasVerticalScroller = showsIndicators && axes.contains(.vertical)
         self.autohidesScrollers = true
     }
     

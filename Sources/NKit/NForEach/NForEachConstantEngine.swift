@@ -112,18 +112,14 @@ extension NForEachConstantEngine: NForEachEngine {
     }
     
     func onDataChange(changed: @escaping (Int, [NChange<NView>]) -> Void) {
-        print("")
     }
     
     func weakifyCache() {
-        print("")
     }
     
     func strongifyCache() {
-        print("")
     }
     
     func clearCache() {
-        print("")
     }
 }

@@ -15,7 +15,7 @@ internal final class NPadding: BaseView {
     ) {
         super.init()
         
-        self.addPaddedSubview(edges: edges, subview: subview, value: value, symbol: symbol)
+        self.addPaddedSubview(edges: edges, value: value, symbol: symbol, subview: subview)
     }
 }
 

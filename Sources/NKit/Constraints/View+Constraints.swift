@@ -10,11 +10,15 @@ extension _View {
         self.addPaddedSubview(edges: .none, subview: subview)
     }
     
+    public func addSubviewAutomatically(_ subview: () -> _View) {
+        self.addSubviewAutomatically(subview())
+    }
+    
     internal func addPaddedSubview(
         edges: NEdge.Set,
-        subview: _View,
         value: NGet<CGFloat> = .constant(0),
-        symbol: NEdge.Symbol = .equal
+        symbol: NEdge.Symbol = .equal,
+        subview: _View
     ) {
         self.addSubview(subview)
         subview.translatesAutoresizingMaskIntoConstraints = false

@@ -1,11 +1,15 @@
 import Foundation
 #if canImport(AppKit)
 import AppKit
+#elseif canImport(UIKit)
+import UIKit
+#endif
+#if DEBUG
+import SwiftUI
+#endif
 
-open class NCheckbox: NSButton {
-    @NGet private var titleBinding: String
-    @NBinding private var stateBinding: Bool
-    
+extension NCheckbox {
+
     public convenience init(
         title: String,
         state stateBinding: NBinding<Bool>
@@ -15,41 +19,25 @@ open class NCheckbox: NSButton {
             state: stateBinding
         )
     }
+}
+
+#if DEBUG
+@available(macOS 14.0, iOS 17.0, *)
+#Preview {
+    @Previewable @NState var isOn: Bool = false
     
-    public init(
-        title titleBinding: NGet<String>,
-        state stateBinding: NBinding<Bool>
-    ) {
-        self._titleBinding = titleBinding
-        self._stateBinding = stateBinding
-        
-        super.init(frame: .zero)
-        
-        self.setButtonType(.switch)
-        self.title = titleBinding.wrappedValue
-        self.state = stateBinding.wrappedValue ? .on : .off
-        self.target = self
-        self.action = #selector(touchAction)
-        
-        self.setContentHuggingPriority(.required, for: .horizontal)
-        self.setContentHuggingPriority(.required, for: .vertical)
-        
-        self._titleBinding.onChange {
-            self.title = $0
-        }
-        self._stateBinding.onChange {
-            self.state = $0 ? .on : .off
-        }
+    var title: NGet<String> = $isOn.get.map {
+        $0 ? "On" : "Off"
     }
     
-    @available(*, unavailable)
-    required public init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-    
-    @objc
-    private func touchAction() {
-        self.stateBinding = self.state == .on
+    NViewPreview {
+        NVStack(spacing: 8) {
+            NCheckbox(title: title, state: $isOn)
+                .background(.red)
+            NCheckbox(title: title, state: $isOn)
+                .background(.red)
+        }
+        .padding(20)
     }
 }
 #endif

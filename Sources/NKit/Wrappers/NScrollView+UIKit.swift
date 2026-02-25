@@ -3,14 +3,10 @@ import Foundation
 import UIKit
 
 open class NScrollView: UIScrollView {
-    public enum Direction {
-        case vertical
-        case horizontal
-        case twoDimmensions
-    }
-    
+
     public init(
-        _ direction: Direction = .vertical,
+        axes: Axis = .vertical,
+        showsIndicators: Bool = true,
         _ content: UIView
     ) {
         super.init(frame: .zero)
@@ -25,19 +21,22 @@ open class NScrollView: UIScrollView {
             self.contentLayoutGuide.trailingAnchor.constraint(equalTo: content.trailingAnchor),
         ])
         
-        if case .vertical = direction {
+        if !axes.contains(.horizontal) {
             NSLayoutConstraint.activate([
                 self.frameLayoutGuide.leadingAnchor.constraint(equalTo: content.leadingAnchor),
                 self.frameLayoutGuide.trailingAnchor.constraint(equalTo: content.trailingAnchor)
             ])
         }
         
-        if case .horizontal = direction {
+        if !axes.contains(.vertical) {
             NSLayoutConstraint.activate([
                 self.frameLayoutGuide.topAnchor.constraint(equalTo: content.topAnchor),
                 self.frameLayoutGuide.bottomAnchor.constraint(equalTo: content.bottomAnchor)
             ])
         }
+        
+        self.showsHorizontalScrollIndicator = showsIndicators
+        self.showsVerticalScrollIndicator = showsIndicators
     }
     
     @available(*, unavailable)

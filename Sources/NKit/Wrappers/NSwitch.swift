@@ -19,7 +19,9 @@ extension NSwitch {
     NViewPreview {
         NVStack(alignment: .center, spacing: 8) {
             NSwitch($isOn)
+                .background(.red)
             NSwitch($isOn)
+                .background(.red)
         }
         .frame(width: 300)
         .padding(8)

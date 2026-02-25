@@ -36,3 +36,10 @@ public final class NColor: BaseView {
         #endif
     }
 }
+
+extension _Color: NView {
+    
+    public var body: _View {
+        NColor(self)
+    }
+}
