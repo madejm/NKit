@@ -37,6 +37,20 @@ extension NBinding {
             $0
         }, down: down)
     }
+    
+    public func mapGet<M>(
+        up: @escaping @MainActor (Value) -> M
+    ) -> NGet<M> {
+        let newGetter: NGet<M> = .init(get: {
+            up(self.wrappedValue)
+        })
+        
+        self.onChange { newValue in
+            newGetter.signalChange(up(newValue))
+        }
+        
+        return newGetter
+    }
 }
 
 extension NBinding {

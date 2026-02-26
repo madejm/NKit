@@ -7,6 +7,7 @@ open class BaseView: NSView {
         super.init(frame: .zero)
         
         self.layer = CALayer()
+        self.clipsToBounds = false
     }
     
     @available(*, unavailable)

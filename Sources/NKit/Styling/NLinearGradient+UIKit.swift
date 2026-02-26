@@ -5,7 +5,7 @@ import UIKit
 open class NLinearGradient: BaseView {
     
     override open class var layerClass: AnyClass {
-       return CAGradientLayer.classForCoder()
+       CAGradientLayer.classForCoder()
     }
     
     private var gradient: CAGradientLayer? {

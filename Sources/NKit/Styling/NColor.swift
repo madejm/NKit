@@ -37,6 +37,12 @@ public final class NColor: BaseView {
     }
 }
 
+extension _Color {
+    public func opacity(_ opacity: CGFloat) -> _Color {
+        self.withAlphaComponent(opacity)
+    }
+}
+
 extension _Color: NView {
     
     public var body: _View {

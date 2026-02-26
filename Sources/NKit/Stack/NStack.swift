@@ -7,8 +7,8 @@ import UIKit
 
 public class NVStack: NViewStack {
     public init(
-        alignment: Alignment = .leading,
-        spacing: CGFloat = 0,
+        alignment: Alignment = .center,
+        spacing: CGFloat = 8,
         stretching: Stretching = .none,
         @NViewBuilder _ content: @escaping () -> [NView]
     ) {
@@ -25,7 +25,7 @@ public class NVStack: NViewStack {
 public class NHStack: NViewStack {
     public init(
         alignment: Alignment = .center,
-        spacing: CGFloat = 0,
+        spacing: CGFloat = 8,
         stretching: Stretching = .none,
         @NViewBuilder _ content: @escaping () -> [NView]
     ) {

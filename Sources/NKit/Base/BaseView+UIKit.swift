@@ -5,6 +5,8 @@ import UIKit
 open class BaseView: UIView {
     public init() {
         super.init(frame: .zero)
+        
+        self.clipsToBounds = false
     }
     
     @available(*, unavailable)
