@@ -21,14 +21,14 @@ open class NScrollView: NSScrollView {
             
             if axes.contains(.horizontal) {
                 NDimmension.width.constraint(superview: self.contentView, subview: content, symbol: .less)
-                NDimmension.width.constraint(superview: self.contentView, subview: content, priority: .dragThatCannotResize)
+                NDimmension.width.constraint(superview: self.contentView, subview: content, priority: NKitDefaults.scrollViewContentLayoutPriority)
             } else {
                 NDimmension.width.constraint(superview: self.contentView, subview: content)
             }
             
             if axes.contains(.vertical) {
                 NDimmension.height.constraint(superview: self.contentView, subview: content, symbol: .less)
-                NDimmension.height.constraint(superview: self.contentView, subview: content, priority: .dragThatCannotResize)
+                NDimmension.height.constraint(superview: self.contentView, subview: content, priority: NKitDefaults.scrollViewContentLayoutPriority)
             } else {
                 NDimmension.height.constraint(superview: self.contentView, subview: content)
             }

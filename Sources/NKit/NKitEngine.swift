@@ -45,7 +45,9 @@ public enum NKitDefaults {
         }
     }
     #endif
-//    internal static let stackFitLayoutPriority: NLayoutPriority = .sizeStayPut - 1
     internal static let stackFitLayoutPriority: NLayoutPriority = .defaultLow
     internal static let stackDimmensionLayoutPriority: NLayoutPriority = stackFitLayoutPriority - 1
+    #if canImport(AppKit)
+    internal static let scrollViewContentLayoutPriority: NLayoutPriority = .dragThatCannotResize
+    #endif
 }
