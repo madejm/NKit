@@ -7,6 +7,7 @@ open class BaseView: UIView {
         super.init(frame: .zero)
         
         self.clipsToBounds = false
+        self.prepare()
     }
     
     @available(*, unavailable)

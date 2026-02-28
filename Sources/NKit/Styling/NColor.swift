@@ -21,23 +21,16 @@ public final class NColor: BaseView {
         
         super.init()
         
-        self.setBackgroundColor(colorBinding.wrappedValue)
+        self.backgroundColor = colorBinding.wrappedValue
         
         colorBinding.onChange { [weak self] newColor in
-            self?.setBackgroundColor(newColor)
+            self?.backgroundColor = newColor
         }
-    }
-    
-    private func setBackgroundColor(_ color: _Color) {
-        #if canImport(AppKit)
-        self.layer?.backgroundColor = color.cgColor
-        #elseif canImport(UIKit)
-        self.backgroundColor = color
-        #endif
     }
 }
 
 extension _Color {
+    @inline(__always)
     public func opacity(_ opacity: CGFloat) -> _Color {
         self.withAlphaComponent(opacity)
     }
@@ -46,6 +39,11 @@ extension _Color {
 extension _Color: NView {
     
     public var body: _View {
+        NColor(self)
+    }
+    
+    @MainActor
+    public var color: NColor {
         NColor(self)
     }
 }

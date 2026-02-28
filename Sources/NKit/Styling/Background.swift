@@ -11,10 +11,10 @@ extension _View {
         fileprivate init(color: NGet<_Color>, subview: _View) {
             super.init()
             
-            self.layer?.backgroundColor = color.wrappedValue.cgColor
+            self.backgroundColor = color.wrappedValue
             
             color.onChange { [weak self] in
-                self?.layer?.backgroundColor = $0.cgColor
+                self?.backgroundColor = $0
             }
             
             self.addSubviewAutomatically(subview)
@@ -28,22 +28,30 @@ extension _View {
     
     public func background(_ color: NGet<_Color>) -> _View {
         #if canImport(AppKit)
-        guard let layer = self.layer else {
+        guard self.layer != nil else {
             return BackgroundView(color: color, subview: self)
         }
-        layer.backgroundColor = color.wrappedValue.cgColor
-        #elseif canImport(UIKit)
-        backgroundColor = color.wrappedValue
         #endif
+        backgroundColor = color.wrappedValue
         
         color.onChange { [weak self] in
-            #if canImport(AppKit)
-            self?.layer?.backgroundColor = $0.cgColor
-            #elseif canImport(UIKit)
             self?.backgroundColor = $0
-            #endif
         }
         
         return self
     }
 }
+
+#if canImport(AppKit)
+extension NSView {
+    @inline(__always)
+    internal var backgroundColor: NSColor? {
+        get {
+            self.layer?.backgroundColor.flatMap { NSColor(cgColor: $0) }
+        }
+        set {
+            self.layer?.backgroundColor = newValue?.cgColor
+        }
+    }
+}
+#endif

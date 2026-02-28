@@ -16,16 +16,14 @@ public final class NGridColumn: NVStack {
     @NEnvironment(\.gridParent) private var gridParent
     private var gridConstraints: [NSLayoutConstraint] = []
     
-    public override init(
+    public init(
         alignment: Alignment = .center,
         spacing: CGFloat = 0,
-        stretching: Stretching = .none,
         @NViewBuilder _ content: @escaping () -> [NView]
     ) {
         super.init(
             alignment: alignment,
             spacing: spacing,
-            stretching: stretching,
             content
         )
     }

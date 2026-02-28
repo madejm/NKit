@@ -10,6 +10,7 @@ import UIKit
 public enum NEdge: Int8, Equatable, Hashable, CaseIterable, Sendable {
     case top, bottom, leading, trailing
     
+    @MainActor
     @frozen
     public struct Set {
         internal let edges: [NEdge]
@@ -17,13 +18,10 @@ public enum NEdge: Int8, Equatable, Hashable, CaseIterable, Sendable {
         public init(_ edges: [NEdge]) {
             self.edges = edges
         }
-    }
-    
-    @frozen
-    public enum Symbol {
-        case equal
-        case greater
-        case less
+        
+        public init(_ edges: NEdge...) {
+            self.edges = edges
+        }
     }
 }
 
@@ -45,6 +43,7 @@ extension NEdge.Set {
 }
 
 extension NEdge {
+    @MainActor
     @frozen
     public enum Corner: Int8, Equatable, Hashable, CaseIterable, Sendable {
         case bottomLeading
@@ -77,22 +76,40 @@ extension NEdge.Corner.Set {
 }
 
 extension NEdge {
-    internal func constraint(
+    public func constraint(
         superview: _View,
         subview: _View,
         value: CGFloat = 0,
-        symbol: NEdge.Symbol = .equal,
-        priority: LayoutPriority? = nil
+        symbol: NLayoutSymbol = .equal,
+        priority: NLayoutPriority? = nil,
+        ignoresSafeArea: Bool = false
     ) -> NSLayoutConstraint {
+        let superviewLayoutGuide: NLayoutGuide = ignoresSafeArea ? superview : superview.nSafeAreaLayoutGuide
+        
         switch self {
         case .top:
-            return subview.topAnchor.constraint(to: superview.topAnchor, constant: value, symbol: symbol, priority: priority)
+            return subview.topAnchor.constraint(to: superviewLayoutGuide.topAnchor, constant: value, symbol: symbol, priority: priority)
         case .bottom:
-            return superview.bottomAnchor.constraint(to: subview.bottomAnchor, constant: value, symbol: symbol, priority: priority)
+            return superviewLayoutGuide.bottomAnchor.constraint(to: subview.bottomAnchor, constant: value, symbol: symbol, priority: priority)
         case .leading:
-            return subview.leadingAnchor.constraint(to: superview.leadingAnchor, constant: value, symbol: symbol, priority: priority)
+            return subview.leadingAnchor.constraint(to: superviewLayoutGuide.leadingAnchor, constant: value, symbol: symbol, priority: priority)
         case .trailing:
-            return superview.trailingAnchor.constraint(to: subview.trailingAnchor, constant: value, symbol: symbol, priority: priority)
+            return superviewLayoutGuide.trailingAnchor.constraint(to: subview.trailingAnchor, constant: value, symbol: symbol, priority: priority)
+        }
+    }
+}
+
+extension NEdge.Set {
+    public func constraints(
+        superview: _View,
+        subview: _View,
+        value: CGFloat = 0,
+        symbol: NLayoutSymbol = .equal,
+        priority: NLayoutPriority? = nil,
+        ignoresSafeArea: Bool = false
+    ) -> [NSLayoutConstraint] {
+        self.edges.map { edge in
+            edge.constraint(superview: superview, subview: subview, value: value, symbol: symbol, priority: priority, ignoresSafeArea: ignoresSafeArea)
         }
     }
 }
@@ -101,8 +118,8 @@ extension NSLayoutXAxisAnchor {
     internal func constraint(
         to anchor: NSLayoutXAxisAnchor,
         constant: CGFloat,
-        symbol: NEdge.Symbol,
-        priority: LayoutPriority? = nil
+        symbol: NLayoutSymbol,
+        priority: NLayoutPriority? = nil
     ) -> NSLayoutConstraint {
         switch symbol {
         case .equal:
@@ -131,8 +148,8 @@ extension NSLayoutYAxisAnchor {
     internal func constraint(
         to anchor: NSLayoutYAxisAnchor,
         constant: CGFloat,
-        symbol: NEdge.Symbol,
-        priority: LayoutPriority? = nil
+        symbol: NLayoutSymbol,
+        priority: NLayoutPriority? = nil
     ) -> NSLayoutConstraint {
         switch symbol {
         case .equal:

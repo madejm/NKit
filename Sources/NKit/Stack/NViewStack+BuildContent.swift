@@ -10,6 +10,7 @@ import SwiftUI
 extension NViewStack {
     internal func buildContent() {
         for subview in self.stack.arrangedSubviews {
+            self.stack.removeArrangedSubview(subview)
             subview.removeFromSuperview()
         }
         
@@ -85,6 +86,7 @@ extension NViewStack {
                     for view in viewsToRemove {
                         print_debug("removing", view.view.mirrorDescription, "at:", self.stack.arrangedSubviews.firstIndex(of: view.view).map { String($0) } ?? "?")
                         withAnimation(animate: view.animated) {
+                            self.stack.removeArrangedSubview(view.view)
                             view.view.removeFromSuperview()
                         }
                     }
@@ -102,6 +104,8 @@ extension NViewStack {
                             self.stack.insertArrangedSubview(view.view, at: view.index)
                         }
                     }
+                    
+                    self.stack.updateDimmensionConstraints()
 //                    self.printStack()
                 }
             )
@@ -112,6 +116,7 @@ extension NViewStack {
         for subview in arrangedSubviews {
             self.stack.addArrangedSubview(subview)
         }
+        self.stack.updateDimmensionConstraints()
     }
 }
 

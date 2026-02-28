@@ -19,21 +19,53 @@ public struct NViewControllerPreview<ViewController: UIViewController>: UIViewCo
     }
 }
 
-public struct NViewPreview<View: UIView>: UIViewRepresentable {
-    private let view: View
+private final class _RepresentableWrapperView: UIView {
+    let hostedView: UIView
     
-    public init(_ builder: @escaping @MainActor () -> View) {
+    init(hostedView: UIView) {
+        self.hostedView = hostedView
+        super.init(frame: .zero)
+        self.addSubviewAutomatically(hostedView)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    override var intrinsicContentSize: CGSize {
+        hostedView.intrinsicContentSize
+    }
+
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        hostedView.invalidateIntrinsicContentSize()
+    }
+}
+
+public struct NViewPreview: UIViewRepresentable {
+    private let view: UIView
+    
+    public init<View: UIView>(_ builder: @escaping () -> View) {
         view = builder()
+    }
+    
+    public init<View: NView>(_ builder: @escaping () -> View) {
+        view = builder().body
     }
     
     // MARK: - UIViewRepresentable
     public func makeUIView(context: Context) -> UIView {
-        return view
+        let wrapper = _RepresentableWrapperView(hostedView: view)
+
+        wrapper.setContentHuggingPriority(.required, for: .horizontal)
+        wrapper.setContentHuggingPriority(.required, for: .vertical)
+        wrapper.setContentCompressionResistancePriority(.required, for: .horizontal)
+        wrapper.setContentCompressionResistancePriority(.required, for: .vertical)
+        
+        return wrapper
     }
     
     public func updateUIView(_ view: UIView, context: Context) {
-        view.setContentHuggingPriority(.defaultHigh, for: .horizontal)
-        view.setContentHuggingPriority(.defaultHigh, for: .vertical)
     }
 }
 #endif

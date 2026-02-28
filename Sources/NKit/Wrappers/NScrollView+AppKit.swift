@@ -16,21 +16,22 @@ open class NScrollView: NSScrollView {
         content.translatesAutoresizingMaskIntoConstraints = false
         self.documentView = content
         
-        NSLayoutConstraint.activate([
-            self.contentView.topAnchor.constraint(equalTo: content.topAnchor),
-            self.contentView.leadingAnchor.constraint(equalTo: content.leadingAnchor)
-        ])
-        
-        if axes.contains(.horizontal) {
-            content.widthAnchor.constraint(greaterThanOrEqualTo: self.contentView.widthAnchor).isActive = true
-        } else {
-            content.widthAnchor.constraint(equalTo: self.contentView.widthAnchor).isActive = true
-        }
-        
-        if axes.contains(.vertical) {
-            content.heightAnchor.constraint(greaterThanOrEqualTo: self.contentView.heightAnchor).isActive = true
-        } else {
-            content.heightAnchor.constraint(equalTo: self.contentView.heightAnchor).isActive = true
+        NSLayoutConstraint.activate {
+            NEdge.Set(.top, .leading).constraints(superview: self.contentView, subview: content)
+            
+            if axes.contains(.horizontal) {
+                NDimmension.width.constraint(superview: self.contentView, subview: content, symbol: .less)
+                NDimmension.width.constraint(superview: self.contentView, subview: content, priority: .dragThatCannotResize)
+            } else {
+                NDimmension.width.constraint(superview: self.contentView, subview: content)
+            }
+            
+            if axes.contains(.vertical) {
+                NDimmension.height.constraint(superview: self.contentView, subview: content, symbol: .less)
+                NDimmension.height.constraint(superview: self.contentView, subview: content, priority: .dragThatCannotResize)
+            } else {
+                NDimmension.height.constraint(superview: self.contentView, subview: content)
+            }
         }
         
         self.hasHorizontalScroller = showsIndicators && axes.contains(.horizontal)
@@ -43,40 +44,40 @@ open class NScrollView: NSScrollView {
         fatalError("init(coder:) has not been implemented")
     }
     
-    public override func viewDidMoveToWindow() {
-        super.viewDidMoveToWindow()
-        
-        guard let superview else {
-            return
-        }
-        
-        var parent: NSView = superview
-        var child: NSView = self
-        
-        while true {
-            if let stack = parent as? NSStackView {
-                if stack.orientation == .vertical {
-                    break
-                } else {
-                    return
-                }
-            }
-            guard let newSuperview = parent.superview else {
-                break
-            }
-            child = parent
-            parent = newSuperview
-        }
-        
-        widthConstraint = parent.widthAnchor.constraint(equalTo: child.widthAnchor, multiplier: 1.0)
-        widthConstraint?.isActive = true
-    }
+//    public override func viewDidMoveToWindow() {
+//        super.viewDidMoveToWindow()
+//        
+//        guard let superview else {
+//            return
+//        }
+//        
+//        var parent: NSView = superview
+//        var child: NSView = self
+//        
+//        while true {
+//            if let stack = parent as? NSStackView {
+//                if stack.orientation == .vertical {
+//                    break
+//                } else {
+//                    return
+//                }
+//            }
+//            guard let newSuperview = parent.superview else {
+//                break
+//            }
+//            child = parent
+//            parent = newSuperview
+//        }
+//        
+//        widthConstraint = parent.widthAnchor.constraint(equalTo: child.widthAnchor, multiplier: 1.0)
+//        widthConstraint?.isActive = true
+//    }
     
-    public override func removeFromSuperview() {
-        widthConstraint?.isActive = false
-        widthConstraint = nil
-        
-        super.removeFromSuperview()
-    }
+//    public override func removeFromSuperview() {
+//        widthConstraint?.isActive = false
+//        widthConstraint = nil
+//        
+//        super.removeFromSuperview()
+//    }
 }
 #endif

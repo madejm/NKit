@@ -18,43 +18,42 @@ public enum NDimmension: Equatable {
             self.dimmensions = dimmensions
         }
     }
-    
-    @frozen
-    public enum Symbol {
-        case equal
-        case greater
-        case less
-    }
 }
 
 extension NDimmension {
-    internal func constraint(
+    public func constraint(
         view: _View,
         value: CGFloat = 0,
-        symbol: NDimmension.Symbol = .equal,
-        priority: LayoutPriority? = nil
+        symbol: NLayoutSymbol = .equal,
+        priority: NLayoutPriority? = nil,
+        ignoresSafeArea: Bool = false
     ) -> NSLayoutConstraint {
+        let layoutGuide: NLayoutGuide = ignoresSafeArea ? view : view.nSafeAreaLayoutGuide
+        
         switch self {
         case .width:
-            return view.widthAnchor.constraint(constant: value, symbol: symbol, priority: priority)
+            return layoutGuide.widthAnchor.constraint(constant: value, symbol: symbol, priority: priority)
         case .height:
-            return view.heightAnchor.constraint(constant: value, symbol: symbol, priority: priority)
+            return layoutGuide.heightAnchor.constraint(constant: value, symbol: symbol, priority: priority)
         }
     }
     
-    internal func constraint(
+    public func constraint(
         superview: _View,
         subview: _View,
         multiplier: CGFloat = 1,
         value: CGFloat = 0,
-        symbol: NDimmension.Symbol = .equal,
-        priority: LayoutPriority? = nil
+        symbol: NLayoutSymbol = .equal,
+        priority: NLayoutPriority? = nil,
+        ignoresSafeArea: Bool = false
     ) -> NSLayoutConstraint {
+        let superviewLayoutGuide: NLayoutGuide = ignoresSafeArea ? superview : superview.nSafeAreaLayoutGuide
+        
         switch self {
         case .width:
-            return subview.widthAnchor.constraint(to: superview.widthAnchor, multiplier: multiplier, constant: value, symbol: symbol, priority: priority)
+            return superviewLayoutGuide.widthAnchor.constraint(to: subview.widthAnchor, multiplier: multiplier, constant: value, symbol: symbol, priority: priority)
         case .height:
-            return superview.heightAnchor.constraint(to: subview.heightAnchor, multiplier: multiplier, constant: value, symbol: symbol, priority: priority)
+            return superviewLayoutGuide.heightAnchor.constraint(to: subview.heightAnchor, multiplier: multiplier, constant: value, symbol: symbol, priority: priority)
         }
     }
 }
@@ -62,8 +61,8 @@ extension NDimmension {
 extension NSLayoutDimension {
     internal func constraint(
         constant: CGFloat,
-        symbol: NDimmension.Symbol,
-        priority: LayoutPriority? = nil
+        symbol: NLayoutSymbol,
+        priority: NLayoutPriority? = nil
     ) -> NSLayoutConstraint {
         switch symbol {
         case .equal:
@@ -91,8 +90,8 @@ extension NSLayoutDimension {
         to anchor: NSLayoutDimension,
         multiplier: CGFloat,
         constant: CGFloat,
-        symbol: NDimmension.Symbol,
-        priority: LayoutPriority? = nil
+        symbol: NLayoutSymbol,
+        priority: NLayoutPriority? = nil
     ) -> NSLayoutConstraint {
         switch symbol {
         case .equal:

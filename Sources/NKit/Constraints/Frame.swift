@@ -9,7 +9,7 @@ extension _View {
     public func frame(
         width: CGFloat? = nil,
         height: CGFloat? = nil,
-        symbol: NDimmension.Symbol = .equal
+        symbol: NLayoutSymbol = .equal
     ) -> Self {
         self.frame(
             width: width.map { .constant($0) },
@@ -21,7 +21,7 @@ extension _View {
     public func frame(
         width: NGet<CGFloat>? = nil,
         height: NGet<CGFloat>? = nil,
-        symbol: NDimmension.Symbol = .equal
+        symbol: NLayoutSymbol = .equal
     ) -> Self {
         if let width {
             let constraint = self.widthAnchor.constraint(constant: width.wrappedValue, symbol: symbol)

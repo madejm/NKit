@@ -72,7 +72,6 @@ extension NSView {
         self.swizzled_removeFromSuperview()
         
         self.setParent(nil, isRootView: false)
-        
         self[associatedId: .removeFromSuperviewId].send()
     }
 }

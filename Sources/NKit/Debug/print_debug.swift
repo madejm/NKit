@@ -5,6 +5,8 @@
 //  Created by Mejdej on 13/08/2025.
 //
 
+import Foundation
+
 #if DEBUG
 nonisolated(unsafe) public var NKitDebugLoggingEnabled: Bool = false
 #endif
@@ -65,6 +67,14 @@ package func print_debug(
     #if DEBUG
     if NKitDebugLoggingEnabled {
         print(message1(), message2(), message3(), message4(), message5())
+    }
+    #endif
+}
+
+package func print_canvas(_ items: Any..., separator: String = " ", terminator: String = "\n") {
+    #if DEBUG
+    if ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PREVIEWS"] != nil {
+        print(items.map { "\($0)" }.joined(separator: separator), terminator: terminator)
     }
     #endif
 }

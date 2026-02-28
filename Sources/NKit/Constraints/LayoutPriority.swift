@@ -9,23 +9,31 @@ import UIKit
 public typealias _LayoutPriority = NSLayoutConstraint.Priority
 
 extension NSLayoutConstraint.Priority {
-    fileprivate static let dragThatCanResize: NSLayoutConstraint.Priority    = .dragThatCanResizeWindow
-    fileprivate static let sizeStayPut: NSLayoutConstraint.Priority          = .windowSizeStayPut
-    fileprivate static let dragThatCannotResize: NSLayoutConstraint.Priority = .dragThatCannotResizeWindow
-    fileprivate static let fittingSize: NSLayoutConstraint.Priority          = .fittingSizeCompression
+    ///  510 (dragThatCanResizeWindow)
+    public static let dragThatCanResize: NSLayoutConstraint.Priority    = .dragThatCanResizeWindow
+    ///  500 (windowSizeStayPut)
+    public static let sizeStayPut: NSLayoutConstraint.Priority          = .windowSizeStayPut
+    ///  490 (dragThatCannotResizeWindow)
+    public static let dragThatCannotResize: NSLayoutConstraint.Priority = .dragThatCannotResizeWindow
+    ///   50 (fittingSizeCompression)
+    public static let fittingSize: NSLayoutConstraint.Priority          = .fittingSizeCompression
 }
 #elseif canImport(UIKit)
 public typealias _LayoutPriority = UILayoutPriority
 
 extension UILayoutPriority {
-    fileprivate static let dragThatCanResize: UILayoutPriority    = .dragThatCanResizeScene
-    fileprivate static let sizeStayPut: UILayoutPriority          = .sceneSizeStayPut
-    fileprivate static let dragThatCannotResize: UILayoutPriority = .dragThatCannotResizeScene
-    fileprivate static let fittingSize: UILayoutPriority          = .fittingSizeLevel
+    ///  510 (dragThatCanResizeScene)
+    public static let dragThatCanResize: UILayoutPriority    = .dragThatCanResizeScene
+    ///  500 (sceneSizeStayPut)
+    public static let sizeStayPut: UILayoutPriority          = .sceneSizeStayPut
+    ///  490 (dragThatCannotResizeScene)
+    public static let dragThatCannotResize: UILayoutPriority = .dragThatCannotResizeScene
+    ///   50 (fittingSizeLevel)
+    public static let fittingSize: UILayoutPriority          = .fittingSizeLevel
 }
 #endif
 
-public struct LayoutPriority: Hashable, Equatable, RawRepresentable, Sendable {
+public struct NLayoutPriority: Hashable, Equatable, RawRepresentable, Sendable {
     public let rawValue: Float
     
     public init(_ rawValue: Float) {
@@ -45,39 +53,65 @@ public struct LayoutPriority: Hashable, Equatable, RawRepresentable, Sendable {
     }
     
     /// 1000
-    public static let required: LayoutPriority             = .init(_LayoutPriority.required)
+    public static let required: NLayoutPriority             = .init(_LayoutPriority.required)
     ///  750
-    public static let defaultHigh: LayoutPriority          = .init(_LayoutPriority.defaultHigh)
+    public static let defaultHigh: NLayoutPriority          = .init(_LayoutPriority.defaultHigh)
     ///  510
-    public static let dragThatCanResize: LayoutPriority    = .init(_LayoutPriority.dragThatCanResize)
+    public static let dragThatCanResize: NLayoutPriority    = .init(_LayoutPriority.dragThatCanResize)
     ///  500
-    public static let sizeStayPut: LayoutPriority          = .init(_LayoutPriority.sizeStayPut)
+    public static let sizeStayPut: NLayoutPriority          = .init(_LayoutPriority.sizeStayPut)
     ///  490
-    public static let dragThatCannotResize: LayoutPriority = .init(_LayoutPriority.dragThatCannotResize)
+    public static let dragThatCannotResize: NLayoutPriority = .init(_LayoutPriority.dragThatCannotResize)
     ///  250
-    public static let defaultLow: LayoutPriority           = .init(_LayoutPriority.defaultLow)
+    public static let defaultLow: NLayoutPriority           = .init(_LayoutPriority.defaultLow)
     ///   50
-    public static let fittingSize: LayoutPriority          = .init(_LayoutPriority.fittingSize)
+    public static let fittingSize: NLayoutPriority          = .init(_LayoutPriority.fittingSize)
 }
 
 extension _LayoutPriority {
     
-    public init(_ layoutPriority: LayoutPriority) {
+    public init(_ layoutPriority: NLayoutPriority) {
         self.init(rawValue: layoutPriority.rawValue)
     }
     
-    public var layoutPriority: LayoutPriority {
-        LayoutPriority(self)
+    public var layoutPriority: NLayoutPriority {
+        NLayoutPriority(self)
     }
 }
 
 extension NSLayoutConstraint {
-    public var layoutPriority: LayoutPriority {
+    public var layoutPriority: NLayoutPriority {
         get {
             self.priority.layoutPriority
         }
         set {
             self.priority = newValue.priority
         }
+    }
+}
+
+extension NLayoutPriority {
+    public static func + (lhs: NLayoutPriority, rhs: NLayoutPriority) -> NLayoutPriority {
+        NLayoutPriority(lhs.rawValue + rhs.rawValue)
+    }
+    
+    public static func - (lhs: NLayoutPriority, rhs: NLayoutPriority) -> NLayoutPriority {
+        NLayoutPriority(lhs.rawValue - rhs.rawValue)
+    }
+    
+    public static func + (lhs: NLayoutPriority, rhs: Float) -> NLayoutPriority {
+        NLayoutPriority(lhs.rawValue + rhs)
+    }
+    
+    public static func - (lhs: NLayoutPriority, rhs: Float) -> NLayoutPriority {
+        NLayoutPriority(lhs.rawValue - rhs)
+    }
+    
+    public static func + (lhs: Float, rhs: NLayoutPriority) -> NLayoutPriority {
+        NLayoutPriority(lhs + rhs.rawValue)
+    }
+    
+    public static func - (lhs: Float, rhs: NLayoutPriority) -> NLayoutPriority {
+        NLayoutPriority(lhs - rhs.rawValue)
     }
 }

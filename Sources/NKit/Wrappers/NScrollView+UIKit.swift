@@ -14,25 +14,16 @@ open class NScrollView: UIScrollView {
         content.translatesAutoresizingMaskIntoConstraints = false
         self.addSubview(content)
         
-        NSLayoutConstraint.activate([
-            self.contentLayoutGuide.topAnchor.constraint(equalTo: content.topAnchor),
-            self.contentLayoutGuide.bottomAnchor.constraint(equalTo: content.bottomAnchor),
-            self.contentLayoutGuide.leadingAnchor.constraint(equalTo: content.leadingAnchor),
-            self.contentLayoutGuide.trailingAnchor.constraint(equalTo: content.trailingAnchor),
-        ])
-        
-        if !axes.contains(.horizontal) {
-            NSLayoutConstraint.activate([
-                self.frameLayoutGuide.leadingAnchor.constraint(equalTo: content.leadingAnchor),
-                self.frameLayoutGuide.trailingAnchor.constraint(equalTo: content.trailingAnchor)
-            ])
-        }
-        
-        if !axes.contains(.vertical) {
-            NSLayoutConstraint.activate([
-                self.frameLayoutGuide.topAnchor.constraint(equalTo: content.topAnchor),
-                self.frameLayoutGuide.bottomAnchor.constraint(equalTo: content.bottomAnchor)
-            ])
+        NSLayoutConstraint.activate {
+            NEdge.Set.all.constraints(superview: self.contentLayoutGuide, subview: content)
+            
+            if !axes.contains(.horizontal) {
+                NEdge.Set.horizontal.constraints(superview: self.frameLayoutGuide, subview: content)
+            }
+            
+            if !axes.contains(.vertical) {
+                NEdge.Set.vertical.constraints(superview: self.frameLayoutGuide, subview: content)
+            }
         }
         
         self.showsHorizontalScrollIndicator = showsIndicators

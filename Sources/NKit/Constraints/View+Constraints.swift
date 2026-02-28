@@ -17,7 +17,7 @@ extension _View {
     internal func addPaddedSubview(
         edges: NEdge.Set,
         value: NGet<CGFloat> = .constant(0),
-        symbol: NEdge.Symbol = .equal,
+        symbol: NLayoutSymbol = .equal,
         subview: _View
     ) {
         self.addSubview(subview)

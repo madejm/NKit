@@ -8,6 +8,7 @@ open class BaseView: NSView {
         
         self.layer = CALayer()
         self.clipsToBounds = false
+        self.prepare()
     }
     
     @available(*, unavailable)
@@ -19,12 +20,20 @@ open class BaseView: NSView {
     required public init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
+    
+    open override func viewDidMoveToSuperview() {
+        super.viewDidMoveToSuperview()
+        self.didMoveToSuperview()
+    }
+    
+    open func didMoveToSuperview() {
+    }
 }
 
 extension NSView {
-    public func prepare() {
+    internal func prepare() {
         self.translatesAutoresizingMaskIntoConstraints = false
-        self.layer?.backgroundColor = NSColor.clear.cgColor
+        self.backgroundColor = NSColor.clear
     }
 }
 #endif

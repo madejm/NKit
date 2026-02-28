@@ -11,7 +11,7 @@ import SwiftUI
 internal final class NPadding: BaseView {
     internal init(
         edges: NEdge.Set,
-        symbol: NEdge.Symbol,
+        symbol: NLayoutSymbol,
         value: NGet<CGFloat>,
         subview: _View
         
@@ -32,7 +32,7 @@ extension _View {
     public func padding(
         _ edges: NEdge.Set,
         _ value: CGFloat,
-        symbol: NEdge.Symbol = .equal
+        symbol: NLayoutSymbol = .equal
     ) -> _View {
         NPadding(edges: edges, symbol: symbol, value: .constant(value), subview: self)
     }
@@ -46,7 +46,7 @@ extension _View {
     public func padding(
         _ edges: NEdge.Set,
         _ value: NGet<CGFloat>,
-        symbol: NEdge.Symbol = .equal
+        symbol: NLayoutSymbol = .equal
     ) -> _View {
         NPadding(edges: edges, symbol: symbol, value: value, subview: self)
     }

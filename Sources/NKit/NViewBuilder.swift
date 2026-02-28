@@ -4,6 +4,9 @@ import AppKit
 #elseif canImport(UIKit)
 import UIKit
 #endif
+#if DEBUG
+import SwiftUI
+#endif
 
 #if swift(>=5.4)
 @resultBuilder
@@ -24,29 +27,36 @@ extension NViewBuilder {
         expression
     }
     
-    public static func buildOptional(_ component: NView?) -> NView {
-        component ?? []
-    }
+//    @available(*, unavailable)
+//    public static func buildOptional(_ component: NView?) -> NView {
+//        component ?? []
+//    }
     
+    @available(*, deprecated, message: "An `if` statement does not work for dynamically changing content. Instead use `NIf` with a binding.")
+//    @available(*, unavailable)
     public static func buildIf(_ value: NView?) -> NView {
         value ?? []
     }
     
+    @available(*, deprecated, message: "An `if else` statement does not work for dynamically changing content. Instead use `NIf` with a binding.")
     public static func buildEither(first component: NView) -> NView {
         component
     }
     
+    @available(*, deprecated, message: "An `if else` statement does not work for dynamically changing content. Instead use `NIf` with a binding.")
     public static func buildEither(second component: NView) -> NView {
         component
     }
     
+    @available(*, deprecated, message: "A `for in` statement does not work for dynamically changing content. Instead use `NForEach` with a constant or binding.")
     public static func buildArray(_ components: [NView]) -> [NView] {
         components
     }
     
-    public static func buildLimitedAvailability(_ component: NView) -> NView {
-        component
-    }
+//    @available(*, unavailable)
+//    public static func buildLimitedAvailability(_ component: NView) -> NView {
+//        component
+//    }
 }
 
 extension NView {
@@ -251,3 +261,50 @@ extension Array where Element == NChange<NView> {
         }
     }
 }
+
+#if DEBUG
+@available(*, unavailable)
+//@MainActor
+//private func __WarningTest(bool: Bool) {
+#Preview {
+    let bool: Bool = true
+    
+    NViewPreview {
+        NVStack {
+            //        Optional(NColor(.red))
+            
+            if bool {
+                NColor(.red)
+            }
+            
+            if bool {
+                NColor(.red)
+            } else {
+                NColor(.red)
+            }
+            
+            if bool {
+                NColor(.red)
+            } else if bool {
+                NColor(.red)
+            } else {
+                NColor(.red)
+            }
+            
+            for _ in 0...1 {
+                NColor(.red)
+            }
+            
+            if #available(macOS 10.15, iOS 13.0, *) {
+                NColor(.red)
+            }
+            
+            if #available(macOS 10.15, iOS 13.0, *) {
+                NColor(.red)
+            } else {
+                NColor(.red)
+            }
+        }
+    }
+}
+#endif

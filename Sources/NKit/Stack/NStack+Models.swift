@@ -6,7 +6,7 @@ import UIKit
 #endif
 
 extension NVStack {
-    public enum Alignment {
+    public enum Alignment: Equatable, Hashable, Sendable, CaseIterable {
         case leading, center, trailing
         
         internal var alignment: BaseAlignment {
@@ -27,7 +27,7 @@ extension NVStack {
 }
 
 extension NHStack {
-    public enum Alignment {
+    public enum Alignment: Equatable, Hashable, Sendable, CaseIterable {
         case top, center, bottom
         
         internal var alignment: BaseAlignment {
@@ -55,11 +55,19 @@ extension NViewStack {
     public typealias BaseAlignment = UIStackView.Alignment
     public typealias Orientation = NSLayoutConstraint.Axis
     #endif
-    
-    public enum Stretching {
-        case none
-        case horizontal
-        case vertical
-        case all
+}
+
+#if canImport(AppKit)
+#elseif canImport(UIKit)
+extension UIStackView {
+    /// Platform agnostic wrapper over `axis`.
+    public var orientation: NSLayoutConstraint.Axis {
+        get {
+            axis
+        }
+        set {
+            axis = newValue
+        }
     }
 }
+#endif
