@@ -6,7 +6,7 @@ import UIKit
 #endif
 
 @MainActor
-internal protocol NLayoutGuide {
+public protocol NLayoutGuide {
     var leadingAnchor: NSLayoutXAxisAnchor { get }
     var trailingAnchor: NSLayoutXAxisAnchor { get }
     var leftAnchor: NSLayoutXAxisAnchor { get }
@@ -17,12 +17,14 @@ internal protocol NLayoutGuide {
     var heightAnchor: NSLayoutDimension { get }
     var centerXAnchor: NSLayoutXAxisAnchor { get }
     var centerYAnchor: NSLayoutYAxisAnchor { get }
+    
+    var nSafeAreaLayoutGuide: NLayoutGuide { get }
 }
 
 #if canImport(AppKit)
 extension NSView: NLayoutGuide {
     @inline(__always)
-    internal var nSafeAreaLayoutGuide: NLayoutGuide {
+    public var nSafeAreaLayoutGuide: NLayoutGuide {
         if #available(macOS 11.0, *) {
             safeAreaLayoutGuide
         } else {
@@ -30,13 +32,23 @@ extension NSView: NLayoutGuide {
         }
     }
 }
-extension NSLayoutGuide: NLayoutGuide {}
+extension NSLayoutGuide: NLayoutGuide {
+    @inline(__always)
+    public var nSafeAreaLayoutGuide: NLayoutGuide {
+        self
+    }
+}
 #elseif canImport(UIKit)
 extension UIView: NLayoutGuide {
     @inline(__always)
-    internal var nSafeAreaLayoutGuide: NLayoutGuide {
+    public var nSafeAreaLayoutGuide: NLayoutGuide {
         safeAreaLayoutGuide
     }
 }
-extension UILayoutGuide: NLayoutGuide {}
+extension UILayoutGuide: NLayoutGuide {
+    @inline(__always)
+    public var nSafeAreaLayoutGuide: NLayoutGuide {
+        self
+    }
+}
 #endif

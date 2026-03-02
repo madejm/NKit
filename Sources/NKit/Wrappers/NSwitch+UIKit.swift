@@ -15,8 +15,11 @@ open class NSwitch: UISwitch {
         self.isOn = stateBinding.wrappedValue
         self.addTarget(self, action: #selector(touchAction), for: .valueChanged)
         
-        self._stateBinding.onChange { [weak self] in
-            self?.isOn = $0
+        self._stateBinding.onChange { [weak self] isOn in
+            guard let self else {
+                return
+            }
+            self.setOn(isOn, animated: self.currentAnimation != nil)
         }
     }
     

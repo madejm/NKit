@@ -22,7 +22,6 @@ public final class NText: UILabel {
         
         super.init(frame: .zero)
         
-        self.attributedText = textBinding.wrappedValue
         self.textAlignment = alignment
         self.setContentHuggingPriority(.required, for: .horizontal)
         self.setContentHuggingPriority(.required, for: .vertical)
@@ -32,13 +31,16 @@ public final class NText: UILabel {
         self.numberOfLines = 0
         self.lineBreakMode = .byWordWrapping
         
-        self._textBinding.onChange { [weak self] in
-            self?.attributedText = $0
-            
-            #if DEBUG
-            self?.debugStringValue = $0.string
-            #endif
-        }
+        self._textBinding.updating(
+            view: self,
+            keyPath: \.attributedText,
+            animationTransitionType: .fade,
+            additionalUpdates: {
+                #if DEBUG
+                $0.debugStringValue = $1.string
+                #endif
+            }
+        )
     }
     
     @available(*, unavailable)

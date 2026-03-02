@@ -25,8 +25,15 @@ extension _View {
             self?.firstViewInStack?.isHidden = initialValue
         }
         
-        hiddenBinding.onChange { [weak self] newValue in
-            self?.firstViewInStack?.isHidden = newValue
+        hiddenBinding.updating(view: self, setInitial: false) { view, value in
+            
+            let firstView = view.firstViewInStack
+            let stack = view.firstStack
+            
+            firstView?.isHidden = value
+            firstView?.layoutIfNeeded()
+            stack?.layoutIfNeeded()
+            stack?.superview?.layoutIfNeeded()
         }
         
         return self
@@ -53,6 +60,16 @@ extension _View {
         }
         print("self \(type(of: self))")
         return self
+    }
+    
+    internal var firstStack: _Stack? {
+        guard let parent: _View = self.superview else {
+            return nil
+        }
+        guard let parentStack = parent as? _Stack else {
+            return parent.firstStack
+        }
+        return parentStack
     }
 }
 

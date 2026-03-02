@@ -10,10 +10,8 @@ open class NImage: NSImageView {
         
         super.init(frame: CGRect.zero)
         
-        self.image = imageBinding.wrappedValue
-        
-        self._imageBinding.onChange {
-            self.image = $0
+        self._imageBinding.updating(view: self) { view, value in
+            view.image = value
         }
     }
     

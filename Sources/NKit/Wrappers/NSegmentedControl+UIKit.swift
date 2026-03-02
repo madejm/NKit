@@ -32,18 +32,22 @@ where C: Equatable, C: RandomAccessCollection, C.Index == Int, C.Element: Equata
             guard let self else {
                 return
             }
-            let values: C = self.values
-            for value in values.enumerated() {
-                if value.offset < self.numberOfSegments {
-                    set(self, value.element, value.offset)
-                } else {
-                    insert(self, value.element, value.offset)
+            
+            nWithoutAnimation {
+                let values: C = self.values
+                for value in values.enumerated() {
+                    if value.offset < self.numberOfSegments {
+                        set(self, value.element, value.offset)
+                    } else {
+                        insert(self, value.element, value.offset)
+                    }
                 }
-            }
-            if values.count < self.numberOfSegments {
-                for _ in values.count..<self.numberOfSegments {
-                    self.removeSegment(at: values.count, animated: true)
+                if values.count < self.numberOfSegments {
+                    for _ in values.count..<self.numberOfSegments {
+                        self.removeSegment(at: values.count, animated: false)
+                    }
                 }
+                self.layoutIfNeeded()
             }
             
             if self.selectedSegmentIndex < self.numberOfSegments, self.selectedSegmentIndex >= 0 {
@@ -66,7 +70,7 @@ where C: Equatable, C: RandomAccessCollection, C.Index == Int, C.Element: Equata
             selection: selection,
             values: images,
             insert: { this, image, index in
-                this.insertSegment(with: image, at: index, animated: true)
+                this.insertSegment(with: image, at: index, animated: false)
             },
             set: { this, image, index in
                 this.setImage(image, forSegmentAt: index)
@@ -82,7 +86,7 @@ where C: Equatable, C: RandomAccessCollection, C.Index == Int, C.Element: Equata
             selection: selection,
             values: labels,
             insert: { this, label, index in
-                this.insertSegment(withTitle: label, at: index, animated: true)
+                this.insertSegment(withTitle: label, at: index, animated: false)
             },
             set: { this, label, index in
                 this.setTitle(label, forSegmentAt: index)

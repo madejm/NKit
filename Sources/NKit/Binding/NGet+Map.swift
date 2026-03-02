@@ -3,20 +3,6 @@ import FixedArray
 
 extension NGet {
     public func map<M>(
-        up: @escaping @MainActor (Value) -> M
-    ) -> NGet<M> {
-        let newGetter: NGet<M> = .init(get: {
-            up(self.wrappedValue)
-        })
-        
-        self.onChange { newValue in
-            newGetter.signalChange(up(newValue))
-        }
-        
-        return newGetter
-    }
-    
-    public func map<M>(
         optional: @escaping @MainActor (Value) -> M?
     ) -> NGet<M> {
         let newGetter: NGet<M> = .init(get: {

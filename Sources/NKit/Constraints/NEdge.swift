@@ -77,8 +77,8 @@ extension NEdge.Corner.Set {
 
 extension NEdge {
     public func constraint(
-        superview: _View,
-        subview: _View,
+        superview: NLayoutGuide,
+        subview: NLayoutGuide,
         value: CGFloat = 0,
         symbol: NLayoutSymbol = .equal,
         priority: NLayoutPriority? = nil,
@@ -101,8 +101,8 @@ extension NEdge {
 
 extension NEdge.Set {
     public func constraints(
-        superview: _View,
-        subview: _View,
+        superview: NLayoutGuide,
+        subview: NLayoutGuide,
         value: CGFloat = 0,
         symbol: NLayoutSymbol = .equal,
         priority: NLayoutPriority? = nil,

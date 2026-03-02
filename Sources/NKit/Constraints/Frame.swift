@@ -26,8 +26,9 @@ extension _View {
         if let width {
             let constraint = self.widthAnchor.constraint(constant: width.wrappedValue, symbol: symbol)
             
-            width.onChange {
+            width.onChange { [weak self] in
                 constraint.constant = $0
+                self?.layoutIfNeeded()
             }
             
             constraint.isActive = true
@@ -35,8 +36,9 @@ extension _View {
         if let height {
             let constraint = self.heightAnchor.constraint(constant: height.wrappedValue, symbol: symbol)
             
-            height.onChange {
+            height.onChange { [weak self] in
                 constraint.constant = $0
+                self?.layoutIfNeeded()
             }
             
             constraint.isActive = true
@@ -68,8 +70,9 @@ extension _View {
         if let minWidth {
             let constraint = self.widthAnchor.constraint(constant: minWidth.wrappedValue, symbol: .greater)
             
-            minWidth.onChange {
+            minWidth.onChange { [weak self] in
                 constraint.constant = $0
+                self?.layoutIfNeeded()
             }
             
             constraint.isActive = true
@@ -77,8 +80,9 @@ extension _View {
         if let minHeight {
             let constraint = self.heightAnchor.constraint(constant: minHeight.wrappedValue, symbol: .greater)
             
-            minHeight.onChange {
+            minHeight.onChange { [weak self] in
                 constraint.constant = $0
+                self?.layoutIfNeeded()
             }
             
             constraint.isActive = true
@@ -86,8 +90,9 @@ extension _View {
         if let maxWidth {
             let constraint = self.widthAnchor.constraint(constant: maxWidth.wrappedValue, symbol: .less)
             
-            maxWidth.onChange {
+            maxWidth.onChange { [weak self] in
                 constraint.constant = $0
+                self?.layoutIfNeeded()
             }
             
             constraint.isActive = true
@@ -95,8 +100,9 @@ extension _View {
         if let maxHeight {
             let constraint = self.heightAnchor.constraint(constant: maxHeight.wrappedValue, symbol: .less)
             
-            maxHeight.onChange {
+            maxHeight.onChange { [weak self] in
                 constraint.constant = $0
+                self?.layoutIfNeeded()
             }
             
             constraint.isActive = true

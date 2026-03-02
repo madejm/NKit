@@ -9,7 +9,6 @@
 internal final class NForEachDynamicCachableEngine<C>
 where C: RandomAccessCollection, C: Equatable, C.Element: Hashable {
     private let data: NGet<C>
-    private let animateChanges: Bool
     private let content: (NGet<C.Element>) -> [NView]
     private var cachedViews: [CachedView<Int>]? = []
     private var isCacheStrongified: Bool = true
@@ -32,11 +31,9 @@ where C: RandomAccessCollection, C: Equatable, C.Element: Hashable {
     
     public init(
         data: NGet<C>,
-        animateChanges: Bool,
         content: @escaping (NGet<C.Element>) -> [NView]
     ) {
         self.data = data
-        self.animateChanges = animateChanges
         self.content = content
     }
     
@@ -142,8 +139,7 @@ extension NForEachDynamicCachableEngine: NForEachEngine {
                     changes.append(.move(
                         from: oldOffset,
                         to: newOffset,
-                        views: newCachedView.views,
-                        animated: animateChanges
+                        views: newCachedView.views
                     ))
                     
                     print_debug("👉 moving from: \(oldOffset), to: \(newOffset),", newCachedView.views.debugStringValues)
@@ -171,7 +167,7 @@ extension NForEachDynamicCachableEngine: NForEachEngine {
                 
                 print_debug("👉 inserting at: \(newOffset), count: \(newViewsCount),", newContents.debugStringValues)
                 
-                changes.append(.insert(at: newOffset, views: newContents, animated: animateChanges))
+                changes.append(.insert(at: newOffset, views: newContents))
                 cachedNew.append(newCachedView)
                 
                 currentCount += newViewsCount
@@ -239,8 +235,7 @@ extension NForEachDynamicCachableEngine: NForEachEngine {
                 
                 viewChanges.append(.remove(
                     at: viewOffset,
-                    count: cachedToClear.viewsCount,
-                    animated: animateChanges
+                    count: cachedToClear.viewsCount
                 ))
                 cachesToClear.append(cachedToClear)
             }

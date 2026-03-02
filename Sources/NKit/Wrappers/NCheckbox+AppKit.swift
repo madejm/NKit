@@ -16,19 +16,15 @@ open class NCheckbox: NSButton {
         super.init(frame: .zero)
         
         self.setButtonType(.switch)
-        self.title = titleBinding.wrappedValue
-        self.state = stateBinding.wrappedValue ? .on : .off
         self.target = self
         self.action = #selector(touchAction)
         
         self.setContentHuggingPriority(.required, for: .horizontal)
         self.setContentHuggingPriority(.required, for: .vertical)
         
-        self._titleBinding.onChange { [weak self] in
-            self?.title = $0
-        }
-        self._stateBinding.onChange { [weak self] in
-            self?.state = $0 ? .on : .off
+        self._titleBinding.updating(view: self, keyPath: \.title)
+        self._stateBinding.updating(view: self) { view, value in
+            view.state = value ? .on : .off
         }
     }
     

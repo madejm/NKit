@@ -11,6 +11,26 @@ public protocol NAnyGet<Value> {
     )
     
     var get: NGet<Value> { get }
+    
+    func map<M>(
+        up: @escaping @MainActor (Value) -> M
+    ) -> NGet<M>
+}
+
+extension NAnyGet {
+    public func map<M>(
+        up: @escaping @MainActor (Value) -> M
+    ) -> NGet<M> {
+        let newGetter: NGet<M> = .init(get: {
+            up(self.wrappedValue)
+        })
+        
+        self.onChange { newValue in
+            newGetter.signalChange(up(newValue))
+        }
+        
+        return newGetter
+    }
 }
 
 extension NGet: NAnyGet {

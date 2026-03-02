@@ -8,7 +8,6 @@
 @MainActor
 public final class NIf: NView {
     private let binding: NGet<Bool>
-    private let animateChanges: Bool
     private let ifTrue: () -> [NView]
     private let ifElse: () -> [NView]
     private var cachedView: CachedView<Bool>?
@@ -35,11 +34,9 @@ public final class NIf: NView {
         _ binding: NGet<T>,
         _ expression: @escaping (T, T) -> Bool,
         _ expectedResult: T,
-        animateChanges: Bool = false,
         @NViewBuilder ifTrue: @escaping () -> [NView],
         @NViewBuilder else ifElse: @escaping () -> [NView] = { [] }
     ) {
-        self.animateChanges = animateChanges
         self.ifTrue = ifTrue
         self.ifElse = ifElse
         self.binding = binding.map(
@@ -53,11 +50,9 @@ public final class NIf: NView {
     
     public init(
         _ binding: NGet<Bool>,
-        animateChanges: Bool = false,
         @NViewBuilder ifTrue: @escaping () -> [NView],
         @NViewBuilder else ifElse: @escaping () -> [NView] = { [] }
     ) {
-        self.animateChanges = animateChanges
         self.ifTrue = ifTrue
         self.ifElse = ifElse
         self.binding = binding
@@ -68,7 +63,6 @@ public final class NIf: NView {
         _ binding: NBinding<T>,
         _ expression: @escaping (T, T) -> Bool,
         _ expectedResult: T,
-        animateChanges: Bool = false,
         @NViewBuilder ifTrue: @escaping () -> [NView],
         @NViewBuilder else ifElse: @escaping () -> [NView] = { [] }
     ) {
@@ -76,7 +70,6 @@ public final class NIf: NView {
             binding.get,
             expression,
             expectedResult,
-            animateChanges: animateChanges,
             ifTrue: ifTrue,
             else: ifElse
         )
@@ -84,13 +77,11 @@ public final class NIf: NView {
     
     public convenience init(
         _ binding: NBinding<Bool>,
-        animateChanges: Bool = false,
         @NViewBuilder ifTrue: @escaping () -> [NView],
         @NViewBuilder else ifElse: @escaping () -> [NView] = { [] }
     ) {
         self.init(
             binding.get,
-            animateChanges: animateChanges,
             ifTrue: ifTrue,
             else: ifElse
         )
@@ -151,7 +142,7 @@ extension NIf {
                 changes.append(.keep(views: cachedView.views))
                 return changes
             } else {
-                changes.append(.remove(at: 0, count: cachedView.viewsCount, animated: animateChanges))
+                changes.append(.remove(at: 0, count: cachedView.viewsCount))
             }
         }
         
@@ -161,7 +152,7 @@ extension NIf {
             newContents.setParent(parent)
         }
         
-        changes.append(.insert(at: 0, views: newContents, animated: animateChanges))
+        changes.append(.insert(at: 0, views: newContents))
         
         cachedView = .init(
             hash: boolean,

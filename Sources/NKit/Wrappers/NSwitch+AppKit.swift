@@ -17,7 +17,11 @@ open class NSwitch: NSSwitch {
         self.action = #selector(touchAction)
         
         self._stateBinding.onChange { [weak self] in
-            self?.state = $0 ? .on : .off
+            if self?.currentAnimation != nil {
+                self?.animator().state = $0 ? .on : .off
+            } else {
+                self?.state = $0 ? .on : .off
+            }
         }
     }
     

@@ -26,11 +26,10 @@ open class NButton: UIButton {
         
         super.init(frame: .zero)
         
-        self.setTitle(textBinding.wrappedValue, for: .normal)
         self.addTarget(self, action: #selector(touchAction), for: .touchUpInside)
         
-        self._textBinding.onChange {
-            self.setTitle($0, for: .normal)
+        self._textBinding.updating(view: self) { view, value in
+            view.setTitle(value, for: .normal)
         }
     }
     

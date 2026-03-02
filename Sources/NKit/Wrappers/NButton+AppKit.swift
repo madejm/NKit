@@ -49,21 +49,16 @@ open class NButton: NSButton {
         
         self.bezelStyle = bezelStyle
         self.setButtonType(buttonType)
-        self.title = textBinding.wrappedValue
         self.target = self
         self.action = #selector(touchAction)
         
         self.setContentHuggingPriority(.required, for: .horizontal)
         
-        self._textBinding.onChange { [weak self] in
-            self?.title = $0
-        }
+        self._textBinding.updating(view: self, keyPath: \.title)
         
         if let stateBinding {
-            self.setSuperState(stateBinding.wrappedValue)
-            
-            stateBinding.onChange { [weak self] in
-                self?.setSuperState($0)
+            stateBinding.updating(view: self) { view, value in
+                view.setSuperState(value)
             }
         }
     }

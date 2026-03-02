@@ -31,7 +31,6 @@ public final class NInput: NSTextField {
         
         super.init(frame: .zero)
         
-        self.stringValue = textBinding.wrappedValue ?? ""
         self.placeholderString = placeholder
         self.delegate = self
         
@@ -42,8 +41,8 @@ public final class NInput: NSTextField {
         }
         self.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
         
-        self._textBinding.onChange {
-            self.stringValue = $0 ?? ""
+        self._textBinding.updating(view: self) { view, value in
+            view.stringValue = value ?? ""
         }
     }
     

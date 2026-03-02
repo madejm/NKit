@@ -45,13 +45,11 @@ public final class NForEach: NView {
     public init<C>(
         _ data: NGet<C>,
         separator: (() -> NView)? = nil,
-        animateChanges: Bool = false,
         @NViewBuilder content: @escaping (NGet<C.Element>) -> [NView]
     ) where C: RandomAccessCollection, C: Equatable, C.Element: Hashable {
         self.separator = separator
         self.engine = NForEachDynamicCachableEngine(
             data: data,
-            animateChanges: animateChanges,
             content: content
         )
         self.describeTypeOfData = self.engine.describeTypeOfData
@@ -62,13 +60,11 @@ public final class NForEach: NView {
     public convenience init<C>(
         _ data: NBinding<C>,
         separator: (() -> NView)? = nil,
-        animateChanges: Bool = false,
         @NViewBuilder content: @escaping (NGet<C.Element>) -> [NView]
     ) where C: RandomAccessCollection, C: Equatable, C.Element: Hashable {
         self.init(
             data.get,
             separator: separator,
-            animateChanges: animateChanges,
             content: content
         )
     }

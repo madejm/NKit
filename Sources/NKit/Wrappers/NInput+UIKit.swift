@@ -23,13 +23,12 @@ public final class NInput: UITextField {
         
         super.init(frame: .zero)
         
-        self.text = textBinding.wrappedValue ?? ""
         self.placeholder = placeholder
         
         self.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
         
-        self._textBinding.onChange {
-            self.text = $0 ?? ""
+        self._textBinding.updating(view: self) { view, value in
+            view.text = value ?? ""
         }
     }
     

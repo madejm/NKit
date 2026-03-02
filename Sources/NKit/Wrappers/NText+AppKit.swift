@@ -22,7 +22,6 @@ public final class NText: NSTextField {
         
         super.init(frame: .zero)
         
-        self.attributedStringValue = textBinding.wrappedValue
         self.isEditable = false
         self.drawsBackground = false
         self.isBezeled = false
@@ -39,13 +38,16 @@ public final class NText: NSTextField {
             cell.lineBreakMode = .byWordWrapping
         }
         
-        self._textBinding.onChange { [weak self] in
-            self?.attributedStringValue = $0
-            
-            #if DEBUG
-            self?.debugStringValue = $0.string
-            #endif
-        }
+        self._textBinding.updating(
+            view: self,
+            keyPath: \.attributedStringValue,
+            animationTransitionType: .fade,
+            additionalUpdates: {
+                #if DEBUG
+                $0.debugStringValue = $1.string
+                #endif
+            }
+        )
     }
     
     @available(*, unavailable)
