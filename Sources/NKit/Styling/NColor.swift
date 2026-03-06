@@ -4,7 +4,11 @@ import AppKit
 #elseif canImport(UIKit)
 import UIKit
 #endif
+#if DEBUG
+import SwiftUI
+#endif
 
+@dynamicMemberLookup
 public final class NColor: BaseView {
     @NGet private var colorBinding: _Color
     
@@ -27,6 +31,11 @@ public final class NColor: BaseView {
             self?.backgroundColor = newColor
         }
     }
+    
+    public static subscript(dynamicMember dynamicMember: KeyPath<_Color.Type, _Color>) -> NColor {
+        let color: _Color = _Color.self[keyPath: dynamicMember]
+        return NColor(color)
+    }
 }
 
 extension _Color {
@@ -47,3 +56,17 @@ extension _Color: NView {
         NColor(self)
     }
 }
+
+#if DEBUG
+#Preview {
+    NViewPreview {
+        NVStack {
+            NColor(.red)
+            
+            NColor.red
+            
+            _Color.red
+        }
+    }
+}
+#endif

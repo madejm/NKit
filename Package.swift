@@ -28,6 +28,9 @@ let package = Package(
             dependencies: [
                 "NKitHook",
                 "FixedArray"
+            ],
+            resources: [
+                .process("PreviewAssets.xcassets")
             ]
         ),
         .testTarget(

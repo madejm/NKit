@@ -53,5 +53,24 @@ extension NSView {
             self.layer?.backgroundColor = newValue?.cgColor
         }
     }
+    
+    @inline(__always)
+    internal func forceBackgroundColor(_ color: NSColor?) {
+        guard let color else {
+            return
+        }
+        if self.layer == nil {
+            self.layer = CALayer()
+            self.wantsLayer = true
+        }
+        self.layer?.backgroundColor = color.cgColor
+    }
+}
+#elseif canImport(UIKit)
+extension UIView {
+    @inline(__always)
+    internal func forceBackgroundColor(_ color: _Color?) {
+        self.backgroundColor = color
+    }
 }
 #endif

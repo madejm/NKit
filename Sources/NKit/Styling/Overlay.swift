@@ -168,4 +168,26 @@ extension _View {
         .padding(20)
     }
 }
+
+#Preview {
+    NViewPreview {
+        NVStack {
+            NColor.blue
+                .frame(width: 200, height: 200)
+                .overlay {
+                    NImage(_Image(named: "lena", in: .module)!)
+                        .opacity(0.5)
+                }
+            
+            NColor.red
+                .opacity(0.5)
+                .frame(width: 200, height: 200)
+                .background {
+                    NImage(_Image(named: "lena", in: .module)!)
+                }
+            
+        }
+        .padding(20)
+    }
+}
 #endif

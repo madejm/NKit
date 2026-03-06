@@ -15,6 +15,7 @@ open class NScrollView: NSScrollView {
         
         content.translatesAutoresizingMaskIntoConstraints = false
         self.documentView = content
+        self.contentView.drawsBackground = false
         
         NSLayoutConstraint.activate {
             NEdge.Set(.top, .leading).constraints(superview: self.contentView, subview: content)
