@@ -21,9 +21,7 @@ open class NImage: UIImageView {
         self.setContentCompressionResistancePriority(.fittingSizeLevel, for: .horizontal)
         self.setContentCompressionResistancePriority(.fittingSizeLevel, for: .vertical)
         
-        self._imageBinding.updating(view: self) { view, value in
-            view.image = value
-        }
+        bind(imageBinding, to: \.image)
     }
     
     @available(*, unavailable)

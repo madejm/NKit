@@ -3,44 +3,77 @@ import Foundation
 import UIKit
 
 public final class NText: UILabel {
-    @NGet private var textBinding: NSAttributedString
     
     #if DEBUG
-    nonisolated(unsafe) internal var debugStringValue: String
+    nonisolated(unsafe) internal var debugStringValue: String = ""
     #endif
     
-    public init(
+    public convenience init(
+        _ textBinding: NGet<String>,
+        alignment: NSTextAlignment = .left,
+        multiline: Bool = true
+    ) {
+        self.init(
+            alignment: alignment,
+            multiline: multiline
+        )
+        
+        #if DEBUG
+        self.debugStringValue = textBinding.wrappedValue
+        #endif
+        
+        bind(
+            textBinding,
+            to: \.text,
+            animationTransitionType: .fade,
+            additionalUpdates: { [weak self] in
+                #if DEBUG
+                self?.debugStringValue = $0
+                #endif
+            }
+        )
+    }
+    
+    public convenience init(
         _ textBinding: NGet<NSAttributedString>,
         alignment: NSTextAlignment = .left,
-        multiline: Bool = false
+        multiline: Bool = true
     ) {
-        self._textBinding = textBinding
+        self.init(
+            alignment: alignment,
+            multiline: multiline
+        )
         
         #if DEBUG
         self.debugStringValue = textBinding.wrappedValue.string
         #endif
         
+        bind(
+            textBinding,
+            to: \.attributedText,
+            animationTransitionType: .fade,
+            additionalUpdates: { [weak self] in
+                #if DEBUG
+                self?.debugStringValue = $0.string
+                #endif
+            }
+        )
+    }
+    
+    private init(
+        alignment: NSTextAlignment,
+        multiline: Bool = false
+    ) {
         super.init(frame: .zero)
         
         self.textAlignment = alignment
-        self.setContentHuggingPriority(.required, for: .horizontal)
+        self.setContentHuggingPriority(.fittingSizeLevel, for: .horizontal)
         self.setContentHuggingPriority(.required, for: .vertical)
         self.setContentCompressionResistancePriority(.required, for: .horizontal)
         self.setContentCompressionResistancePriority(.required, for: .vertical)
         
         self.numberOfLines = 0
         self.lineBreakMode = .byWordWrapping
-        
-        self._textBinding.updating(
-            view: self,
-            keyPath: \.attributedText,
-            animationTransitionType: .fade,
-            additionalUpdates: {
-                #if DEBUG
-                $0.debugStringValue = $1.string
-                #endif
-            }
-        )
     }
     
     @available(*, unavailable)

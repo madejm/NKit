@@ -3,23 +3,67 @@ import Foundation
 import AppKit
 
 public final class NText: NSTextField {
-    @NGet private var textBinding: NSAttributedString
     
     #if DEBUG
-    nonisolated(unsafe) internal var debugStringValue: String
+    nonisolated(unsafe) internal var debugStringValue: String = ""
     #endif
     
-    public init(
+    public convenience init(
+        _ textBinding: NGet<String>,
+        alignment: NSTextAlignment = .left,
+        multiline: Bool = true
+    ) {
+        self.init(
+            alignment: alignment,
+            multiline: multiline
+        )
+        
+        #if DEBUG
+        self.debugStringValue = textBinding.wrappedValue
+        #endif
+        
+        bind(
+            textBinding,
+            to: \.stringValue,
+            animationTransitionType: .fade,
+            additionalUpdates: { [weak self] in
+                #if DEBUG
+                self?.debugStringValue = $0
+                #endif
+            }
+        )
+    }
+    
+    public convenience init(
         _ textBinding: NGet<NSAttributedString>,
         alignment: NSTextAlignment = .left,
         multiline: Bool = true
     ) {
-        self._textBinding = textBinding
+        self.init(
+            alignment: alignment,
+            multiline: multiline
+        )
         
         #if DEBUG
         self.debugStringValue = textBinding.wrappedValue.string
         #endif
-        
+            
+        bind(
+            textBinding,
+            to: \.attributedStringValue,
+            animationTransitionType: .fade,
+            additionalUpdates: { [weak self] in
+                #if DEBUG
+                self?.debugStringValue = $0.string
+                #endif
+            }
+        )
+    }
+    
+    private init(
+        alignment: NSTextAlignment,
+        multiline: Bool
+    ) {
         super.init(frame: .zero)
         
         self.isEditable = false
@@ -37,17 +81,6 @@ public final class NText: NSTextField {
             cell.wraps = multiline
             cell.lineBreakMode = .byWordWrapping
         }
-        
-        self._textBinding.updating(
-            view: self,
-            keyPath: \.attributedStringValue,
-            animationTransitionType: .fade,
-            additionalUpdates: {
-                #if DEBUG
-                $0.debugStringValue = $1.string
-                #endif
-            }
-        )
     }
     
     @available(*, unavailable)

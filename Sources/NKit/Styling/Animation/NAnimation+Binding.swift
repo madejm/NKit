@@ -5,62 +5,73 @@ import AppKit
 import UIKit
 #endif
 
-extension NAnyGet {
-    public func updating<View>(
-        view: View,
-        keyPath: WritableKeyPath<View, Value?>,
+@MainActor
+public protocol _Bindable {
+}
+
+extension _View: _Bindable {
+}
+
+extension _Bindable where Self: _View {
+    public func bind<Value>(
+        _ binding: any NAnyGet<Value>,
+        to keyPath: WritableKeyPath<Self, Value?>,
         setInitial: Bool = true,
         animationTransitionType: CATransitionType = .fade,
-        additionalUpdates: ((_ view: View, _ newValue: Value) -> Void)? = nil
-    ) where View: _View {
-        self.updating(
-            view: view,
+        additionalUpdates: ((_ newValue: Value) -> Void)? = nil
+    ) {
+        self.bind(
+            binding,
             setInitial: setInitial,
             animationTransitionType: animationTransitionType,
-            set: { view, value in
-                var copy = view
-                copy[keyPath: keyPath] = value
-                additionalUpdates?(view, value)
+            set: { [weak self] value in
+                guard var self else {
+                    return
+                }
+                self[keyPath: keyPath] = value
+                additionalUpdates?(value)
             }
         )
     }
     
-    public func updating<View>(
-        view: View,
-        keyPath: WritableKeyPath<View, Value>,
+    public func bind<Value>(
+        _ binding: any NAnyGet<Value>,
+        to keyPath: WritableKeyPath<Self, Value>,
         setInitial: Bool = true,
         animationTransitionType: CATransitionType = .fade,
-        additionalUpdates: ((_ view: View, _ newValue: Value) -> Void)? = nil
-    ) where View: _View {
-        self.updating(
-            view: view,
+        additionalUpdates: ((_ newValue: Value) -> Void)? = nil
+    ) {
+        self.bind(
+            binding,
             setInitial: setInitial,
             animationTransitionType: animationTransitionType,
-            set: { view, value in
-                var copy = view
-                copy[keyPath: keyPath] = value
-                additionalUpdates?(view, value)
+            set: { [weak self] value in
+                guard var self else {
+                    return
+                }
+                self[keyPath: keyPath] = value
+                additionalUpdates?(value)
             }
         )
     }
     
-    public func updating<View>(
-        view: View,
+    public func bind<Value>(
+        _ binding: any NAnyGet<Value>,
         setInitial: Bool = true,
         animationTransitionType: CATransitionType = .fade,
-        set setClosure: @escaping (_ view: View, _ value: Value) -> Void
-    ) where View: _View {
+        set setClosure: @escaping (_ value: Value) -> Void
+    ) {
         if setInitial {
-            let initialValue: Value = self.wrappedValue
-            setClosure(view, initialValue)
+            let initialValue: Value = binding.wrappedValue
+            setClosure(initialValue)
         }
         
-        self.onChange { [weak view] in
-            guard var view else {
+        binding.onChange { [weak self] in
+            guard var self else {
                 return
             }
             
-            let animation: NAnimation? = view.currentAnimation
+            let animation: NAnimation? = self.currentAnimation
             
             if let animation {
                 let transition = CATransition()
@@ -68,16 +79,16 @@ extension NAnyGet {
                 transition.duration = animation.duration
                 transition.timingFunction = animation.timingFunction
                 #if canImport(AppKit)
-                view.layer?.add(transition, forKey: kCATransition)
+                self.layer?.add(transition, forKey: kCATransition)
                 #elseif canImport(UIKit)
-                view.layer.add(transition, forKey: kCATransition)
+                self.layer.add(transition, forKey: kCATransition)
                 #endif
             }
             
-            setClosure(view, $0)
+            setClosure($0)
             
             if animation != nil {
-                view.layoutIfNeeded()
+                self.layoutIfNeeded()
             }
         }
     }

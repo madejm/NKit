@@ -87,6 +87,40 @@ public final class NIf: NView {
         )
     }
     
+    public init<T>(
+        _ binding: NGet<T?>,
+        @NViewBuilder ifTrue: @escaping (NGet<T>) -> [NView],
+        @NViewBuilder else ifElse: @escaping () -> [NView] = { [] }
+    ) {
+        self.ifTrue = {
+            ifTrue(binding.map(up: { optionalValue in
+                guard let optionalValue else {
+                    fatalError()
+                }
+                return optionalValue
+            }))
+        }
+        self.ifElse = ifElse
+        self.binding = binding.map(
+            up: {
+                $0 != nil
+            }
+        )
+        self.releaseChecker.prepare(self)
+    }
+    
+    public convenience init<T>(
+        _ binding: NBinding<T?>,
+        @NViewBuilder ifTrue: @escaping (NGet<T>) -> [NView],
+        @NViewBuilder else ifElse: @escaping () -> [NView] = { [] }
+    ) {
+        self.init(
+            binding.get,
+            ifTrue: ifTrue,
+            else: ifElse
+        )
+    }
+    
     deinit {
         self.releaseChecker.confirm()
     }

@@ -22,9 +22,9 @@ open class NCheckbox: NSButton {
         self.setContentHuggingPriority(.required, for: .horizontal)
         self.setContentHuggingPriority(.required, for: .vertical)
         
-        self._titleBinding.updating(view: self, keyPath: \.title)
-        self._stateBinding.updating(view: self) { view, value in
-            view.state = value ? .on : .off
+        bind(titleBinding, to: \.title)
+        bind(stateBinding) { [weak self] in
+            self?.state = $0 ? .on : .off
         }
     }
     

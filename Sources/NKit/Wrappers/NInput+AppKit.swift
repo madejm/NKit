@@ -41,8 +41,8 @@ public final class NInput: NSTextField {
         }
         self.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
         
-        self._textBinding.updating(view: self) { view, value in
-            view.stringValue = value ?? ""
+        bind(textBinding) { [weak self] in
+            self?.stringValue = $0 ?? ""
         }
     }
     

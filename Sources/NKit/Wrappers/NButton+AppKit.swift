@@ -3,8 +3,8 @@ import Foundation
 import AppKit
 
 open class NButton: NSButton {
-    @NGet private var textBinding: String
     private let buttonAction: (NButton) -> Void
+    private let textBinding: NGet<String>?
     private let stateBinding: NBinding<NSControl.StateValue>?
     
     open override var state: NSControl.StateValue {
@@ -41,7 +41,7 @@ open class NButton: NSButton {
         state stateBinding: NBinding<NSControl.StateValue>? = nil,
         @_inheritActorContext action: @escaping (NButton) -> Void
     ) {
-        self._textBinding = textBinding
+        self.textBinding = textBinding
         self.buttonAction = action
         self.stateBinding = stateBinding
         
@@ -54,13 +54,35 @@ open class NButton: NSButton {
         
         self.setContentHuggingPriority(.required, for: .horizontal)
         
-        self._textBinding.updating(view: self, keyPath: \.title)
+        bind(textBinding, to: \.title)
         
         if let stateBinding {
-            stateBinding.updating(view: self) { view, value in
-                view.setSuperState(value)
+            bind(stateBinding) { [weak self] in
+                self?.setSuperState($0)
             }
         }
+    }
+    
+    public init(
+        @_inheritActorContext action: @escaping (NButton) -> Void,
+        label: () -> _View
+    ) {
+        self.textBinding = nil
+        self.stateBinding = nil
+        self.buttonAction = action
+        
+        super.init(frame: .zero)
+        
+        self.title = ""
+        self.bezelStyle = .flexiblePush
+        self.setButtonType(.momentaryPushIn)
+        self.target = self
+        self.action = #selector(touchAction)
+        
+        self.setContentHuggingPriority(.required, for: .horizontal)
+        
+        let customView: _View = label()
+        addSubviewAutomatically(customView)
     }
     
     private func setSuperState(_ newState: NSControl.StateValue) {

@@ -4,13 +4,9 @@ import FixedArray
 extension NGet {
     public func map<M>(
         optional: @escaping @MainActor (Value) -> M?
-    ) -> NGet<M> {
-        let newGetter: NGet<M> = .init(get: {
-            if let mappedOptional = optional(self.wrappedValue) {
-                return mappedOptional
-            } else {
-                fatalError("Get index out of range")
-            }
+    ) -> NGet<M?> {
+        let newGetter: NGet<M?> = .init(get: {
+            optional(self.wrappedValue)
         })
         
         self.onChange { newValue in

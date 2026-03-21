@@ -25,10 +25,12 @@ extension _View {
             self?.firstViewInStack?.isHidden = initialValue
         }
         
-        hiddenBinding.updating(view: self, setInitial: false) { view, value in
-            
-            let firstView = view.firstViewInStack
-            let stack = view.firstStack
+        bind(hiddenBinding, setInitial: false) { [weak self] value in
+            guard let self else {
+                return
+            }
+            let firstView = self.firstViewInStack
+            let stack = self.firstStack
             
             firstView?.isHidden = value
             firstView?.layoutIfNeeded()

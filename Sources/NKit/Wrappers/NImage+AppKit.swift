@@ -33,9 +33,7 @@ open class NImage: NSImageView {
         self.setContentCompressionResistancePriority(.fittingSizeCompression, for: .horizontal)
         self.setContentCompressionResistancePriority(.fittingSizeCompression, for: .vertical)
         
-        self._imageBinding.updating(view: self) { view, value in
-            view.image = value
-        }
+        bind(imageBinding, to: \.image)
     }
     
     @available(*, unavailable)

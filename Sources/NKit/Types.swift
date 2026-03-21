@@ -27,4 +27,10 @@ extension HasApply {
         
         return self
     }
+    
+    public func modify(
+        _ modifier: (Self) -> _View
+    ) -> _View {
+        modifier(self)
+    }
 }

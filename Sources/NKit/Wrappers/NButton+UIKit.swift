@@ -3,8 +3,8 @@ import Foundation
 import UIKit
 
 open class NButton: UIButton {
-    @NGet private var textBinding: String
     private let buttonAction: (NButton) -> Void
+    private let textBinding: NGet<String>?
     
     public convenience init(
         _ textBinding: NGet<String>,
@@ -21,16 +21,32 @@ open class NButton: UIButton {
         _ textBinding: NGet<String>,
         action: @escaping @MainActor (NButton) -> Void
     ) {
-        self._textBinding = textBinding
+        self.textBinding = textBinding
         self.buttonAction = action
         
         super.init(frame: .zero)
         
         self.addTarget(self, action: #selector(touchAction), for: .touchUpInside)
         
-        self._textBinding.updating(view: self) { view, value in
-            view.setTitle(value, for: .normal)
+        bind(textBinding) { [weak self] in
+            self?.setTitle($0, for: .normal)
         }
+    }
+    
+    public init(
+        action: @escaping @MainActor (NButton) -> Void,
+        label: () -> _View
+    ) {
+        self.textBinding = nil
+        self.buttonAction = action
+        
+        super.init(frame: .zero)
+        
+        self.addTarget(self, action: #selector(touchAction), for: .touchUpInside)
+        
+        let customView: _View = label()
+        customView.isUserInteractionEnabled = false
+        addSubviewAutomatically(customView)
     }
     
     @available(*, unavailable)

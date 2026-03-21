@@ -26,12 +26,15 @@ where C: Equatable, C: RandomAccessCollection, C.Index == Int, C.Element: Equata
         self.segmentCount = values.wrappedValue.count
         self.selectedSegment = selection.wrappedValue
         
-        self._values.updating(view: self, setInitial: false) { view, values in
-            view.segmentCount = values.count
-            if view.selectedSegment < view.segmentCount, view.selectedSegment >= 0 {
-                view.selection = view.selection
+        bind(values, setInitial: false) { [weak self] in
+            guard let self else {
+                return
+            }
+            self.segmentCount = $0.count
+            if self.selectedSegment < self.segmentCount, self.selectedSegment >= 0 {
+                self.selection = self.selection
             } else {
-                view.selection = 0
+                self.selection = 0
             }
         }
         

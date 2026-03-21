@@ -32,9 +32,9 @@ extension NGet: @preconcurrency Collection where Value: Collection, Value.Elemen
     
     public subscript(position: NGet<Value>.Index) -> NGet<Value>.Element {
         self.map(
-            optional: { (collection: Value) -> Value.Element? in
+            up: { (collection: Value) -> Value.Element in
                 guard position < collection.endIndex else {
-                    return nil
+                    fatalError()
                 }
                 return collection[position]
             }

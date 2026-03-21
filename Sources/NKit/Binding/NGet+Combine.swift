@@ -10,10 +10,10 @@ extension NGet {
         }
     }
     
-    public static func combine<T>(
-        _ one: any NAnyGet<T>,
-        _ two: any NAnyGet<T>,
-        operation: @escaping @MainActor (T, T) -> Value
+    public static func combine<A, B>(
+        _ one: any NAnyGet<A>,
+        _ two: any NAnyGet<B>,
+        operation: @escaping @MainActor (A, B) -> Value
     ) -> NGet<Value> {
         let newGet: NGet<Value> = .init(get: {
             operation(one.wrappedValue, two.wrappedValue)

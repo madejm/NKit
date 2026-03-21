@@ -95,20 +95,6 @@ extension NText {
     }
     
     public convenience init(
-        _ textBinding: NGet<String>,
-        alignment: NSTextAlignment = .left,
-        multiline: Bool = true
-    ) {
-        self.init(
-            textBinding.map(up: {
-                NSAttributedString(string: $0)
-            }),
-            alignment: alignment,
-            multiline: multiline
-        )
-    }
-    
-    public convenience init(
         _ textBinding: NGet<String?>,
         alignment: NSTextAlignment = .left,
         multiline: Bool = true
@@ -118,5 +104,16 @@ extension NText {
             alignment: alignment,
             multiline: multiline
         )
+    }
+}
+
+extension NText {
+    public func foregroundStyle(_ color: _Color) -> Self {
+        #if canImport(AppKit)
+        self.textColor = color
+        #elseif canImport(UIKit)
+        self.textColor = color
+        #endif
+        return self
     }
 }
