@@ -93,12 +93,16 @@ public final class NIf: NView {
         @NViewBuilder else ifElse: @escaping () -> [NView] = { [] }
     ) {
         self.ifTrue = {
-            ifTrue(binding.map(up: { optionalValue in
+            var lastValue: T = binding.wrappedValue!
+            let newGet: NGet<T> = binding.map(up: { optionalValue in
                 guard let optionalValue else {
-                    fatalError()
+                    return lastValue
                 }
+                lastValue = optionalValue
                 return optionalValue
-            }))
+            })
+            
+            return ifTrue(newGet)
         }
         self.ifElse = ifElse
         self.binding = binding.map(

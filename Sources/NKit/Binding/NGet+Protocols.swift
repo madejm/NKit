@@ -31,14 +31,23 @@ extension NGet: @preconcurrency Collection where Value: Collection, Value.Elemen
     }
     
     public subscript(position: NGet<Value>.Index) -> NGet<Value>.Element {
-        self.map(
-            up: { (collection: Value) -> Value.Element in
-                guard position < collection.endIndex else {
+        let newGetter: NGet<Value.Element> = .init(
+            get: { () -> Value.Element in
+                guard position < self.wrappedValue.endIndex else {
                     fatalError()
                 }
-                return collection[position]
+                return self.wrappedValue[position]
             }
         )
+        
+        self.onChange { (newValue: Value) in
+            guard position < newValue.endIndex else {
+                return
+            }
+            newGetter.signalChange(newValue[position])
+        }
+        
+        return newGetter
     }
 }
 
