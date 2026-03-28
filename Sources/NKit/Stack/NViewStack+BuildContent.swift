@@ -18,10 +18,7 @@ extension NViewStack {
         
         let readyContent: [NView] = self.content()
         
-        self.retainedDynamicViews = readyContent
-            .compactMap {
-                $0 as? NCacheable
-            }
+        self.retainedDynamicViews = readyContent.flatMapCacheables()
         
         for i in 0..<readyContent.count {
             let nView: NView = readyContent[i]
@@ -119,5 +116,19 @@ extension NViewStack {
             self.stack.addArrangedSubview(subview)
         }
         self.stack.updateDimmensionConstraints()
+    }
+}
+
+extension Array where Element == NView {
+    fileprivate func flatMapCacheables() -> [NCacheable] {
+        self.flatMap {
+            if let cacheable = $0 as? NCacheable {
+                return [cacheable]
+            } else if let array = $0 as? [NView] {
+                return array.flatMapCacheables()
+            } else {
+                return []
+            }
+        }
     }
 }
