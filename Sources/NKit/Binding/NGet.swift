@@ -7,7 +7,7 @@ public final class NGet<Value: Equatable> {
     private let getClosure: () -> Value
     
     private var cancellables = Set<AnyCancellable>()
-    private var onSets: [PassthroughSubject<Value, Never>] = []
+    private let onSet = PassthroughSubject<Value, Never>()
     
     public var wrappedValue: Value {
         self.getClosure()
@@ -24,24 +24,24 @@ public final class NGet<Value: Equatable> {
     }
     
     internal func signalChange(_ newValue: Value) {
-        self.onSets.forEach { subject in
-            subject.send(newValue)
-        }
+        self.onSet.send(newValue)
+    }
+    
+    public var publisher: AnyPublisher<Value, Never> {
+        onSet
+            .removeDuplicates()
+            .eraseToAnyPublisher()
     }
     
     public func onChange(
         _ new: @escaping (Value) -> Void
     ) {
-        let subject = PassthroughSubject<Value, Never>()
-        
-        subject
+        onSet
             .removeDuplicates()
             .sink { newValue in
                 new(newValue)
             }
             .store(in: &cancellables)
-        
-        onSets.append(subject)
     }
 }
 
