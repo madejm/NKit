@@ -8,18 +8,28 @@ import UIKit
 import SwiftUI
 #endif
 
+protocol NCustomBorder where Self: _View {
+    var borderWidth: CGFloat { get set }
+    var borderColor: CGColor? { get set }
+}
+
 extension _View {
     public func border(
         _ color: _Color,
         width: CGFloat = 1
     ) -> Self {
-        #if canImport(AppKit)
-        self.layer?.borderWidth = width
-        self.layer?.borderColor = color.cgColor
-        #elseif canImport(UIKit)
-        self.layer.borderWidth = width
-        self.layer.borderColor = color.cgColor
-        #endif
+        if let custom = self as? NCustomBorder {
+            custom.borderWidth = width
+            custom.borderColor = color.cgColor
+        } else {
+            #if canImport(AppKit)
+            self.layer?.borderWidth = width
+            self.layer?.borderColor = color.cgColor
+            #elseif canImport(UIKit)
+            self.layer.borderWidth = width
+            self.layer.borderColor = color.cgColor
+            #endif
+        }
         
         return self
     }

@@ -23,7 +23,7 @@ private final class NClipShapeView: BaseView {
     
     private let shape: NShape
     private let subview: _View
-    private let shapeLayer = CAShapeLayer()
+    private let maskLayer = CAShapeLayer()
     
     internal init(
         shape: NShape,
@@ -47,20 +47,20 @@ private final class NClipShapeView: BaseView {
         super.layout()
         
         let path: NSBezierPath = shape.bezierPath(in: bounds)
-        shapeLayer.frame = bounds
-        shapeLayer.path = path.quartzPath
+        maskLayer.frame = bounds
+        maskLayer.path = path.quartzPath
         
-        subview.layer?.mask = shapeLayer
+        subview.layer?.mask = maskLayer
     }
     #elseif canImport(UIKit)
     override func layoutSubviews() {
         super.layoutSubviews()
         
         let path: UIBezierPath = shape.bezierPath(in: bounds)
-        shapeLayer.frame = bounds
-        shapeLayer.path = path.cgPath
+        maskLayer.frame = bounds
+        maskLayer.path = path.cgPath
         
-        subview.layer.mask = shapeLayer
+        subview.layer.mask = maskLayer
     }
     #endif
 }
@@ -91,6 +91,7 @@ private final class NClipShapeView: BaseView {
                         NForEach(colorShapes) { colorShape in
                             NColor(colorShape.0)
                                 .clipShape(colorShape.1)
+                                .border(.white, width: 4)
                                 .frame(width: 150, height: 100)
                         }
                     }
@@ -98,6 +99,7 @@ private final class NClipShapeView: BaseView {
             }
         }
         .padding(20)
+        .background(.black)
     }
 }
 #endif

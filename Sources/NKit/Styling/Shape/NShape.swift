@@ -169,6 +169,7 @@ public enum NRoundedCornerStyle: Equatable, Hashable, Sendable, CaseIterable {
             NVStack {
                 NRectangle()
                     .fill(.yellow)
+                    .border(.white, width: 4)
                     .frame(width: 150, height: 100)
                 
                 NHStack {
@@ -176,6 +177,7 @@ public enum NRoundedCornerStyle: Equatable, Hashable, Sendable, CaseIterable {
                         NVStack {
                             NCapsule(style: style)
                                 .fill(.green)
+                                .border(.white, width: 4)
                                 .frame(width: 150, height: 100)
                             
                             NRoundedRectangle(
@@ -183,6 +185,7 @@ public enum NRoundedCornerStyle: Equatable, Hashable, Sendable, CaseIterable {
                                 style: style
                             )
                             .fill(.blue)
+                            .border(.white, width: 4)
                             .frame(width: 150, height: 100)
                             
                             NUnevenRoundedRectangle(
@@ -193,6 +196,7 @@ public enum NRoundedCornerStyle: Equatable, Hashable, Sendable, CaseIterable {
                                 style: style
                             )
                             .fill(.purple)
+                            .border(.white, width: 4)
                             .frame(width: 150, height: 100)
                         }
                     }
@@ -200,14 +204,17 @@ public enum NRoundedCornerStyle: Equatable, Hashable, Sendable, CaseIterable {
                 
                 NEllipse()
                     .fill(.red)
+                    .border(.white, width: 4)
                     .frame(width: 150, height: 100)
                 
                 NCircle()
                     .fill(.orange)
+                    .border(.white, width: 4)
                     .frame(width: 150, height: 100)
             }
         }
         .padding(20)
+        .background(.black)
     }
 }
 #endif

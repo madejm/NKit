@@ -106,14 +106,3 @@ extension NText {
         )
     }
 }
-
-extension NText {
-    public func foregroundStyle(_ color: _Color) -> Self {
-        #if canImport(AppKit)
-        self.textColor = color
-        #elseif canImport(UIKit)
-        self.textColor = color
-        #endif
-        return self
-    }
-}

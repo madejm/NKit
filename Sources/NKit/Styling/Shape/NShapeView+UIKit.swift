@@ -8,7 +8,7 @@ internal final class NShapeView: UIView {
        CAShapeLayer.classForCoder()
     }
     
-    private var shapeLayer: CAShapeLayer? {
+    internal var shapeLayer: CAShapeLayer? {
         layer as? CAShapeLayer
     }
     
@@ -30,11 +30,41 @@ internal final class NShapeView: UIView {
     override func layoutSubviews() {
         super.layoutSubviews()
         
-        let path: UIBezierPath = shape.bezierPath(in: bounds)
+        guard let shapeLayer else {
+            return
+        }
         
-        shapeLayer?.frame = frame
-        shapeLayer?.path = path.cgPath
-        shapeLayer?.fillColor = color.cgColor
+        let pathRect: CGRect = CGRect(
+            x: bounds.origin.x + shapeLayer.lineWidth/2,
+            y: bounds.origin.y + shapeLayer.lineWidth/2,
+            width: bounds.size.width - shapeLayer.lineWidth,
+            height: bounds.size.height - shapeLayer.lineWidth
+        )
+        let path: UIBezierPath = shape.bezierPath(in: pathRect)
+        
+        shapeLayer.frame = frame
+        shapeLayer.path = path.cgPath
+        shapeLayer.fillColor = color.cgColor
+    }
+}
+
+extension NShapeView: NCustomBorder {
+    var borderWidth: CGFloat {
+        get {
+            shapeLayer?.lineWidth ?? 0
+        }
+        set {
+            shapeLayer?.lineWidth = newValue
+        }
+    }
+    
+    var borderColor: CGColor? {
+        get {
+            shapeLayer?.strokeColor
+        }
+        set {
+            shapeLayer?.strokeColor = newValue
+        }
     }
 }
 #endif
