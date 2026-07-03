@@ -8,6 +8,18 @@ import UIKit
 
 extension _View {
     public func onChange<Value>(
+        of get: NGet<Value>,
+        perform action: @escaping (Value) -> Void
+    ) -> Self {
+        get
+            .onChange {
+                action($0)
+            }
+        
+        return self
+    }
+    
+    public func onChange<Value>(
         of binding: NBinding<Value>,
         perform action: @escaping (Value) -> Void
     ) -> Self {

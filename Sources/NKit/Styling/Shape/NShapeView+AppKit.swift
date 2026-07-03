@@ -17,7 +17,9 @@ internal final class NShapeView: NSView {
         
         super.init(frame: .zero)
         
-        self.layer = CAShapeLayer()
+        let shapeLayer = CAShapeLayer()
+        shapeLayer.lineWidth = 0
+        self.layer = shapeLayer
     }
     
     @available(*, unavailable)

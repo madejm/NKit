@@ -6,7 +6,7 @@ import UIKit
 public struct NViewControllerPreview<ViewController: UIViewController>: UIViewControllerRepresentable {
     private let viewController: ViewController
 
-    public init(_ builder: @escaping @MainActor () -> ViewController) {
+    public init(_ builder: @MainActor () -> ViewController) {
         viewController = builder()
     }
     
@@ -45,11 +45,11 @@ private final class _RepresentableWrapperView: UIView {
 public struct NViewPreview: UIViewRepresentable {
     private let view: UIView
     
-    public init<View: UIView>(_ builder: @escaping () -> View) {
+    public init<View: UIView>(_ builder: @MainActor () -> View) {
         view = builder()
     }
     
-    public init<View: NView>(_ builder: @escaping () -> View) {
+    public init<View: NView>(_ builder: @MainActor () -> View) {
         view = builder().body
     }
     

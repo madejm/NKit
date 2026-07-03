@@ -45,7 +45,7 @@ extension _View {
 #if canImport(AppKit)
 extension NSView {
     @inline(__always)
-    internal var backgroundColor: NSColor? {
+    public var backgroundColor: NSColor? {
         get {
             self.layer?.backgroundColor.flatMap { NSColor(cgColor: $0) }
         }
