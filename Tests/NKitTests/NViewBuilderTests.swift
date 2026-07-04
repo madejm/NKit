@@ -152,8 +152,8 @@ extension Array where Element == NView {
         
         for element in self {
             switch element.unpacked {
-            case .controlledView(let controlledView):
-                fatalError("Unhandled: \(controlledView)")
+//            case .controlledView(let controlledView):
+//                fatalError("Unhandled: \(controlledView)")
             case .view(let view):
                 result.append(view)
             case .array(let array):

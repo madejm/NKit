@@ -15,7 +15,7 @@ final class TextTests {
     
     func createText(_ get: NGet<String>) -> NText {
         print("✨ Creating view: \(get.wrappedValue)")
-        let text = Text(get)
+        let text = NText(get)
         newViewsCreated += 1
         return text
     }

@@ -8,7 +8,7 @@
 import Testing
 @testable import NKit
 
-extension ViewStack {
+extension NViewStack {
     @MainActor
     func check(
         _ subviews: (
@@ -37,8 +37,8 @@ extension ViewStack {
 
 extension _View {
     var asText: String? {
-        #expect(self is Text)
-        let text = self as? Text
+        #expect(self is NText)
+        let text = self as? NText
         #if canImport(AppKit)
         return text?.stringValue
         #elseif canImport(UIKit)
@@ -47,8 +47,8 @@ extension _View {
     }
     
     var asStack: _Stack? {
-        #expect(self is ViewStack)
-        let viewStack = self as? ViewStack
+        #expect(self is NViewStack)
+        let viewStack = self as? NViewStack
         return viewStack?.stack
     }
 }

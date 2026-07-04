@@ -142,6 +142,6 @@ struct ViewTests {
     }
     
     private func text(index: String, postfix: String?) -> NView {
-        Text("Text \(index)" + (postfix.map({ "_\($0)" }) ?? ""))
+        NText("Text \(index)" + (postfix.map({ "_\($0)" }) ?? ""))
     }
 }

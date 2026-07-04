@@ -6,6 +6,7 @@ import UIKit
 #endif
 
 extension NText {
+    @_disfavoredOverload
     public convenience init(
         _ text: NSAttributedString,
         alignment: NSTextAlignment = .left,
@@ -18,6 +19,7 @@ extension NText {
         )
     }
     
+    @_disfavoredOverload
     public convenience init(
         _ text: String,
         alignment: NSTextAlignment = .left,

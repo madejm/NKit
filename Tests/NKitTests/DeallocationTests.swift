@@ -13,7 +13,7 @@ struct DeallocationTests {
     }
     
     func createText(_ string: String) -> NText {
-        let text = Text(string)
+        let text = NText(string)
         newViewsCreated += 1
         self.viewChecker.append(text)
         return text

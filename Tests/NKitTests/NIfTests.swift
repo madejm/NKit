@@ -21,7 +21,7 @@ struct NIfTests {
     
     func createText(_ string: String) -> NText {
         print("✨ Creating static view: \(string)")
-        let text = Text(string)
+        let text = NText(string)
         newViewsCreated += 1
         self.viewChecker.append(text)
         return text

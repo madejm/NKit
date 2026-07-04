@@ -72,7 +72,7 @@ extension DeallocationChecker {
         }
         
         fileprivate var _customMirror: Mirror {
-            if let tf = element as? Text {
+            if let tf = element as? NText {
                 #if canImport(AppKit)
                 return Mirror(self, children: ["stringValue": tf.stringValue])
                 #elseif canImport(UIKit)

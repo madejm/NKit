@@ -15,7 +15,7 @@ struct NForEachReplacingTests {
     
     func createText(_ string: String) -> NText {
         print("✨ Creating static view: \(string)")
-        let text = Text(string)
+        let text = NText(string)
         newViewsCreated += 1
         self.viewChecker.append(text)
         return text
@@ -23,7 +23,7 @@ struct NForEachReplacingTests {
     
     func createText(_ get: NGet<String>) -> NText {
         print("✨ Creating binded view: \(get.wrappedValue)")
-        let text = Text(get)
+        let text = NText(get)
         newViewsCreated += 1
         self.viewChecker.append(text)
         return text
