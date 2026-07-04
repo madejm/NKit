@@ -16,7 +16,7 @@ public class NList<Data>: NScrollView where Data: RandomAccessCollection, Data: 
         dataSource.tableView
     }
     
-    fileprivate init(
+    public init(
         data: NGet<Data>,
         selection: NBinding<Int>? = nil,
         _ rowContent: @escaping (NGet<Data.Element>) -> _View
@@ -74,7 +74,60 @@ public class NList<Data>: NScrollView where Data: RandomAccessCollection, Data: 
 
 extension NList {
     public convenience init(
-        data: NGet<[String]>,
+        data: Data,
+        selection: NBinding<Data.Element>,
+        _ rowContent: @escaping (NGet<Data.Element>) -> _View
+    ) where Data: Equatable {
+        self.init(
+            data: .constant(data),
+            selection: selection,
+            rowContent
+        )
+    }
+    
+    public convenience init(
+        data: NGet<Data>,
+        selection: NBinding<Data.Element>,
+        _ rowContent: @escaping (NGet<Data.Element>) -> _View
+    ) where Data: Equatable {
+        self.init(
+            data: data,
+            selection: selection.map(
+                up: { element in
+                    data.firstIndex { $0.wrappedValue == element } ?? 0
+                },
+                down: { index in
+                    data[index].wrappedValue
+                }
+            ),
+            rowContent
+        )
+    }
+    
+    public convenience init(
+        data: Data,
+        selection: NBinding<Int>? = nil,
+        _ rowContent: @escaping (NGet<Data.Element>) -> _View
+    ) {
+        self.init(
+            data: .constant(data),
+            selection: selection,
+            rowContent
+        )
+    }
+    
+    public convenience init(
+        data: Data,
+        selection: NBinding<Int>? = nil
+    ) where Data == [String] {
+        self.init(
+            data: .constant(data),
+            selection: selection
+        )
+    }
+    
+    public convenience init(
+        data: NGet<Data>,
         selection: NBinding<Int>? = nil
     ) where Data == [String] {
         self.init(

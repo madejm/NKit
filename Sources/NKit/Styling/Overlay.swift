@@ -45,8 +45,8 @@ public class NOverlay: BaseView {
     }
     
     private func setupSubview(_ subview: _View) {
-        NDimmension.width.constraint(superview: self, subview: subview, priority: .fittingSize).isActive = true
-        NDimmension.height.constraint(superview: self, subview: subview, priority: .fittingSize).isActive = true
+        NDimmension.width.constraint(superview: self, subview: subview, priority: .dragThatCannotResize).isActive = true
+        NDimmension.height.constraint(superview: self, subview: subview, priority: .dragThatCannotResize).isActive = true
         
         switch alignment {
         case .topLeading, .top, .topTrailing:

@@ -3,17 +3,80 @@ import Foundation
 import AppKit
 
 open class NSlider: NSSlider {
-    @NBinding fileprivate var valueBinding: Int
+    private let intBinding: NBinding<Int>?
+    private let doubleBinding: NBinding<Double>?
     
-    public init(
-        minValue: Double? = nil,
-        maxValue: Double? = nil,
+    public convenience init(
+        minValue: Int? = nil,
+        maxValue: Int? = nil,
         numberOfTickMarks: Int? = nil,
         sliderType: NSSlider.SliderType = .linear,
         isVertical: Bool = false,
         _ valueBinding: NBinding<Int>
     ) {
-        self._valueBinding = valueBinding
+        self.init(
+            minValue: minValue.map { Double($0) },
+            maxValue: maxValue.map { Double($0) },
+            numberOfTickMarks: numberOfTickMarks,
+            sliderType: sliderType,
+            isVertical: isVertical,
+            intBinding: valueBinding,
+            doubleBinding: nil
+        )
+        
+        self.integerValue = valueBinding.wrappedValue
+        
+        valueBinding.onChange {
+            self.integerValue = $0
+        }
+    }
+    
+    public convenience init<Value: BinaryFloatingPoint>(
+        minValue: Value? = nil,
+        maxValue: Value? = nil,
+        numberOfTickMarks: Int? = nil,
+        sliderType: NSSlider.SliderType = .linear,
+        isVertical: Bool = false,
+        _ valueBinding: NBinding<Value>
+    ) {
+        let doubleBinding: NBinding<Double> = valueBinding
+            .map(
+                up: {
+                    Double($0)
+                },
+                down: {
+                    Value($0)
+                }
+            )
+        
+        self.init(
+            minValue: minValue.map { Double($0) },
+            maxValue: maxValue.map { Double($0) },
+            numberOfTickMarks: numberOfTickMarks,
+            sliderType: sliderType,
+            isVertical: isVertical,
+            intBinding: nil,
+            doubleBinding: doubleBinding
+        )
+        
+        self.doubleValue = doubleBinding.wrappedValue
+        
+        doubleBinding.onChange {
+            self.doubleValue = $0
+        }
+    }
+    
+    private init(
+        minValue: Double?,
+        maxValue: Double?,
+        numberOfTickMarks: Int?,
+        sliderType: NSSlider.SliderType,
+        isVertical: Bool = false,
+        intBinding: NBinding<Int>?,
+        doubleBinding: NBinding<Double>?
+    ) {
+        self.intBinding = intBinding
+        self.doubleBinding = doubleBinding
         
         super.init(frame: .zero)
         
@@ -32,12 +95,6 @@ open class NSlider: NSSlider {
         
         self.target = self
         self.action = #selector(valueChanged)
-        
-        self.integerValue = valueBinding.wrappedValue
-        
-        self._valueBinding.onChange {
-            self.integerValue = $0
-        }
     }
     
     @available(*, unavailable)
@@ -47,7 +104,8 @@ open class NSlider: NSSlider {
     
     @objc
     private func valueChanged() {
-        valueBinding = integerValue
+        intBinding?.wrappedValue = integerValue
+        doubleBinding?.wrappedValue = doubleValue
     }
 }
 #endif
