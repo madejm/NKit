@@ -21,10 +21,10 @@ extension NSView {
 #if canImport(UIKit)
 extension UIView {
     public func allowsHitTesting(_ enabled: any NAnyGet<Bool>) -> _View {
-        self.userInteractionEnabled = enabled.wrappedValue
+        self.isUserInteractionEnabled = enabled.wrappedValue
         
         enabled.onChange { [weak self] in
-            self?.userInteractionEnabled = $0
+            self?.isUserInteractionEnabled = $0
         }
         
         return self

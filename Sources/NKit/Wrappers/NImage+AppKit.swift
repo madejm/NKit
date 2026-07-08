@@ -5,13 +5,21 @@ import AppKit
 open class NImage: NSImageView {
     @NGet private var imageBinding: NSImage?
     
-    public override var image: NSImage? {
+    package var imageHooks: [(inout NSImage?) -> Void] = []
+    
+    open override var image: NSImage? {
         get {
             super.image
         }
         set {
-            self.layer?.contents = newValue
-            super.image = newValue
+            var image: NSImage? = newValue
+            
+            for hook in imageHooks {
+                hook(&image)
+            }
+            
+//            self.layer?.contents = image
+            super.image = image
         }
     }
     
@@ -23,10 +31,12 @@ open class NImage: NSImageView {
         
         super.init(frame: CGRect.zero)
         
-        self.layer = CALayer()
-        self.wantsLayer = true
-        self.layer?.contentsGravity = contentMode.contentsGravity
-        self.layer?.masksToBounds = true
+//        self.layer = CALayer()
+//        self.wantsLayer = true
+//        self.layer?.contentsGravity = contentMode.contentsGravity
+//        self.layer?.masksToBounds = true
+        self.imageAlignment = contentMode.imageAlignment
+        self.imageScaling = contentMode.imageScaling
         
         self.setContentHuggingPriority(.required, for: .horizontal)
         self.setContentHuggingPriority(.required, for: .vertical)

@@ -24,22 +24,55 @@ extension NImage {
         case bottomRight
         
         #if canImport(AppKit)
-        internal var contentsGravity: CALayerContentsGravity {
+        internal var imageScaling: NSImageScaling {
             switch self {
-            case .fill:        .resize
-            case .aspectFit:   .resizeAspect
-            case .aspectFill:  .resizeAspectFill
-            case .center:      .center
-            case .top:         .top
-            case .bottom:      .bottom
-            case .left:        .left
-            case .right:       .right
-            case .topLeft:     .topLeft
-            case .topRight:    .topRight
-            case .bottomLeft:  .bottomLeft
-            case .bottomRight: .bottomRight
+            case .fill:        .scaleAxesIndependently
+            case .aspectFit:   .scaleProportionallyUpOrDown
+            case .aspectFill:  .scaleProportionallyUpOrDown
+            case .center:      .scaleNone
+            case .top:         .scaleNone
+            case .bottom:      .scaleNone
+            case .left:        .scaleNone
+            case .right:       .scaleNone
+            case .topLeft:     .scaleNone
+            case .topRight:    .scaleNone
+            case .bottomLeft:  .scaleNone
+            case .bottomRight: .scaleNone
             }
         }
+        
+        internal var imageAlignment: NSImageAlignment {
+            switch self {
+            case .fill:        .alignCenter
+            case .aspectFit:   .alignCenter
+            case .aspectFill:  .alignCenter
+            case .center:      .alignCenter
+            case .top:         .alignTop
+            case .bottom:      .alignBottom
+            case .left:        .alignLeft
+            case .right:       .alignRight
+            case .topLeft:     .alignTopLeft
+            case .topRight:    .alignTopRight
+            case .bottomLeft:  .alignBottomLeft
+            case .bottomRight: .alignRight
+            }
+        }
+//        internal var contentsGravity: CALayerContentsGravity {
+//            switch self {
+//            case .fill:        .resize
+//            case .aspectFit:   .resizeAspect
+//            case .aspectFill:  .resizeAspectFill
+//            case .center:      .center
+//            case .top:         .top
+//            case .bottom:      .bottom
+//            case .left:        .left
+//            case .right:       .right
+//            case .topLeft:     .topLeft
+//            case .topRight:    .topRight
+//            case .bottomLeft:  .bottomLeft
+//            case .bottomRight: .bottomRight
+//            }
+//        }
         #elseif canImport(UIKit)
         internal var contentMode: UIView.ContentMode {
             switch self {
@@ -61,7 +94,7 @@ extension NImage {
     }
     
     public convenience init(
-        _ image: _Image,
+        _ image: _Image?,
         contentMode: ImageContentMode = .aspectFit
     ) {
         self.init(NGet.constant(image), contentMode: contentMode)

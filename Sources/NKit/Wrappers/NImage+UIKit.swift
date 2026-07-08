@@ -5,6 +5,23 @@ import UIKit
 open class NImage: UIImageView {
     @NGet private var imageBinding: UIImage?
     
+    package var imageHooks: [(inout UIImage?) -> Void] = []
+    
+    open override var image: UIImage? {
+        get {
+            super.image
+        }
+        set {
+            var image: UIImage? = newValue
+            
+            for hook in imageHooks {
+                hook(&image)
+            }
+            
+            super.image = image
+        }
+    }
+    
     public init(
         _ imageBinding: NGet<UIImage?>,
         contentMode: ImageContentMode = .aspectFit
