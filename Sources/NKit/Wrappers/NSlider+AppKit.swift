@@ -9,17 +9,11 @@ open class NSlider: NSSlider {
     public convenience init(
         minValue: Int? = nil,
         maxValue: Int? = nil,
-        numberOfTickMarks: Int? = nil,
-        sliderType: NSSlider.SliderType = .linear,
-        isVertical: Bool = false,
         _ valueBinding: NBinding<Int>
     ) {
         self.init(
             minValue: minValue.map { Double($0) },
             maxValue: maxValue.map { Double($0) },
-            numberOfTickMarks: numberOfTickMarks,
-            sliderType: sliderType,
-            isVertical: isVertical,
             intBinding: valueBinding,
             doubleBinding: nil
         )
@@ -34,9 +28,6 @@ open class NSlider: NSSlider {
     public convenience init<Value: BinaryFloatingPoint>(
         minValue: Value? = nil,
         maxValue: Value? = nil,
-        numberOfTickMarks: Int? = nil,
-        sliderType: NSSlider.SliderType = .linear,
-        isVertical: Bool = false,
         _ valueBinding: NBinding<Value>
     ) {
         let doubleBinding: NBinding<Double> = valueBinding
@@ -52,9 +43,6 @@ open class NSlider: NSSlider {
         self.init(
             minValue: minValue.map { Double($0) },
             maxValue: maxValue.map { Double($0) },
-            numberOfTickMarks: numberOfTickMarks,
-            sliderType: sliderType,
-            isVertical: isVertical,
             intBinding: nil,
             doubleBinding: doubleBinding
         )
@@ -69,9 +57,6 @@ open class NSlider: NSSlider {
     private init(
         minValue: Double?,
         maxValue: Double?,
-        numberOfTickMarks: Int?,
-        sliderType: NSSlider.SliderType,
-        isVertical: Bool = false,
         intBinding: NBinding<Int>?,
         doubleBinding: NBinding<Double>?
     ) {
@@ -86,12 +71,6 @@ open class NSlider: NSSlider {
         if let maxValue {
             self.maxValue = maxValue
         }
-        if let numberOfTickMarks {
-            self.numberOfTickMarks = numberOfTickMarks
-        }
-        
-        self.sliderType = sliderType
-        self.isVertical = isVertical
         
         self.target = self
         self.action = #selector(valueChanged)
